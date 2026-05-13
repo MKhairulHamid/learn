@@ -12,6 +12,8 @@ const Register = lazy(() => import('./pages/auth/Register'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const CurriculumPage = lazy(() => import('./pages/CurriculumPage'))
 const SessionPage = lazy(() => import('./pages/SessionPage'))
+const PlaygroundPage = lazy(() => import('./pages/PlaygroundPage'))
+const ExercisePage = lazy(() => import('./pages/ExercisePage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 function LoadingSpinner() {
@@ -60,8 +62,9 @@ export default function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/curriculum" element={<CurriculumPage />} />
                 <Route path="/session/:id" element={<SessionPage />} />
-                <Route path="/playground" element={<div className="p-8 text-center text-gray-500 text-lg">🗄️ SQL Playground — coming in Batch 3</div>} />
-                <Route path="/admin" element={<div className="p-8 text-center text-gray-500 text-lg">🔐 Admin Dashboard — coming in Batch 4</div>} />
+                <Route path="/playground" element={<PlaygroundPage />} />
+                <Route path="/exercise/:id" element={<ExercisePage />} />
+                <Route path="/admin" element={<div className="p-8 text-center text-gray-500 text-lg">Admin Dashboard — coming in Batch 4</div>} />
               </Route>
             </Route>
 

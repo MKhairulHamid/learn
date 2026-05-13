@@ -94,6 +94,7 @@ export interface ExerciseSubmission {
   submitted_code: string
   passed: boolean
   test_results: TestResult[]
+  score: number
   submitted_at: string
   attempt_number: number
 }
