@@ -50,6 +50,9 @@ export function Navbar() {
                 <Link to="/playground" className={`text-sm transition-colors ${isActive('/playground')}`}>
                   {t('nav.playground')}
                 </Link>
+                <Link to="/python" className={`text-sm transition-colors ${isActive('/python')}`}>
+                  Python
+                </Link>
                 {profile?.role === 'admin' && (
                   <Link to="/admin" className={`text-sm transition-colors ${isActive('/admin')}`}>
                     {t('nav.admin')}
