@@ -6,16 +6,18 @@ import { Footer } from './components/layout/Footer'
 import { MobileNav } from './components/layout/MobileNav'
 import './lib/i18n'
 
-const Landing = lazy(() => import('./pages/Landing'))
-const Login = lazy(() => import('./pages/auth/Login'))
-const Register = lazy(() => import('./pages/auth/Register'))
-const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Landing        = lazy(() => import('./pages/Landing'))
+const Login          = lazy(() => import('./pages/auth/Login'))
+const Register       = lazy(() => import('./pages/auth/Register'))
+const ResetPassword  = lazy(() => import('./pages/auth/ResetPassword'))
+const Dashboard      = lazy(() => import('./pages/Dashboard'))
 const CurriculumPage = lazy(() => import('./pages/CurriculumPage'))
-const SessionPage = lazy(() => import('./pages/SessionPage'))
+const SessionPage    = lazy(() => import('./pages/SessionPage'))
 const PlaygroundPage = lazy(() => import('./pages/PlaygroundPage'))
-const ExercisePage = lazy(() => import('./pages/ExercisePage'))
-const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
-const NotFound = lazy(() => import('./pages/NotFound'))
+const ExercisePage   = lazy(() => import('./pages/ExercisePage'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const UserDetailPage = lazy(() => import('./pages/admin/UserDetailPage'))
+const NotFound       = lazy(() => import('./pages/NotFound'))
 
 function LoadingSpinner() {
   return (
@@ -28,9 +30,17 @@ function LoadingSpinner() {
 function ProtectedRoute() {
   const { user, loading, recoveryMode } = useAuth()
   if (loading) return <LoadingSpinner />
-  // Allow access to reset-password even while in recovery mode
   if (recoveryMode) return <Navigate to="/reset-password" replace />
   return user ? <Outlet /> : <Navigate to="/login" replace />
+}
+
+function AdminRoute() {
+  const { user, profile, loading, recoveryMode } = useAuth()
+  if (loading) return <LoadingSpinner />
+  if (recoveryMode) return <Navigate to="/reset-password" replace />
+  if (!user) return <Navigate to="/login" replace />
+  if (profile?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  return <Outlet />
 }
 
 function PublicOnlyRoute() {
@@ -40,17 +50,12 @@ function PublicOnlyRoute() {
   return user ? <Navigate to="/dashboard" replace /> : <Outlet />
 }
 
-// Detects PASSWORD_RECOVERY event and redirects — must be inside HashRouter
 function RecoveryRedirect() {
   const { recoveryMode } = useAuth()
   const navigate = useNavigate()
-
   useEffect(() => {
-    if (recoveryMode) {
-      navigate('/reset-password', { replace: true })
-    }
+    if (recoveryMode) navigate('/reset-password', { replace: true })
   }, [recoveryMode, navigate])
-
   return null
 }
 
@@ -77,23 +82,28 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<Landing />} />
 
+              {/* Learner routes */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/curriculum" element={<CurriculumPage />} />
-                <Route path="/session/:id" element={<SessionPage />} />
-                <Route path="/playground" element={<PlaygroundPage />} />
-                <Route path="/exercise/:id" element={<ExercisePage />} />
-                <Route path="/admin" element={<div className="p-8 text-center text-gray-500 text-lg">Admin Dashboard — coming in Batch 4</div>} />
+                <Route path="/dashboard"      element={<Dashboard />} />
+                <Route path="/curriculum"     element={<CurriculumPage />} />
+                <Route path="/session/:id"    element={<SessionPage />} />
+                <Route path="/playground"     element={<PlaygroundPage />} />
+                <Route path="/exercise/:id"   element={<ExercisePage />} />
+              </Route>
+
+              {/* Admin routes */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin"                  element={<AdminDashboard />} />
+                <Route path="/admin/users/:userId"    element={<UserDetailPage />} />
               </Route>
             </Route>
 
             <Route element={<PublicOnlyRoute />}>
-              <Route path="/login" element={<Login />} />
+              <Route path="/login"    element={<Login />} />
               <Route path="/register" element={<Register />} />
             </Route>
 
             <Route path="/reset-password" element={<ResetPassword />} />
-
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
