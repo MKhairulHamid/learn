@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/Badge'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useEffect } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
 
 export default function SessionPage() {
@@ -20,6 +21,35 @@ export default function SessionPage() {
   const { session, loading } = useSession(id)
   const { isCompleted, markComplete } = useProgress()
   const lang = i18n.language === 'id' ? 'id' : 'en'
+
+  // Custom renderer: detect → flow diagrams in code blocks and render as pills
+  function CodeBlock({ children, className }: ComponentPropsWithoutRef<'code'>) {
+    const text = String(children).trim()
+    const isFlow = text.includes('→') && !className
+    if (isFlow) {
+      const steps = text.split('→').map(s => s.trim()).filter(Boolean)
+      return (
+        <div className="my-4 flex flex-wrap items-center gap-2">
+          {steps.map((step, i) => (
+            <span key={i} className="flex items-center gap-2">
+              <span className="bg-primary-50 border border-primary-200 text-primary-800 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">
+                {step}
+              </span>
+              {i < steps.length - 1 && (
+                <span className="text-primary-400 font-bold text-sm">→</span>
+              )}
+            </span>
+          ))}
+        </div>
+      )
+    }
+    // Regular inline code
+    return (
+      <code className={`bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-primary-700 ${className ?? ''}`}>
+        {children}
+      </code>
+    )
+  }
 
   const done = id ? isCompleted(id) : false
   const title = session ? (lang === 'id' ? session.title_id : session.title_en) : ''
@@ -137,7 +167,10 @@ export default function SessionPage() {
           prose-li:text-gray-700
           prose-strong:text-gray-900
         ">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{ code: CodeBlock }}
+          >
             {content || '*Content coming soon.*'}
           </ReactMarkdown>
         </div>

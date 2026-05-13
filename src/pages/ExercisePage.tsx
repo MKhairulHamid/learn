@@ -63,7 +63,7 @@ export default function ExercisePage() {
       await markComplete(exercise.session_id)
       await supabase.from('user_activity_logs').insert({
         user_id: profile.id,
-        action_type: 'exercise_complete',
+        action_type: 'exercise_complete' as const,
         metadata: { exercise_id: exercise.id, score },
       })
     }
