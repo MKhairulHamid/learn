@@ -19,6 +19,8 @@ export interface Phase {
   name_en: string
   description_id: string
   description_en: string
+  icon: string
+  color: string
   order_num: number
   sessions?: Session[]
 }

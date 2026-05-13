@@ -10,6 +10,8 @@ const Landing = lazy(() => import('./pages/Landing'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const CurriculumPage = lazy(() => import('./pages/CurriculumPage'))
+const SessionPage = lazy(() => import('./pages/SessionPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 function LoadingSpinner() {
@@ -51,19 +53,18 @@ export default function App() {
       <HashRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
-            {/* Public + protected pages share the app layout */}
             <Route element={<AppLayout />}>
               <Route path="/" element={<Landing />} />
 
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/curriculum" element={<div className="p-8 text-center text-gray-500 text-lg">📚 Curriculum — coming in Batch 2</div>} />
+                <Route path="/curriculum" element={<CurriculumPage />} />
+                <Route path="/session/:id" element={<SessionPage />} />
                 <Route path="/playground" element={<div className="p-8 text-center text-gray-500 text-lg">🗄️ SQL Playground — coming in Batch 3</div>} />
                 <Route path="/admin" element={<div className="p-8 text-center text-gray-500 text-lg">🔐 Admin Dashboard — coming in Batch 4</div>} />
               </Route>
             </Route>
 
-            {/* Auth pages — no top nav/footer */}
             <Route element={<PublicOnlyRoute />}>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
