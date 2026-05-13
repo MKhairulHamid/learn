@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/Badge'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useEffect } from 'react'
+import { SessionPlayground } from '../components/exercises/SessionPlayground'
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -23,6 +24,16 @@ export default function SessionPage() {
   const done = id ? isCompleted(id) : false
   const title = session ? (lang === 'id' ? session.title_id : session.title_en) : ''
   const content = session ? (lang === 'id' ? session.content_id : session.content_en) : ''
+
+  // Determine embedded playground type from session number
+  const sqlSessions = ['04', '05', '06']
+  const pythonSessions = ['10']
+  const playgroundType = session
+    ? sqlSessions.includes(session.session_number) ? 'sql'
+      : pythonSessions.includes(session.session_number) ? 'python'
+      : null
+    : null
+
   const learningOutput = session
     ? (lang === 'id' ? session.learning_output_id : session.learning_output_en)
     : ''
@@ -131,6 +142,11 @@ export default function SessionPage() {
           </ReactMarkdown>
         </div>
       </div>
+
+      {/* Embedded playground for SQL / Python sessions */}
+      {playgroundType && (
+        <SessionPlayground type={playgroundType} lang={lang} />
+      )}
 
       {/* Footer actions */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
