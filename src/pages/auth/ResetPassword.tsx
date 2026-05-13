@@ -1,25 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { BookOpen, Lock, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
 
 export default function ResetPassword() {
   const navigate = useNavigate()
+  const { recoveryMode, clearRecoveryMode } = useAuth()
+
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
-  const [validSession, setValidSession] = useState(false)
-
-  useEffect(() => {
-    // Supabase puts the tokens in the URL hash after redirect
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setValidSession(!!session)
-    })
-  }, [])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -41,6 +36,7 @@ export default function ResetPassword() {
     if (error) {
       setError(error.message)
     } else {
+      clearRecoveryMode()
       setDone(true)
       setTimeout(() => navigate('/dashboard'), 2500)
     }
@@ -62,16 +58,17 @@ export default function ResetPassword() {
     )
   }
 
-  if (!validSession) {
+  // If user lands here without a recovery session (e.g. typed URL directly)
+  if (!recoveryMode) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-primary-50 px-4">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-md w-full text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Link expired</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Link expired or invalid</h2>
           <p className="text-sm text-gray-500 mb-6">
-            This password reset link is invalid or has expired.
+            This password reset link is no longer valid. Please request a new one.
           </p>
           <Link to="/login" className="text-primary-600 hover:underline text-sm font-medium">
-            Request a new link
+            Back to login
           </Link>
         </div>
       </div>

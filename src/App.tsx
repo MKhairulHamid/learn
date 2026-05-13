@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react'
-import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Suspense, lazy, useEffect } from 'react'
+import { HashRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
@@ -26,15 +26,32 @@ function LoadingSpinner() {
 }
 
 function ProtectedRoute() {
-  const { user, loading } = useAuth()
+  const { user, loading, recoveryMode } = useAuth()
   if (loading) return <LoadingSpinner />
+  // Allow access to reset-password even while in recovery mode
+  if (recoveryMode) return <Navigate to="/reset-password" replace />
   return user ? <Outlet /> : <Navigate to="/login" replace />
 }
 
 function PublicOnlyRoute() {
-  const { user, loading } = useAuth()
+  const { user, loading, recoveryMode } = useAuth()
   if (loading) return <LoadingSpinner />
+  if (recoveryMode) return <Navigate to="/reset-password" replace />
   return user ? <Navigate to="/dashboard" replace /> : <Outlet />
+}
+
+// Detects PASSWORD_RECOVERY event and redirects — must be inside HashRouter
+function RecoveryRedirect() {
+  const { recoveryMode } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (recoveryMode) {
+      navigate('/reset-password', { replace: true })
+    }
+  }, [recoveryMode, navigate])
+
+  return null
 }
 
 function AppLayout() {
@@ -54,6 +71,7 @@ export default function App() {
   return (
     <AuthProvider>
       <HashRouter>
+        <RecoveryRedirect />
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route element={<AppLayout />}>

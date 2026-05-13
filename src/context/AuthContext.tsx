@@ -9,6 +9,8 @@ interface AuthContextValue {
   profile: Profile | null
   session: Session | null
   loading: boolean
+  recoveryMode: boolean
+  clearRecoveryMode: () => void
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -21,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [recoveryMode, setRecoveryMode] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -30,9 +33,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+
+      if (event === 'PASSWORD_RECOVERY') {
+        // Supabase has exchanged the token — user has a valid session now.
+        // Signal the app to navigate to the reset page.
+        setRecoveryMode(true)
+        setLoading(false)
+        return
+      }
+
       if (session?.user) fetchProfile(session.user.id)
       else {
         setProfile(null)
@@ -51,6 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single()
     setProfile(data as Profile | null)
     setLoading(false)
+  }
+
+  function clearRecoveryMode() {
+    setRecoveryMode(false)
   }
 
   async function signIn(email: string, password: string) {
@@ -83,7 +99,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{
+      user, profile, session, loading,
+      recoveryMode, clearRecoveryMode,
+      signIn, signUp, signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   )

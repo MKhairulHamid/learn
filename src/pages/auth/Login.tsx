@@ -37,8 +37,10 @@ export default function Login() {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    // redirectTo must NOT include a hash — Supabase appends its own #access_token fragment.
+    // The app detects PASSWORD_RECOVERY via onAuthStateChange and navigates to /reset-password.
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}${window.location.pathname}#/reset-password`,
+      redirectTo: `${window.location.origin}${window.location.pathname}`,
     })
     setLoading(false)
     if (error) {
