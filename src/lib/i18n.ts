@@ -22,10 +22,11 @@ i18n
       },
     },
     defaultNS: 'common',
+    lng: 'en',
     fallbackLng: 'en',
     supportedLngs: ['en', 'id'],
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage'],
       caches: ['localStorage'],
       lookupLocalStorage: 'i18nextLng',
     },
