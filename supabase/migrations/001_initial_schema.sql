@@ -101,9 +101,9 @@ create policy "Admins can view all profiles"
 
 -- Phases & Sessions: readable by all authenticated users
 create policy "Authenticated users can view phases"
-  on public.phases for select using (auth.role() = 'authenticated');
+  on public.phases for select using (auth.uid() is not null);
 create policy "Authenticated users can view sessions"
-  on public.sessions for select using (auth.role() = 'authenticated');
+  on public.sessions for select using (auth.uid() is not null);
 
 -- User progress: own rows only
 create policy "Users manage own progress"
