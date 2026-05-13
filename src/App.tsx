@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
@@ -48,7 +48,7 @@ function AppLayout() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             {/* Public + protected pages share the app layout */}
@@ -72,7 +72,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   )
 }
