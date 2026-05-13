@@ -14,6 +14,7 @@ const CurriculumPage = lazy(() => import('./pages/CurriculumPage'))
 const SessionPage = lazy(() => import('./pages/SessionPage'))
 const PlaygroundPage = lazy(() => import('./pages/PlaygroundPage'))
 const ExercisePage = lazy(() => import('./pages/ExercisePage'))
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 function LoadingSpinner() {
@@ -72,6 +73,8 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
             </Route>
+
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
