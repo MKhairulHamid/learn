@@ -18,7 +18,7 @@ export default function ProfilePage() {
 
   const [pwSent, setPwSent] = useState(false)
   const [pwLoading, setPwLoading] = useState(false)
-  const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage ?? 'en')
+  const currentLang = i18n.resolvedLanguage === 'id' ? 'id' : 'en'
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Learner'
   const initials = displayName
@@ -56,7 +56,6 @@ export default function ProfilePage() {
 
   function handleLangSwitch(lang: 'en' | 'id') {
     i18n.changeLanguage(lang)
-    setCurrentLang(lang)
   }
 
   async function handlePasswordReset() {

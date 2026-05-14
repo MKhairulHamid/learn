@@ -16,13 +16,11 @@ export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage ?? 'en')
   const menuRef = useRef<HTMLDivElement>(null)
+  const currentLang = i18n.resolvedLanguage === 'id' ? 'id' : 'en'
 
   const toggleLang = () => {
-    const next = currentLang === 'en' ? 'id' : 'en'
-    i18n.changeLanguage(next)
-    setCurrentLang(next)
+    i18n.changeLanguage(currentLang === 'en' ? 'id' : 'en')
   }
 
   const handleSignOut = async () => {
