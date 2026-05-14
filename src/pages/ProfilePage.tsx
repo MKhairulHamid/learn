@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { useProgress } from '../hooks/useProgress'
 import { supabase } from '../lib/supabase'
@@ -6,6 +7,7 @@ import { Button } from '../components/ui/Button'
 import { User, Mail, Globe, Lock, CheckCircle2, Edit2, Save, X } from 'lucide-react'
 
 export default function ProfilePage() {
+  const { t, i18n } = useTranslation('common')
   const { user, profile } = useAuth()
   const { completedCount } = useProgress()
 
@@ -16,8 +18,7 @@ export default function ProfilePage() {
 
   const [pwSent, setPwSent] = useState(false)
   const [pwLoading, setPwLoading] = useState(false)
-
-  const currentLang = localStorage.getItem('i18nextLng') ?? 'en'
+  const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage ?? 'en')
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Learner'
   const initials = displayName
@@ -53,8 +54,8 @@ export default function ProfilePage() {
   }
 
   function handleLangSwitch(lang: 'en' | 'id') {
-    localStorage.setItem('i18nextLng', lang)
-    window.location.reload()
+    i18n.changeLanguage(lang)
+    setCurrentLang(lang)
   }
 
   async function handlePasswordReset() {
@@ -71,8 +72,8 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your account settings</p>
+        <h1 className="text-xl font-bold text-gray-900">{t('profile.title')}</h1>
+        <p className="text-sm text-gray-500 mt-0.5">{t('profile.subtitle')}</p>
       </div>
 
       {/* Avatar + Name + Email + Role */}
@@ -88,7 +89,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
                 <User size={12} />
-                Full Name
+                {t('profile.full_name')}
               </label>
               {editing ? (
                 <div className="flex items-center gap-2">
@@ -140,7 +141,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
                 <Mail size={12} />
-                Email
+                {t('profile.email')}
               </label>
               <span className="text-sm text-gray-300">{user?.email}</span>
             </div>
@@ -152,7 +153,7 @@ export default function ProfilePage() {
                   ? 'bg-primary-900 text-primary-300 border border-primary-700'
                   : 'bg-gray-800 text-gray-400 border border-gray-700'
               }`}>
-                {profile?.role === 'admin' ? 'Admin' : 'Student'}
+                {profile?.role === 'admin' ? t('profile.role_admin') : t('profile.role_student')}
               </span>
             </div>
           </div>
@@ -163,7 +164,7 @@ export default function ProfilePage() {
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4">
           <Globe size={16} className="text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-200">Language Preference</h2>
+          <h2 className="text-sm font-semibold text-gray-200">{t('profile.language_title')}</h2>
         </div>
         <div className="flex gap-3">
           {(['en', 'id'] as const).map(lang => (
@@ -181,7 +182,7 @@ export default function ProfilePage() {
           ))}
         </div>
         <p className="text-xs text-gray-600 mt-3">
-          Switching language will reload the page.
+          {t('profile.language_reload')}
         </p>
       </div>
 
@@ -189,10 +190,10 @@ export default function ProfilePage() {
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4">
           <CheckCircle2 size={16} className="text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-200">Learning Progress</h2>
+          <h2 className="text-sm font-semibold text-gray-200">{t('profile.progress_title')}</h2>
         </div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-400">Sessions Completed</span>
+          <span className="text-sm text-gray-400">{t('profile.sessions_completed')}</span>
           <span className="text-sm font-semibold text-white">
             {completedCount}
             <span className="text-gray-500 font-normal">/{totalSessions}</span>
@@ -204,24 +205,24 @@ export default function ProfilePage() {
             style={{ width: `${progressPct}%` }}
           />
         </div>
-        <p className="text-xs text-gray-600 mt-2">{progressPct}% complete</p>
+        <p className="text-xs text-gray-600 mt-2">{progressPct}% {t('profile.progress_pct')}</p>
       </div>
 
       {/* Change Password */}
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4">
           <Lock size={16} className="text-gray-400" />
-          <h2 className="text-sm font-semibold text-gray-200">Password</h2>
+          <h2 className="text-sm font-semibold text-gray-200">{t('profile.password_title')}</h2>
         </div>
         {pwSent ? (
           <div className="flex items-center gap-2 text-green-400 text-sm">
             <CheckCircle2 size={16} />
-            Password reset email sent — check your inbox.
+            {t('profile.password_sent')}
           </div>
         ) : (
           <>
             <p className="text-sm text-gray-500 mb-4">
-              We'll send a password reset link to <span className="text-gray-300">{user?.email}</span>.
+              {t('profile.password_desc')} <span className="text-gray-300">{user?.email}</span>.
             </p>
             <Button
               variant="outline"
@@ -231,7 +232,7 @@ export default function ProfilePage() {
               className="border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               <Lock size={14} />
-              Send Reset Link
+              {t('profile.password_btn')}
             </Button>
           </>
         )}

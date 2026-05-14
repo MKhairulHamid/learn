@@ -73,6 +73,23 @@
     "go_to_curriculum": "Ke Kurikulum",
     "open_playground": "Buka SQL Playground"
   },
+  "profile": {
+    "title": "Profil Saya",
+    "subtitle": "Kelola pengaturan akunmu",
+    "full_name": "Nama Lengkap",
+    "email": "Email",
+    "role_admin": "Admin",
+    "role_student": "Pelajar",
+    "language_title": "Preferensi Bahasa",
+    "language_reload": "Preferensi bahasa disimpan secara otomatis.",
+    "progress_title": "Progres Belajar",
+    "sessions_completed": "Sesi Selesai",
+    "progress_pct": "selesai",
+    "password_title": "Kata Sandi",
+    "password_desc": "Kami akan mengirim tautan reset kata sandi ke",
+    "password_sent": "Email reset kata sandi terkirim — cek inboxmu.",
+    "password_btn": "Kirim Tautan Reset"
+  },
   "common": {
     "loading": "Memuat...",
     "error": "Terjadi kesalahan. Silakan coba lagi.",

@@ -73,6 +73,23 @@
     "go_to_curriculum": "Go to Curriculum",
     "open_playground": "Open SQL Playground"
   },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your account settings",
+    "full_name": "Full Name",
+    "email": "Email",
+    "role_admin": "Admin",
+    "role_student": "Student",
+    "language_title": "Language Preference",
+    "language_reload": "Your language preference is saved automatically.",
+    "progress_title": "Learning Progress",
+    "sessions_completed": "Sessions Completed",
+    "progress_pct": "complete",
+    "password_title": "Password",
+    "password_desc": "We'll send a password reset link to",
+    "password_sent": "Password reset email sent — check your inbox.",
+    "password_btn": "Send Reset Link"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong. Please try again.",
