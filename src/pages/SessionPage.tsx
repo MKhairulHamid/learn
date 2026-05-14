@@ -190,11 +190,13 @@ export default function SessionPage() {
 
       {/* Embedded playground for SQL / Python sessions */}
       {playgroundType && (
-        <SessionPlayground type={playgroundType} lang={lang} />
+        <div className="mb-8">
+          <SessionPlayground type={playgroundType} lang={lang} />
+        </div>
       )}
 
       {/* Exercises for this session */}
-      <div ref={exercisesRef}>
+      <div ref={exercisesRef} className="mb-8">
         {id && <SessionExercises sessionId={id} lang={lang} />}
       </div>
 

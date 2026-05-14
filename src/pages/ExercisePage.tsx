@@ -5,6 +5,7 @@ import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { TestResultPanel } from '../components/exercises/TestResultPanel'
 import { HintSystem } from '../components/exercises/HintSystem'
+import { MatchingExercise } from '../components/exercises/MatchingExercise'
 import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
@@ -31,6 +32,7 @@ export default function ExercisePage() {
   const nextExercise = currentIndex >= 0 ? sessionExercises[currentIndex + 1] : null
 
   const [query, setQuery] = useState('')
+  const [matchSelections, setMatchSelections] = useState<string[]>([])
   const [runResult, setRunResult] = useState<QueryResult | null>(null)
   const [testResults, setTestResults] = useState<TestResult[] | null>(null)
   const [running, setRunning] = useState(false)
@@ -45,6 +47,22 @@ export default function ExercisePage() {
     const r = await runQuery(query)
     setRunResult(r)
     setRunning(false)
+  }
+
+  async function handleMatchSubmit() {
+    if (!exercise || !profile) return
+    setSubmitting(true)
+    const testCases = (exercise.test_cases ?? []) as Parameters<typeof evaluateExercise>[1]
+    const answer = JSON.stringify(matchSelections)
+    const { results, allPassed: passed, score } = await evaluateExercise(answer, testCases, lang)
+    setTestResults(results)
+    setAllPassed(passed)
+    await saveSubmission({ user_id: profile.id, exercise_id: exercise.id, submitted_code: answer, passed, test_results: results, attempt_number: attemptCount + 1, score })
+    if (passed && exercise.session_id) {
+      await markComplete(exercise.session_id)
+      await supabase.from('user_activity_logs').insert({ user_id: profile.id, action_type: 'exercise_complete' as const, metadata: { exercise_id: exercise.id, score } })
+    }
+    setSubmitting(false)
   }
 
   async function handleSubmit() {
@@ -104,6 +122,101 @@ export default function ExercisePage() {
     easy: 'text-green-400 bg-green-950/40 border-green-900',
     medium: 'text-yellow-400 bg-yellow-950/40 border-yellow-900',
     hard: 'text-red-400 bg-red-950/40 border-red-900',
+  }
+
+  // ── Matching exercise layout ──────────────────────────────────
+  if (exercise.type === 'matching') {
+    let pairs: { left: string; right: string }[] = []
+    try { pairs = JSON.parse(exercise.starter_code || '{}').pairs ?? [] } catch { pairs = [] }
+    const allSelected = pairs.length > 0 && matchSelections.filter(Boolean).length === pairs.length
+
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-6 flex items-start gap-4">
+          <button onClick={() => { const sid = location.state?.fromSessionId ?? exercise.session_id; navigate(sid ? `/session/${sid}` : '/curriculum', { state: { scrollTo: 'exercises' } }) }} className="shrink-0 mt-1 text-gray-400 hover:text-gray-200 transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${difficultyColor[exercise.difficulty] ?? difficultyColor.easy}`}>{exercise.difficulty}</span>
+              {attemptCount > 0 && <span className="text-xs text-gray-500">{attemptCount} attempt{attemptCount !== 1 ? 's' : ''}</span>}
+            </div>
+            <h1 className="text-xl font-bold text-white">{title}</h1>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* Description */}
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+            <div className="flex items-center gap-2 text-gray-300 text-sm font-semibold mb-3">
+              <BookOpen size={15} />
+              {lang === 'id' ? 'Petunjuk' : 'Instructions'}
+            </div>
+            <p className="text-gray-300 text-sm leading-relaxed">{description}</p>
+          </div>
+
+          {/* Matching UI */}
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+            <MatchingExercise
+              pairs={pairs}
+              selections={matchSelections}
+              onChange={setMatchSelections}
+              testResults={testResults}
+              allPassed={allPassed}
+              lang={lang}
+            />
+
+            {!allPassed && (
+              <div className="mt-5 flex items-center gap-3">
+                <button
+                  onClick={handleMatchSubmit}
+                  disabled={submitting || !allSelected}
+                  className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Send size={14} />
+                  {submitting ? (lang === 'id' ? 'Memeriksa…' : 'Checking…') : (lang === 'id' ? 'Periksa Jawaban' : 'Check Answers')}
+                </button>
+                {!allSelected && (
+                  <span className="text-xs text-gray-500">
+                    {lang === 'id' ? 'Pilih semua pasangan dulu' : 'Select all matches first'}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Hints */}
+          {hints.length > 0 && (
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+              <HintSystem hints={hints} lang={lang} />
+            </div>
+          )}
+
+          {/* Success panel */}
+          {allPassed && (
+            <div className="bg-green-950/40 border border-green-800 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle2 size={18} className="text-green-400 shrink-0" />
+                <p className="text-green-300 font-semibold text-sm">
+                  {lang === 'id' ? 'Semua pasangan cocok! 🎉' : 'All matches correct! 🎉'}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                {nextExercise && (
+                  <button onClick={() => navigate(`/exercise/${nextExercise.id}`, { state: { fromSessionId: exercise.session_id } })} className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+                    {lang === 'id' ? 'Latihan Berikutnya' : 'Next Exercise'} <ChevronRight size={15} />
+                  </button>
+                )}
+                <button onClick={() => navigate(`/session/${exercise.session_id}`, { state: { scrollTo: 'exercises' } })} className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+                  <ArrowLeft size={15} /> {lang === 'id' ? 'Kembali ke Sesi' : 'Back to Session'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (

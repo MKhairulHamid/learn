@@ -6,6 +6,11 @@ export async function evaluateExercise(
   testCases: TestCase[],
   lang: 'en' | 'id' = 'en'
 ): Promise<{ results: TestResult[]; allPassed: boolean; score: number }> {
+  // Matching exercises submit JSON array of selected right-column texts
+  if (testCases.length > 0 && testCases[0].validation_type === 'matching') {
+    return evaluateMatching(userQuery, testCases, lang)
+  }
+
   const results: TestResult[] = []
 
   for (const tc of testCases) {
@@ -15,6 +20,37 @@ export async function evaluateExercise(
 
   const passed = results.filter(r => r.passed).length
   const allPassed = passed === testCases.length
+  const totalPoints = testCases.reduce((s, t) => s + t.points, 0)
+  const earnedPoints = testCases
+    .filter((_, i) => results[i]?.passed)
+    .reduce((s, t) => s + t.points, 0)
+  const score = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0
+
+  return { results, allPassed, score }
+}
+
+function evaluateMatching(
+  answer: string,
+  testCases: TestCase[],
+  lang: 'en' | 'id'
+): { results: TestResult[]; allPassed: boolean; score: number } {
+  let selections: string[] = []
+  try { selections = JSON.parse(answer) } catch { selections = [] }
+
+  const results: TestResult[] = testCases.map((tc, i) => {
+    const desc = lang === 'id' ? tc.description_id : tc.description_en
+    const selected = (selections[i] ?? '').trim()
+    const expected = (tc.expected_value as string ?? '').trim()
+    const passed = selected === expected
+    return {
+      test_id: tc.id,
+      passed,
+      message_en: passed ? `✓ ${desc}` : `✗ ${desc}`,
+      message_id: passed ? `✓ ${desc}` : `✗ ${desc}`,
+    }
+  })
+
+  const allPassed = results.every(r => r.passed)
   const totalPoints = testCases.reduce((s, t) => s + t.points, 0)
   const earnedPoints = testCases
     .filter((_, i) => results[i]?.passed)
