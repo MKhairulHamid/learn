@@ -52,7 +52,7 @@ export interface UserProgress {
 export interface Exercise {
   id: string
   session_id: string
-  type: 'sql' | 'quiz' | 'multiple_choice'
+  type: 'sql' | 'quiz' | 'multiple_choice' | 'matching'
   title_id: string
   title_en: string
   description_id: string
@@ -73,7 +73,7 @@ export interface TestCase {
   description_en: string
   expected_rows?: Record<string, unknown>[]
   expected_columns?: string[]
-  validation_type: 'exact_match' | 'contains_columns' | 'row_count' | 'custom'
+  validation_type: 'exact_match' | 'contains_columns' | 'row_count' | 'custom' | 'matching'
   expected_value?: unknown
   points: number
 }
