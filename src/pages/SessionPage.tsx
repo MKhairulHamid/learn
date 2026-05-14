@@ -9,7 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
 import { SessionExercises } from '../components/exercises/SessionExercises'
@@ -25,10 +25,37 @@ export default function SessionPage() {
   const { isCompleted, markComplete } = useProgress()
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
-  // Custom renderer: detect → flow diagrams in code blocks and render as pills
+  // Passthrough pre — let CodeBlock handle block rendering entirely
+  function PreBlock({ children }: ComponentPropsWithoutRef<'pre'>) {
+    return <>{children}</>
+  }
+
+  // Copy button with transient "Copied!" feedback
+  function CopyButton({ text }: { text: string }) {
+    const [copied, setCopied] = useState(false)
+    function copy() {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1800)
+      })
+    }
+    return (
+      <button
+        onClick={copy}
+        className="text-xs text-gray-500 hover:text-gray-200 transition-colors px-2 py-0.5 rounded hover:bg-white/10"
+      >
+        {copied ? '✓ Copied' : 'Copy'}
+      </button>
+    )
+  }
+
+  // Custom renderer: flow diagrams → pills, fenced code → modern block, inline → badge
   function CodeBlock({ children, className }: ComponentPropsWithoutRef<'code'>) {
     const text = String(children).trim()
+    const lang = className?.replace('language-', '') ?? ''
+    const isBlock = !!lang || text.includes('\n')
     const isFlow = text.includes('→') && !className
+
     if (isFlow) {
       const steps = text.split('→').map(s => s.trim()).filter(Boolean)
       return (
@@ -46,9 +73,43 @@ export default function SessionPage() {
         </div>
       )
     }
-    // Regular inline code
+
+    if (isBlock) {
+      const langLabel: Record<string, string> = {
+        sql: 'SQL', python: 'Python', js: 'JavaScript', ts: 'TypeScript',
+        bash: 'Shell', sh: 'Shell', json: 'JSON', csv: 'CSV',
+      }
+      const displayLang = langLabel[lang.toLowerCase()] ?? lang.toUpperCase()
+
+      return (
+        <div className="not-prose my-5 rounded-xl overflow-hidden border border-gray-800/60 shadow-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between pl-4 pr-3 py-2.5 bg-[#161b22] border-b border-gray-700/60">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+              <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+              <span className="w-3 h-3 rounded-full bg-[#28c840]" />
+            </div>
+            {displayLang && (
+              <span className="text-[11px] font-semibold text-gray-400 tracking-widest uppercase">
+                {displayLang}
+              </span>
+            )}
+            <CopyButton text={text} />
+          </div>
+          {/* Code body */}
+          <div className="bg-[#0d1117] overflow-x-auto">
+            <code className="block px-5 py-4 text-[13px] font-mono text-[#c9d1d9] leading-[1.75] whitespace-pre">
+              {children}
+            </code>
+          </div>
+        </div>
+      )
+    }
+
+    // Inline code
     return (
-      <code className={`bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-primary-700 ${className ?? ''}`}>
+      <code className="bg-primary-50 border border-primary-100 px-1.5 py-0.5 rounded-md text-[0.82em] font-mono text-primary-700 not-italic">
         {children}
       </code>
     )
@@ -165,12 +226,7 @@ export default function SessionPage() {
           prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:first:mt-0
           prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3
           prose-p:text-gray-700 prose-p:leading-relaxed
-          prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5
-          prose-code:rounded prose-code:text-sm prose-code:font-mono
-          prose-code:text-primary-700 prose-code:before:content-none prose-code:after:content-none
-          prose-pre:bg-gray-900 prose-pre:rounded-xl prose-pre:p-4
-          prose-pre:overflow-x-auto
-          prose-pre:text-sm
+          prose-code:before:content-none prose-code:after:content-none
           prose-table:text-sm prose-th:bg-gray-50 prose-th:font-semibold
           prose-td:py-2 prose-td:px-3
           prose-blockquote:border-primary-300 prose-blockquote:bg-primary-50
@@ -181,7 +237,7 @@ export default function SessionPage() {
         ">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            components={{ code: CodeBlock }}
+            components={{ code: CodeBlock, pre: PreBlock }}
           >
             {content || '*Content coming soon.*'}
           </ReactMarkdown>
