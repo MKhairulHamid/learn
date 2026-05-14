@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Play, ExternalLink } from 'lucide-react'
+import { Play, ExternalLink, Table2, Terminal } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { SqlEditor } from './SqlEditor'
 import { ResultsTable } from './ResultsTable'
@@ -61,18 +61,11 @@ function SqlMini({ lang }: { lang: 'en' | 'id' }) {
         <button
           onClick={handleRun}
           disabled={running}
-          className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
         >
           <Play size={13} />
           {running ? (lang === 'id' ? 'Menjalankan…' : 'Running…') : (lang === 'id' ? 'Jalankan' : 'Run')}
         </button>
-        <Link
-          to="/playground"
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary-400 transition-colors"
-        >
-          <ExternalLink size={12} />
-          {lang === 'id' ? 'Buka playground penuh' : 'Open full playground'}
-        </Link>
       </div>
       {(result || running) && (
         <div className="bg-gray-950 rounded-xl p-3 max-h-52 overflow-auto">
@@ -120,13 +113,6 @@ function PythonMini({ lang }: { lang: 'en' | 'id' }) {
           <Play size={13} />
           {running ? (lang === 'id' ? 'Menjalankan…' : 'Running…') : (lang === 'id' ? 'Jalankan' : 'Run')}
         </button>
-        <Link
-          to="/python"
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-yellow-400 transition-colors"
-        >
-          <ExternalLink size={12} />
-          {lang === 'id' ? 'Buka playground penuh' : 'Open full playground'}
-        </Link>
         {ready
           ? <span className="text-xs text-green-400 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />Python ready</span>
           : <span className="text-xs text-gray-500">{progress.stage} {progress.percent}%</span>
@@ -177,20 +163,45 @@ function PythonMini({ lang }: { lang: 'en' | 'id' }) {
 // ── Main export ───────────────────────────────────────────────
 
 export function SessionPlayground({ type, lang = 'en' }: SessionPlaygroundProps) {
-  const label = type === 'sql' ? '🗄️ SQL' : '🐍 Python'
-  const borderColor = type === 'sql' ? 'border-primary-800' : 'border-yellow-800'
-  const headerColor = type === 'sql' ? 'text-primary-400' : 'text-yellow-400'
-  const bgColor = type === 'sql' ? 'bg-primary-950/20' : 'bg-yellow-950/20'
+  const isSql = type === 'sql'
+
+  const Icon = isSql ? Table2 : Terminal
+  const accentBorder  = isSql ? 'border-cyan-800/50'    : 'border-yellow-800/50'
+  const accentBg      = isSql ? 'bg-cyan-950/25'         : 'bg-yellow-950/20'
+  const accentIcon    = isSql ? 'text-cyan-400'          : 'text-yellow-400'
+  const accentIconBg  = isSql ? 'bg-cyan-900/40 border-cyan-700/40' : 'bg-yellow-900/30 border-yellow-700/40'
+  const label         = isSql ? 'SQL' : 'Python'
+  const sublabel      = lang === 'id' ? 'coba langsung di sini' : 'try it right here'
 
   return (
-    <div className={`rounded-2xl border ${borderColor} ${bgColor} p-5 mt-8`}>
-      <div className={`text-sm font-semibold ${headerColor} mb-3`}>
-        {label} {lang === 'id' ? 'Playground — coba langsung di sini' : 'Playground — try it right here'}
+    <div className={`rounded-2xl border ${accentBorder} ${accentBg} overflow-hidden`}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2.5">
+          <div className={`w-7 h-7 rounded-lg border flex items-center justify-center ${accentIconBg}`}>
+            <Icon size={14} className={accentIcon} />
+          </div>
+          <div>
+            <span className={`text-sm font-semibold ${accentIcon}`}>{label} Playground</span>
+            <span className="ml-2 text-xs text-gray-500">— {sublabel}</span>
+          </div>
+        </div>
+        <Link
+          to={isSql ? '/playground' : '/python'}
+          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+        >
+          <ExternalLink size={12} />
+          {lang === 'id' ? 'Buka penuh' : 'Full screen'}
+        </Link>
       </div>
-      {type === 'sql'
-        ? <SqlMini lang={lang} />
-        : <PythonMini lang={lang} />
-      }
+
+      {/* Content */}
+      <div className="p-4">
+        {isSql
+          ? <SqlMini lang={lang} />
+          : <PythonMini lang={lang} />
+        }
+      </div>
     </div>
   )
 }
