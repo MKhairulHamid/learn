@@ -17,9 +17,11 @@ const SessionPage      = lazy(() => import('./pages/SessionPage'))
 const PlaygroundPage   = lazy(() => import('./pages/PlaygroundPage'))
 const PythonPlayground = lazy(() => import('./pages/PythonPlaygroundPage'))
 const ExercisePage     = lazy(() => import('./pages/ExercisePage'))
-const AdminDashboard   = lazy(() => import('./pages/admin/AdminDashboard'))
-const UserDetailPage   = lazy(() => import('./pages/admin/UserDetailPage'))
-const NotFound         = lazy(() => import('./pages/NotFound'))
+const AdminDashboard        = lazy(() => import('./pages/admin/AdminDashboard'))
+const UserDetailPage        = lazy(() => import('./pages/admin/UserDetailPage'))
+const ExerciseAnalyticsPage = lazy(() => import('./pages/admin/ExerciseAnalyticsPage'))
+const ProfilePage           = lazy(() => import('./pages/ProfilePage'))
+const NotFound              = lazy(() => import('./pages/NotFound'))
 
 // ── Route guards ──────────────────────────────────────────────
 
@@ -94,12 +96,14 @@ function AppRoutes() {
               <Route path="/playground"   element={<PlaygroundPage />} />
               <Route path="/python"       element={<PythonPlayground />} />
               <Route path="/exercise/:id" element={<ExercisePage />} />
+              <Route path="/profile"      element={<ProfilePage />} />
             </Route>
 
             {/* Admin routes */}
             <Route element={<AdminRoute />}>
-              <Route path="/admin"                element={<AdminDashboard />} />
-              <Route path="/admin/users/:userId"  element={<UserDetailPage />} />
+              <Route path="/admin"                      element={<AdminDashboard />} />
+              <Route path="/admin/users/:userId"        element={<UserDetailPage />} />
+              <Route path="/admin/exercise-analytics"   element={<ExerciseAnalyticsPage />} />
             </Route>
           </Route>
 

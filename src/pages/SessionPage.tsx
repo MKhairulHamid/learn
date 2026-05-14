@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabase'
 import { useEffect } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
+import { SessionExercises } from '../components/exercises/SessionExercises'
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -180,6 +181,9 @@ export default function SessionPage() {
       {playgroundType && (
         <SessionPlayground type={playgroundType} lang={lang} />
       )}
+
+      {/* Exercises for this session */}
+      {id && <SessionExercises sessionId={id} lang={lang} />}
 
       {/* Footer actions */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
