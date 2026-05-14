@@ -2,6 +2,33 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Exercise, ExerciseSubmission } from '../types'
 
+/** Returns a Set of exercise IDs that the user has passed at least once */
+export function usePassedExerciseIds(exerciseIds: string[], userId?: string) {
+  const [passedIds, setPassedIds] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!userId || exerciseIds.length === 0) {
+      setLoading(false)
+      return
+    }
+
+    supabase
+      .from('exercise_submissions')
+      .select('exercise_id')
+      .eq('user_id', userId)
+      .eq('passed', true)
+      .in('exercise_id', exerciseIds)
+      .then(({ data }) => {
+        const ids = new Set((data ?? []).map((r: { exercise_id: string }) => r.exercise_id))
+        setPassedIds(ids)
+        setLoading(false)
+      })
+  }, [userId, exerciseIds.join(',')])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { passedIds, loading }
+}
+
 export function useExercises(sessionId?: string) {
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [loading, setLoading] = useState(true)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, Play, Send, BookOpen } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
@@ -16,6 +16,8 @@ import type { TestResult } from '../types'
 
 export default function ExercisePage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const location = useLocation()
   const { profile } = useAuth()
   const lang = (localStorage.getItem('i18nextLng') ?? 'en') as 'en' | 'id'
 
@@ -103,12 +105,19 @@ export default function ExercisePage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-6 flex items-start gap-4">
-        <Link
-          to={exercise.session_id ? `/session/${exercise.session_id}` : '/curriculum'}
+        <button
+          onClick={() => {
+            const sessionId = location.state?.fromSessionId ?? exercise.session_id
+            if (sessionId) {
+              navigate(`/session/${sessionId}`, { state: { scrollTo: 'exercises' } })
+            } else {
+              navigate('/curriculum')
+            }
+          }}
           className="shrink-0 mt-1 text-gray-400 hover:text-gray-200 transition-colors"
         >
           <ArrowLeft size={20} />
-        </Link>
+        </button>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${difficultyColor[exercise.difficulty] ?? difficultyColor.easy}`}>

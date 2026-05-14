@@ -9,7 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
 import { SessionExercises } from '../components/exercises/SessionExercises'
@@ -18,7 +18,9 @@ export default function SessionPage() {
   const { id } = useParams<{ id: string }>()
   const { t, i18n } = useTranslation('common')
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
+  const exercisesRef = useRef<HTMLDivElement>(null)
   const { session, loading } = useSession(id)
   const { isCompleted, markComplete } = useProgress()
   const lang = i18n.language === 'id' ? 'id' : 'en'
@@ -79,6 +81,15 @@ export default function SessionPage() {
       })
     }
   }, [user, id])
+
+  // Scroll to exercises section when coming back from an exercise page
+  useEffect(() => {
+    if (location.state?.scrollTo === 'exercises' && exercisesRef.current) {
+      setTimeout(() => {
+        exercisesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }, [location.state])
 
   if (loading) {
     return (
@@ -183,7 +194,9 @@ export default function SessionPage() {
       )}
 
       {/* Exercises for this session */}
-      {id && <SessionExercises sessionId={id} lang={lang} />}
+      <div ref={exercisesRef}>
+        {id && <SessionExercises sessionId={id} lang={lang} />}
+      </div>
 
       {/* Footer actions */}
       <div className="flex items-center justify-between gap-4 flex-wrap">

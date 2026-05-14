@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
-import { Code2, ChevronRight, Trophy } from 'lucide-react'
-import { useExercises } from '../../hooks/useExercises'
+import { useNavigate } from 'react-router-dom'
+import { Code2, ChevronRight, Trophy, CheckCircle2 } from 'lucide-react'
+import { useExercises, usePassedExerciseIds } from '../../hooks/useExercises'
+import { useAuth } from '../../context/AuthContext'
 
 interface Props {
   sessionId: string
@@ -14,9 +15,14 @@ const DIFFICULTY_BADGE: Record<string, string> = {
 }
 
 export function SessionExercises({ sessionId, lang = 'en' }: Props) {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const { exercises, loading } = useExercises(sessionId)
+  const exerciseIds = exercises.map(e => e.id)
+  const { passedIds } = usePassedExerciseIds(exerciseIds, user?.id)
 
   const label = lang === 'id' ? 'Latihan Soal' : 'Practice Exercises'
+  const passedCount = exerciseIds.filter(id => passedIds.has(id)).length
 
   if (loading) {
     return (
@@ -39,9 +45,19 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
           <Code2 size={14} className="text-primary-400" />
         </div>
         <h3 className="text-sm font-semibold text-gray-200">{label}</h3>
-        <span className="ml-auto text-xs text-gray-600 flex items-center gap-1">
-          <Trophy size={11} />
-          {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
+        <span className="ml-auto text-xs flex items-center gap-1.5">
+          {passedCount > 0 && (
+            <span className="text-green-400 font-medium flex items-center gap-1">
+              <CheckCircle2 size={11} />
+              {passedCount}/{exercises.length}
+            </span>
+          )}
+          {passedCount === 0 && (
+            <span className="text-gray-600 flex items-center gap-1">
+              <Trophy size={11} />
+              {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
+            </span>
+          )}
         </span>
       </div>
 
@@ -50,21 +66,33 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
         {exercises.map(exercise => {
           const title = lang === 'id' ? exercise.title_id : exercise.title_en
           const diffLabel = exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1)
+          const passed = passedIds.has(exercise.id)
 
           return (
-            <Link
+            <button
               key={exercise.id}
-              to={`/exercise/${exercise.id}`}
-              className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-800/50 transition-colors group"
+              onClick={() => navigate(`/exercise/${exercise.id}`, { state: { fromSessionId: sessionId } })}
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-800/50 transition-colors group text-left"
             >
-              {/* Order number */}
-              <span className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-mono text-gray-500 shrink-0">
-                {exercise.order_num}
-              </span>
+              {/* Passed indicator / order number */}
+              {passed ? (
+                <span className="w-6 h-6 rounded-full bg-green-900/60 border border-green-700 flex items-center justify-center shrink-0">
+                  <CheckCircle2 size={13} className="text-green-400" />
+                </span>
+              ) : (
+                <span className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-mono text-gray-500 shrink-0">
+                  {exercise.order_num}
+                </span>
+              )}
 
               {/* Title */}
-              <span className="flex-1 text-sm text-gray-300 group-hover:text-white transition-colors truncate">
+              <span className={`flex-1 text-sm transition-colors truncate ${passed ? 'text-green-400/80' : 'text-gray-300 group-hover:text-white'}`}>
                 {title}
+                {passed && (
+                  <span className="ml-2 text-xs text-green-600">
+                    {lang === 'id' ? '· Selesai' : '· Passed'}
+                  </span>
+                )}
               </span>
 
               {/* Difficulty badge */}
@@ -74,7 +102,7 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
 
               {/* Arrow */}
               <ChevronRight size={15} className="text-gray-600 group-hover:text-gray-400 transition-colors shrink-0" />
-            </Link>
+            </button>
           )
         })}
       </div>
