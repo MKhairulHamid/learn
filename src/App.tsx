@@ -45,7 +45,16 @@ function PublicOnlyRoute() {
   const { user, loading, recoveryMode } = useAuth()
   if (loading) return <SplashScreen />
   if (recoveryMode) return <Navigate to="/reset-password" replace />
-  return user ? <Navigate to="/dashboard" replace /> : <Outlet />
+  return user ? <Navigate to="/curriculum" replace /> : <Outlet />
+}
+
+// Redirect logged-in users away from landing page to curriculum
+function LandingRoute() {
+  const { user, loading, recoveryMode } = useAuth()
+  if (loading) return <SplashScreen />
+  if (recoveryMode) return <Navigate to="/reset-password" replace />
+  if (user) return <Navigate to="/curriculum" replace />
+  return <Outlet />
 }
 
 function RecoveryRedirect() {
@@ -86,7 +95,9 @@ function AppRoutes() {
       <Suspense fallback={<SplashScreen />}>
         <Routes>
           <Route element={<AppLayout />}>
-            <Route path="/" element={<Landing />} />
+            <Route element={<LandingRoute />}>
+              <Route path="/" element={<Landing />} />
+            </Route>
 
             {/* Learner routes */}
             <Route element={<ProtectedRoute />}>

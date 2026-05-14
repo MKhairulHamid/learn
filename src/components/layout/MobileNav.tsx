@@ -22,7 +22,8 @@ export function MobileNav() {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-pb">
       <div className="grid grid-cols-5">
         {tabs.map(({ to, icon: Icon, label }) => {
-          const active = location.pathname.startsWith(to)
+          const active = location.pathname.startsWith(to) ||
+            (to === '/curriculum' && location.pathname === '/')
           return (
             <Link
               key={to}
