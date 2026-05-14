@@ -11,6 +11,7 @@ interface AuthContextValue {
   loading: boolean
   recoveryMode: boolean
   clearRecoveryMode: () => void
+  refreshProfile: () => Promise<void>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>
   signInWithGoogle: () => Promise<{ error: string | null }>
@@ -70,6 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRecoveryMode(false)
   }
 
+  async function refreshProfile() {
+    if (user) await fetchProfile(user.id)
+  }
+
   async function signIn(email: string, password: string) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) return { error: error.message }
@@ -113,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, profile, session, loading,
-      recoveryMode, clearRecoveryMode,
+      recoveryMode, clearRecoveryMode, refreshProfile,
       signIn, signUp, signInWithGoogle, signOut,
     }}>
       {children}

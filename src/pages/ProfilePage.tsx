@@ -8,7 +8,7 @@ import { User, Mail, Globe, Lock, CheckCircle2, Edit2, Save, X } from 'lucide-re
 
 export default function ProfilePage() {
   const { t, i18n } = useTranslation('common')
-  const { user, profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const { completedCount } = useProgress()
 
   const [editing, setEditing] = useState(false)
@@ -42,6 +42,7 @@ export default function ProfilePage() {
     if (error) {
       setNameError(error.message)
     } else {
+      await refreshProfile()   // re-fetch so displayed name updates immediately
       setEditing(false)
     }
     setSavingName(false)

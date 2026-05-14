@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeft, Play, Send, BookOpen, CheckCircle2, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Play, Send, BookOpen, CheckCircle2, ChevronRight, Zap, Flame, Skull, RotateCcw } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { TestResultPanel } from '../components/exercises/TestResultPanel'
@@ -118,10 +118,58 @@ export default function ExercisePage() {
   const title = lang === 'id' ? exercise.title_id : exercise.title_en
   const description = lang === 'id' ? exercise.description_id : exercise.description_en
 
-  const difficultyColor: Record<string, string> = {
-    easy: 'text-green-400 bg-green-950/40 border-green-900',
-    medium: 'text-yellow-400 bg-yellow-950/40 border-yellow-900',
-    hard: 'text-red-400 bg-red-950/40 border-red-900',
+  const DIFF_STYLE: Record<string, { text: string; bg: string; border: string; iconEl: string }> = {
+    easy:   { text: 'text-emerald-300', bg: 'bg-emerald-950/50', border: 'border-emerald-700/60', iconEl: 'zap' },
+    medium: { text: 'text-yellow-300',  bg: 'bg-yellow-950/50',  border: 'border-yellow-700/60',  iconEl: 'flame' },
+    hard:   { text: 'text-red-300',     bg: 'bg-red-950/50',     border: 'border-red-700/60',     iconEl: 'skull' },
+  }
+
+  const TYPE_LABEL: Record<string, string> = {
+    sql: 'SQL', matching: 'Matching', quiz: 'Quiz', multiple_choice: 'MCQ',
+  }
+
+  const diff = DIFF_STYLE[exercise.difficulty] ?? DIFF_STYLE.easy
+
+  function ExerciseHeader({ onBack }: { onBack: () => void }) {
+    return (
+      <div className="mb-7">
+        {/* Back breadcrumb */}
+        <button
+          onClick={onBack}
+          className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors mb-5 group"
+        >
+          <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+          {lang === 'id' ? 'Kembali ke sesi' : 'Back to session'}
+        </button>
+
+        {/* Meta row */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          {/* Difficulty */}
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider border ${diff.text} ${diff.bg} ${diff.border}`}>
+            {diff.iconEl === 'zap'   && <Zap   size={11} />}
+            {diff.iconEl === 'flame' && <Flame size={11} />}
+            {diff.iconEl === 'skull' && <Skull size={11} />}
+            {exercise!.difficulty}
+          </span>
+
+          {/* Type */}
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider text-gray-400 bg-gray-800/60 border border-gray-700/50">
+            {TYPE_LABEL[exercise!.type] ?? exercise!.type}
+          </span>
+
+          {/* Attempt count */}
+          {attemptCount > 0 && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-gray-400 bg-gray-800/60 border border-gray-700/50">
+              <RotateCcw size={10} />
+              {attemptCount} attempt{attemptCount !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+
+        {/* Title */}
+        <h1 className="text-xl sm:text-2xl font-bold text-white leading-snug">{title}</h1>
+      </div>
+    )
   }
 
   // ── Matching exercise layout ──────────────────────────────────
@@ -132,19 +180,7 @@ export default function ExercisePage() {
 
     return (
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-6 flex items-start gap-4">
-          <button onClick={() => { const sid = location.state?.fromSessionId ?? exercise.session_id; navigate(sid ? `/session/${sid}` : '/curriculum', { state: { scrollTo: 'exercises' } }) }} className="shrink-0 mt-1 text-gray-400 hover:text-gray-200 transition-colors">
-            <ArrowLeft size={20} />
-          </button>
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${difficultyColor[exercise.difficulty] ?? difficultyColor.easy}`}>{exercise.difficulty}</span>
-              {attemptCount > 0 && <span className="text-xs text-gray-500">{attemptCount} attempt{attemptCount !== 1 ? 's' : ''}</span>}
-            </div>
-            <h1 className="text-xl font-bold text-white">{title}</h1>
-          </div>
-        </div>
+        <ExerciseHeader onBack={() => { const sid = location.state?.fromSessionId ?? exercise.session_id; navigate(sid ? `/session/${sid}` : '/curriculum', { state: { scrollTo: 'exercises' } }) }} />
 
         <div className="space-y-4">
           {/* Description */}
@@ -172,7 +208,7 @@ export default function ExercisePage() {
                 <button
                   onClick={handleMatchSubmit}
                   disabled={submitting || !allSelected}
-                  className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="cursor-pointer flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Send size={14} />
                   {submitting ? (lang === 'id' ? 'Memeriksa…' : 'Checking…') : (lang === 'id' ? 'Periksa Jawaban' : 'Check Answers')}
@@ -204,11 +240,11 @@ export default function ExercisePage() {
               </div>
               <div className="flex flex-col gap-2">
                 {nextExercise && (
-                  <button onClick={() => navigate(`/exercise/${nextExercise.id}`, { state: { fromSessionId: exercise.session_id } })} className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+                  <button onClick={() => navigate(`/exercise/${nextExercise.id}`, { state: { fromSessionId: exercise.session_id } })} className="cursor-pointer w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
                     {lang === 'id' ? 'Latihan Berikutnya' : 'Next Exercise'} <ChevronRight size={15} />
                   </button>
                 )}
-                <button onClick={() => navigate(`/session/${exercise.session_id}`, { state: { scrollTo: 'exercises' } })} className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+                <button onClick={() => navigate(`/session/${exercise.session_id}`, { state: { scrollTo: 'exercises' } })} className="cursor-pointer w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
                   <ArrowLeft size={15} /> {lang === 'id' ? 'Kembali ke Sesi' : 'Back to Session'}
                 </button>
               </div>
@@ -221,35 +257,10 @@ export default function ExercisePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-start gap-4">
-        <button
-          onClick={() => {
-            const sessionId = location.state?.fromSessionId ?? exercise.session_id
-            if (sessionId) {
-              navigate(`/session/${sessionId}`, { state: { scrollTo: 'exercises' } })
-            } else {
-              navigate('/curriculum')
-            }
-          }}
-          className="shrink-0 mt-1 text-gray-400 hover:text-gray-200 transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${difficultyColor[exercise.difficulty] ?? difficultyColor.easy}`}>
-              {exercise.difficulty}
-            </span>
-            {attemptCount > 0 && (
-              <span className="text-xs text-gray-500">
-                {attemptCount} attempt{attemptCount !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          <h1 className="text-xl font-bold text-white">{title}</h1>
-        </div>
-      </div>
+      <ExerciseHeader onBack={() => {
+        const sessionId = location.state?.fromSessionId ?? exercise.session_id
+        navigate(sessionId ? `/session/${sessionId}` : '/curriculum', { state: { scrollTo: 'exercises' } })
+      }} />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Problem statement */}
@@ -284,7 +295,7 @@ export default function ExercisePage() {
                 {nextExercise && (
                   <button
                     onClick={() => navigate(`/exercise/${nextExercise.id}`, { state: { fromSessionId: exercise.session_id } })}
-                    className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                    className="cursor-pointer w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
                   >
                     {lang === 'id' ? 'Latihan Berikutnya' : 'Next Exercise'}
                     <ChevronRight size={15} />
@@ -292,7 +303,7 @@ export default function ExercisePage() {
                 )}
                 <button
                   onClick={() => navigate(`/session/${exercise.session_id}`, { state: { scrollTo: 'exercises' } })}
-                  className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                  className="cursor-pointer w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
                 >
                   <ArrowLeft size={15} />
                   {lang === 'id' ? 'Kembali ke Sesi' : 'Back to Session'}
@@ -320,7 +331,7 @@ export default function ExercisePage() {
               <button
                 onClick={handleRun}
                 disabled={running || submitting}
-                className="flex items-center gap-2 border border-gray-600 hover:border-gray-400 text-gray-200 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                className="cursor-pointer flex items-center gap-2 border border-gray-600 hover:border-gray-400 text-gray-200 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Play size={14} />
                 {running ? (lang === 'id' ? 'Menjalankan…' : 'Running…') : (lang === 'id' ? 'Jalankan' : 'Run')}
@@ -328,7 +339,7 @@ export default function ExercisePage() {
               <button
                 onClick={handleSubmit}
                 disabled={running || submitting}
-                className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                className="cursor-pointer flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={14} />
                 {submitting ? (lang === 'id' ? 'Mengirim…' : 'Submitting…') : (lang === 'id' ? 'Kirim' : 'Submit')}

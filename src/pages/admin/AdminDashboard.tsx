@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { StatsCard } from '../../components/admin/StatsCard'
 import { ActivityFeed } from '../../components/admin/ActivityFeed'
 import { UserTable } from '../../components/admin/UserTable'
@@ -35,7 +34,7 @@ export default function AdminDashboard() {
           <div className="flex gap-1 -mb-px">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'overview'
                   ? 'border-primary-500 text-primary-400'
                   : 'border-transparent text-gray-500 hover:text-gray-300'
@@ -46,7 +45,7 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'analytics'
                   ? 'border-primary-500 text-primary-400'
                   : 'border-transparent text-gray-500 hover:text-gray-300'
@@ -110,12 +109,6 @@ export default function AdminDashboard() {
               <div className="lg:col-span-3 bg-[#111827] border border-white/[0.06] rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-sm font-semibold text-gray-200">All Users</h2>
-                  <Link
-                    to="/admin/users"
-                    className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
-                  >
-                    View all →
-                  </Link>
                 </div>
                 <UserTable users={users} loading={usersLoading} />
               </div>

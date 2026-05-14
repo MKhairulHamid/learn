@@ -9,9 +9,29 @@ interface ResultsTableProps {
 export function ResultsTable({ result, loading }: ResultsTableProps) {
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-gray-400 text-sm py-4">
-        <div className="w-4 h-4 border-2 border-primary-400 border-t-transparent rounded-full animate-spin" />
-        Running query...
+      <div className="space-y-3 py-1">
+        {/* Fake header row */}
+        <div className="flex gap-3">
+          {[120, 90, 100, 80].map((w, i) => (
+            <div key={i} className="h-3 rounded-md bg-gray-700/60 animate-pulse" style={{ width: w }} />
+          ))}
+        </div>
+        {/* Fake data rows */}
+        {[1, 2, 3, 4].map(row => (
+          <div key={row} className="flex gap-3 items-center">
+            {[120, 90, 100, 80].map((w, i) => (
+              <div
+                key={i}
+                className="h-3 rounded-md bg-gray-800/80 animate-pulse"
+                style={{ width: w, animationDelay: `${row * 60 + i * 20}ms` }}
+              />
+            ))}
+          </div>
+        ))}
+        <p className="text-xs text-gray-600 pt-1 flex items-center gap-1.5">
+          <span className="w-3 h-3 border border-primary-500/60 border-t-transparent rounded-full animate-spin inline-block" />
+          Running query…
+        </p>
       </div>
     )
   }
