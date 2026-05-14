@@ -108,28 +108,27 @@ export default function ProfilePage() {
                   <button
                     onClick={handleSaveName}
                     disabled={savingName}
-                    className="p-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 transition-colors"
-                    title="Save"
+                    className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-medium disabled:opacity-50 transition-colors whitespace-nowrap"
                   >
-                    <Save size={14} />
+                    <Save size={13} />
+                    {savingName ? '…' : t('profile.save')}
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="p-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
-                    title="Cancel"
+                    className="cursor-pointer p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
                   >
                     <X size={14} />
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 group">
-                  <span className="text-base font-semibold text-white">{displayName}</span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-base font-semibold text-white truncate">{displayName}</span>
                   <button
                     onClick={() => { setEditing(true); setNewName(profile?.full_name ?? '') }}
-                    className="p-1 rounded-md text-gray-600 hover:text-gray-300 hover:bg-gray-800 opacity-0 group-hover:opacity-100 transition-all"
-                    title="Edit name"
+                    className="cursor-pointer shrink-0 inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-500 px-2.5 py-1.5 rounded-lg transition-all"
                   >
-                    <Edit2 size={13} />
+                    <Edit2 size={12} />
+                    {t('profile.edit')}
                   </button>
                 </div>
               )}

@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "curriculum": "Curriculum",
+    "curriculum": "Lessons",
     "playground": "SQL Playground",
     "dashboard": "Dashboard",
     "login": "Log In",
@@ -15,7 +15,7 @@
     "hero_title_highlight": "From Zero to Job-Ready",
     "hero_subtitle": "A structured 12-session curriculum covering Excel, SQL, Python, Power BI, and data storytelling — built for the Indonesian job market.",
     "cta_start": "Start Learning Free",
-    "cta_curriculum": "View Curriculum",
+    "cta_curriculum": "View Lessons",
     "stats_sessions": "Sessions",
     "stats_tools": "Tools Covered",
     "stats_exercises": "Hands-on Exercises",
@@ -29,7 +29,7 @@
     "how_step3_desc": "Track your completion, earn scores, and build your portfolio.",
     "phases_title": "What You'll Learn",
     "phases_subtitle": "Four phases designed to take you from beginner to job-ready analyst.",
-    "curriculum_title": "Full Curriculum",
+    "curriculum_title": "All Lessons",
     "curriculum_subtitle": "12 sessions covering everything a modern data analyst needs.",
     "session_label": "Session",
     "start_phase": "Start Phase",
@@ -70,7 +70,7 @@
     "recent_activity": "Recent Activity",
     "no_activity": "No activity yet. Start your first session!",
     "quick_actions": "Quick Actions",
-    "go_to_curriculum": "Go to Curriculum",
+    "go_to_curriculum": "Go to Lessons",
     "open_playground": "Open SQL Playground"
   },
   "profile": {
@@ -88,7 +88,9 @@
     "password_title": "Password",
     "password_desc": "We'll send a password reset link to",
     "password_sent": "Password reset email sent — check your inbox.",
-    "password_btn": "Send Reset Link"
+    "password_btn": "Send Reset Link",
+    "edit": "Edit",
+    "save": "Save"
   },
   "common": {
     "loading": "Loading...",

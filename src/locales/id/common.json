@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Beranda",
-    "curriculum": "Kurikulum",
+    "curriculum": "Materi",
     "playground": "SQL Playground",
     "dashboard": "Dashboard",
     "login": "Masuk",
@@ -13,9 +13,9 @@
     "hero_badge": "Program Karir Data Analyst",
     "hero_title": "Kuasai Data Analytics",
     "hero_title_highlight": "Dari Nol hingga Siap Kerja",
-    "hero_subtitle": "Kurikulum terstruktur 12 sesi mencakup Excel, SQL, Python, Power BI, dan data storytelling — dirancang untuk pasar kerja Indonesia.",
+    "hero_subtitle": "Materi belajar terstruktur 12 sesi mencakup Excel, SQL, Python, Power BI, dan data storytelling — dirancang untuk pasar kerja Indonesia.",
     "cta_start": "Mulai Belajar Gratis",
-    "cta_curriculum": "Lihat Kurikulum",
+    "cta_curriculum": "Lihat Materi",
     "stats_sessions": "Sesi",
     "stats_tools": "Tools Dicakup",
     "stats_exercises": "Latihan Langsung",
@@ -29,7 +29,7 @@
     "how_step3_desc": "Pantau penyelesaianmu, raih skor, dan bangun portofolio.",
     "phases_title": "Yang Akan Kamu Pelajari",
     "phases_subtitle": "Empat fase dirancang untuk membawamu dari pemula ke analyst siap kerja.",
-    "curriculum_title": "Kurikulum Lengkap",
+    "curriculum_title": "Semua Materi",
     "curriculum_subtitle": "12 sesi mencakup semua yang dibutuhkan data analyst modern.",
     "session_label": "Sesi",
     "start_phase": "Mulai Fase",
@@ -70,7 +70,7 @@
     "recent_activity": "Aktivitas Terbaru",
     "no_activity": "Belum ada aktivitas. Mulai sesi pertamamu!",
     "quick_actions": "Aksi Cepat",
-    "go_to_curriculum": "Ke Kurikulum",
+    "go_to_curriculum": "Ke Materi",
     "open_playground": "Buka SQL Playground"
   },
   "profile": {
@@ -88,7 +88,9 @@
     "password_title": "Kata Sandi",
     "password_desc": "Kami akan mengirim tautan reset kata sandi ke",
     "password_sent": "Email reset kata sandi terkirim — cek inboxmu.",
-    "password_btn": "Kirim Tautan Reset"
+    "password_btn": "Kirim Tautan Reset",
+    "edit": "Ubah",
+    "save": "Simpan"
   },
   "common": {
     "loading": "Memuat...",
