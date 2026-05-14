@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeft, Play, Send, BookOpen } from 'lucide-react'
+import { ArrowLeft, Play, Send, BookOpen, CheckCircle2, ChevronRight } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { TestResultPanel } from '../components/exercises/TestResultPanel'
 import { HintSystem } from '../components/exercises/HintSystem'
-import { useExercise, useSubmissions } from '../hooks/useExercises'
+import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { runQuery } from '../lib/sqlSimulator'
@@ -22,8 +22,13 @@ export default function ExercisePage() {
   const lang = (localStorage.getItem('i18nextLng') ?? 'en') as 'en' | 'id'
 
   const { exercise, loading, error } = useExercise(id)
+  const { exercises: sessionExercises } = useExercises(exercise?.session_id)
   const { submissions, saveSubmission } = useSubmissions(id, profile?.id)
   const { markComplete } = useProgress()
+
+  // Find next exercise in the same session
+  const currentIndex = sessionExercises.findIndex(e => e.id === id)
+  const nextExercise = currentIndex >= 0 ? sessionExercises[currentIndex + 1] : null
 
   const [query, setQuery] = useState('')
   const [runResult, setRunResult] = useState<QueryResult | null>(null)
@@ -155,10 +160,31 @@ export default function ExercisePage() {
           )}
 
           {allPassed && (
-            <div className="bg-primary-950/40 border border-primary-800 rounded-2xl p-5 text-center">
-              <p className="text-primary-300 font-medium text-sm">
-                {lang === 'id' ? 'Sesi ini ditandai selesai!' : 'Session marked as complete!'}
-              </p>
+            <div className="bg-green-950/40 border border-green-800 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle2 size={18} className="text-green-400 shrink-0" />
+                <p className="text-green-300 font-semibold text-sm">
+                  {lang === 'id' ? 'Semua tes lulus! 🎉' : 'All tests passed! 🎉'}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                {nextExercise && (
+                  <button
+                    onClick={() => navigate(`/exercise/${nextExercise.id}`, { state: { fromSessionId: exercise.session_id } })}
+                    className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                  >
+                    {lang === 'id' ? 'Latihan Berikutnya' : 'Next Exercise'}
+                    <ChevronRight size={15} />
+                  </button>
+                )}
+                <button
+                  onClick={() => navigate(`/session/${exercise.session_id}`, { state: { scrollTo: 'exercises' } })}
+                  className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                >
+                  <ArrowLeft size={15} />
+                  {lang === 'id' ? 'Kembali ke Sesi' : 'Back to Session'}
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -9,9 +9,9 @@ interface Props {
 }
 
 const DIFFICULTY_BADGE: Record<string, string> = {
-  easy:   'bg-green-900/50 text-green-400 border border-green-800',
-  medium: 'bg-yellow-900/50 text-yellow-400 border border-yellow-800',
-  hard:   'bg-red-900/50 text-red-400 border border-red-800',
+  easy:   'bg-green-50 text-green-700 border border-green-200',
+  medium: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+  hard:   'bg-red-50 text-red-700 border border-red-200',
 }
 
 export function SessionExercises({ sessionId, lang = 'en' }: Props) {
@@ -26,10 +26,10 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
 
   if (loading) {
     return (
-      <div className="border border-gray-800 rounded-2xl p-5 space-y-3">
-        <div className="h-4 w-36 bg-gray-800 rounded-full animate-pulse" />
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 space-y-3">
+        <div className="h-4 w-36 bg-gray-100 rounded-full animate-pulse" />
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-12 bg-gray-800 rounded-xl animate-pulse" />
+          <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
         ))}
       </div>
     )
@@ -38,22 +38,22 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
   if (exercises.length === 0) return null
 
   return (
-    <div className="border border-gray-800 rounded-2xl overflow-hidden">
+    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-800 flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-primary-900/50 border border-primary-800 flex items-center justify-center">
-          <Code2 size={14} className="text-primary-400" />
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+        <div className="w-7 h-7 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
+          <Code2 size={14} className="text-primary-600" />
         </div>
-        <h3 className="text-sm font-semibold text-gray-200">{label}</h3>
+        <h3 className="text-sm font-semibold text-gray-800">{label}</h3>
         <span className="ml-auto text-xs flex items-center gap-1.5">
           {passedCount > 0 && (
-            <span className="text-green-400 font-medium flex items-center gap-1">
+            <span className="text-green-600 font-medium flex items-center gap-1">
               <CheckCircle2 size={11} />
               {passedCount}/{exercises.length}
             </span>
           )}
           {passedCount === 0 && (
-            <span className="text-gray-600 flex items-center gap-1">
+            <span className="text-gray-400 flex items-center gap-1">
               <Trophy size={11} />
               {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
             </span>
@@ -62,7 +62,7 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
       </div>
 
       {/* Exercise list */}
-      <div className="divide-y divide-gray-800/60">
+      <div className="divide-y divide-gray-50">
         {exercises.map(exercise => {
           const title = lang === 'id' ? exercise.title_id : exercise.title_en
           const diffLabel = exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1)
@@ -72,24 +72,24 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
             <button
               key={exercise.id}
               onClick={() => navigate(`/exercise/${exercise.id}`, { state: { fromSessionId: sessionId } })}
-              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-800/50 transition-colors group text-left"
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors group text-left"
             >
               {/* Passed indicator / order number */}
               {passed ? (
-                <span className="w-6 h-6 rounded-full bg-green-900/60 border border-green-700 flex items-center justify-center shrink-0">
-                  <CheckCircle2 size={13} className="text-green-400" />
+                <span className="w-6 h-6 rounded-full bg-green-100 border border-green-300 flex items-center justify-center shrink-0">
+                  <CheckCircle2 size={13} className="text-green-600" />
                 </span>
               ) : (
-                <span className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-mono text-gray-500 shrink-0">
+                <span className="w-6 h-6 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-mono text-gray-500 shrink-0">
                   {exercise.order_num}
                 </span>
               )}
 
               {/* Title */}
-              <span className={`flex-1 text-sm transition-colors truncate ${passed ? 'text-green-400/80' : 'text-gray-300 group-hover:text-white'}`}>
+              <span className={`flex-1 text-sm transition-colors truncate ${passed ? 'text-green-700' : 'text-gray-700 group-hover:text-gray-900'}`}>
                 {title}
                 {passed && (
-                  <span className="ml-2 text-xs text-green-600">
+                  <span className="ml-2 text-xs text-green-500">
                     {lang === 'id' ? '· Selesai' : '· Passed'}
                   </span>
                 )}
@@ -101,7 +101,7 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
               </span>
 
               {/* Arrow */}
-              <ChevronRight size={15} className="text-gray-600 group-hover:text-gray-400 transition-colors shrink-0" />
+              <ChevronRight size={15} className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0" />
             </button>
           )
         })}
