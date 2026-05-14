@@ -118,10 +118,11 @@ export default function ExercisePage() {
   const title = lang === 'id' ? exercise.title_id : exercise.title_en
   const description = lang === 'id' ? exercise.description_id : exercise.description_en
 
-  const DIFF_STYLE: Record<string, { text: string; bg: string; border: string; iconEl: string }> = {
-    easy:   { text: 'text-emerald-300', bg: 'bg-emerald-950/50', border: 'border-emerald-700/60', iconEl: 'zap' },
-    medium: { text: 'text-yellow-300',  bg: 'bg-yellow-950/50',  border: 'border-yellow-700/60',  iconEl: 'flame' },
-    hard:   { text: 'text-red-300',     bg: 'bg-red-950/50',     border: 'border-red-700/60',     iconEl: 'skull' },
+  // Light-theme difficulty styles (header sits on white page bg)
+  const DIFF_STYLE: Record<string, { text: string; bg: string; border: string; dot: string; iconEl: string }> = {
+    easy:   { text: 'text-emerald-700', bg: 'bg-emerald-50',  border: 'border-emerald-200', dot: 'bg-emerald-400', iconEl: 'zap'   },
+    medium: { text: 'text-amber-700',   bg: 'bg-amber-50',    border: 'border-amber-200',   dot: 'bg-amber-400',   iconEl: 'flame' },
+    hard:   { text: 'text-red-700',     bg: 'bg-red-50',      border: 'border-red-200',     dot: 'bg-red-400',     iconEl: 'skull' },
   }
 
   const TYPE_LABEL: Record<string, string> = {
@@ -132,42 +133,49 @@ export default function ExercisePage() {
 
   function ExerciseHeader({ onBack }: { onBack: () => void }) {
     return (
-      <div className="mb-7">
+      <div className="mb-8">
         {/* Back breadcrumb */}
         <button
           onClick={onBack}
-          className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors mb-5 group"
+          className="cursor-pointer flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors mb-5 group"
         >
-          <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
           {lang === 'id' ? 'Kembali ke sesi' : 'Back to session'}
         </button>
 
-        {/* Meta row */}
-        <div className="flex flex-wrap items-center gap-2 mb-3">
+        {/* Meta chips */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
           {/* Difficulty */}
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider border ${diff.text} ${diff.bg} ${diff.border}`}>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border ${diff.text} ${diff.bg} ${diff.border}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
             {diff.iconEl === 'zap'   && <Zap   size={11} />}
             {diff.iconEl === 'flame' && <Flame size={11} />}
             {diff.iconEl === 'skull' && <Skull size={11} />}
             {exercise!.difficulty}
           </span>
 
+          {/* Separator dot */}
+          <span className="w-1 h-1 rounded-full bg-gray-300" />
+
           {/* Type */}
-          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider text-gray-400 bg-gray-800/60 border border-gray-700/50">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-200">
             {TYPE_LABEL[exercise!.type] ?? exercise!.type}
           </span>
 
           {/* Attempt count */}
           {attemptCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-gray-400 bg-gray-800/60 border border-gray-700/50">
-              <RotateCcw size={10} />
-              {attemptCount} attempt{attemptCount !== 1 ? 's' : ''}
-            </span>
+            <>
+              <span className="w-1 h-1 rounded-full bg-gray-300" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-gray-500 bg-gray-100 border border-gray-200">
+                <RotateCcw size={10} />
+                {attemptCount} attempt{attemptCount !== 1 ? 's' : ''}
+              </span>
+            </>
           )}
         </div>
 
         {/* Title */}
-        <h1 className="text-xl sm:text-2xl font-bold text-white leading-snug">{title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-snug tracking-tight">{title}</h1>
       </div>
     )
   }
