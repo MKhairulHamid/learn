@@ -16,11 +16,13 @@ export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage ?? 'en')
   const menuRef = useRef<HTMLDivElement>(null)
 
   const toggleLang = () => {
-    const next = i18n.language === 'en' ? 'id' : 'en'
+    const next = currentLang === 'en' ? 'id' : 'en'
     i18n.changeLanguage(next)
+    setCurrentLang(next)
   }
 
   const handleSignOut = async () => {
@@ -61,7 +63,7 @@ export function Navbar() {
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
               <BookOpen size={18} className="text-white" />
             </div>
-            <span className="hidden sm:block">DataLearn</span>
+            <span>DataLearn</span>
           </Link>
 
           {/* Desktop nav links */}
@@ -99,8 +101,8 @@ export function Navbar() {
               className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary-600 transition-colors px-2 py-1.5 rounded-md hover:bg-gray-100"
             >
               <Globe size={15} />
-              <span className="hidden sm:block text-xs font-medium">
-                {i18n.language === 'id' ? 'ID' : 'EN'}
+              <span className="text-xs font-medium">
+                {currentLang === 'id' ? 'IND' : 'ENG'}
               </span>
             </button>
 

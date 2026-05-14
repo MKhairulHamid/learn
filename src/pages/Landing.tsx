@@ -84,10 +84,12 @@ export default function Landing() {
                 {step < 3 && (
                   <div className="hidden md:block absolute left-3/4 top-8 w-1/2 border-t-2 border-dashed border-primary-200" />
                 )}
-                <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center text-3xl mb-4 border border-primary-100">
+                <div className="relative w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center text-3xl mb-4 border border-primary-100">
                   {icon}
+                  <span className="absolute -top-2 -left-2 w-6 h-6 bg-primary-600 rounded-full text-white text-xs flex items-center justify-center font-bold">
+                    {step}
+                  </span>
                 </div>
-                <div className="absolute -top-2 -right-2 md:static md:hidden w-6 h-6 bg-primary-600 rounded-full text-white text-xs flex items-center justify-center font-bold">{step}</div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {t(`common:landing.how_step${step}_title`)}
                 </h3>
@@ -141,7 +143,7 @@ export default function Landing() {
                   <div className="mt-auto pt-2 border-t border-gray-50">
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                       <Icon size={13} />
-                      <span>{phase.sessions.length} {t('common:common.session')}s</span>
+                      <span>{phase.sessions.length} {t('common:common.session')}</span>
                     </div>
                   </div>
                 </div>
