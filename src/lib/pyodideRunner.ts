@@ -60,9 +60,14 @@ export async function initPyodide(
 import sys
 import io
 import base64
+import warnings
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+# plt.show() is a no-op in this environment — figures are captured via savefig.
+# Patch it to avoid the "non-GUI backend" UserWarning.
+plt.show = lambda *args, **kwargs: None
 
 class _Capture(io.StringIO):
     pass
@@ -100,9 +105,14 @@ plt.close('all')
     // Run user code
     pyodide.runPython(code)
 
-    // Capture stdout / stderr
+    // Capture stdout / stderr (strip matplotlib agg UserWarning noise)
     const stdout: string = pyodide.runPython('_stdout_capture.getvalue()')
-    const stderr: string = pyodide.runPython('_stderr_capture.getvalue()')
+    const rawStderr: string = pyodide.runPython('_stderr_capture.getvalue()')
+    const stderr = rawStderr
+      .split('\n')
+      .filter(l => !l.includes('UserWarning') && !l.includes('non-GUI backend') && !l.includes('plt.show'))
+      .join('\n')
+      .trim()
 
     // Capture any matplotlib figures as base64 PNGs
     const figCount: number = pyodide.runPython('len(plt.get_fignums())')
