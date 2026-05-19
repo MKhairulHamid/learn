@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { generateHTML } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -55,7 +55,6 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
   const { user, profile } = useAuth()
   const [replying, setReplying] = useState(false)
   const [repliesOpen, setRepliesOpen] = useState(true)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const html = renderBody(post.body)
@@ -99,27 +98,11 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
 
           {/* Menu (admin / own) */}
           {(_isAdmin || isOwn) && (
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen(o => !o)}
-                className="cursor-pointer p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-all"
-              >
-                <MoreHorizontal size={15} />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-20">
-                  {_isAdmin && (
-                    <button
-                      onClick={() => { onHide(post.id, !post.is_hidden); setMenuOpen(false) }}
-                      className="cursor-pointer flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      {post.is_hidden ? <Eye size={14} /> : <EyeOff size={14} />}
-                      {post.is_hidden ? 'Unhide' : 'Hide post'}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            <PostMenu
+              isAdmin={_isAdmin}
+              isHidden={post.is_hidden}
+              onHide={() => onHide(post.id, !post.is_hidden)}
+            />
           )}
         </div>
 
@@ -232,6 +215,60 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
             </div>
           )}
         </>
+      )}
+    </div>
+  )
+}
+
+// ── PostMenu ──────────────────────────────────────────────────────
+// Extracted so it can manage its own outside-click ref cleanly.
+// Always visible on mobile (no hover required), fade-in on desktop hover.
+
+function PostMenu({
+  isAdmin, isHidden, onHide,
+}: { isAdmin: boolean; isHidden: boolean; onHide: () => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handler(e: MouseEvent | TouchEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [])
+
+  return (
+    <div className="relative shrink-0" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-label="Post options"
+        className={`cursor-pointer p-1.5 rounded-md transition-all
+          text-gray-400 hover:text-gray-600 hover:bg-gray-100
+          md:opacity-0 md:group-hover:opacity-100
+          ${open ? 'opacity-100 bg-gray-100 text-gray-600' : 'opacity-100 md:opacity-0'}`}
+      >
+        <MoreHorizontal size={15} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-30">
+          {isAdmin && (
+            <button
+              onClick={() => { onHide(); setOpen(false) }}
+              className="cursor-pointer flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            >
+              {isHidden
+                ? <><Eye size={14} className="text-green-500" /> Unhide post</>
+                : <><EyeOff size={14} className="text-red-400" /> Hide post</>
+              }
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
