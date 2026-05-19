@@ -108,20 +108,18 @@ export function Navbar() {
               </span>
             </button>
 
-            {/* Notification bell (desktop, logged-in only) */}
+            {/* Notification bell — visible on all screen sizes */}
             {user && (
-              <div className="hidden md:block">
-                <NotificationDropdown
-                  notifications={notifications}
-                  unreadCount={unreadCount}
-                  loading={notifLoading}
-                  open={notifOpen}
-                  onToggle={() => { setNotifOpen(o => !o); setUserMenuOpen(false) }}
-                  onClose={() => setNotifOpen(false)}
-                  onMarkRead={markRead}
-                  onMarkAllRead={markAllRead}
-                />
-              </div>
+              <NotificationDropdown
+                notifications={notifications}
+                unreadCount={unreadCount}
+                loading={notifLoading}
+                open={notifOpen}
+                onToggle={() => { setNotifOpen(o => !o); setUserMenuOpen(false); setMobileOpen(false) }}
+                onClose={() => setNotifOpen(false)}
+                onMarkRead={markRead}
+                onMarkAllRead={markAllRead}
+              />
             )}
 
             {user ? (
