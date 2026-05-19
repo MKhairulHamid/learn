@@ -51,7 +51,7 @@ export function NotificationDropdown({
   function handleNotificationClick(n: AppNotification) {
     onMarkRead(n.id)
     onClose()
-    navigate(`/session/${n.session_id}#discussion`)
+    navigate(`/session/${n.session_id}#post-${n.post_id}`)
   }
 
   return (

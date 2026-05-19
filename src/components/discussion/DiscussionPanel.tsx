@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { MessageSquare, Loader2, AlertCircle, Lock, ArrowUpDown, ArrowUp, ArrowDown, Clock } from 'lucide-react'
 import { useDiscussion } from '../../hooks/useDiscussion'
 import type { DiscussionPost as Post } from '../../hooks/useDiscussion'
@@ -42,10 +43,36 @@ export function DiscussionPanel({ sessionId }: Props) {
   const { posts, loading, error, submitting, submitPost, toggleVote, hidePost } = useDiscussion(sessionId)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [sort, setSort] = useState<SortKey>('votes_desc')
+  const scrolledRef = useRef(false)
+  const location = useLocation()
   const isAdmin = profile?.role === 'admin'
   const totalCount = countTree(posts)
 
   const sortedPosts = useMemo(() => sortPosts(posts, sort), [posts, sort])
+
+  // Parse target post id from hash: #post-<uuid>
+  const targetPostId = useMemo(() => {
+    const match = location.hash.match(/^#post-([0-9a-f-]{36})$/)
+    return match ? match[1] : null
+  }, [location.hash])
+
+  // After posts load, scroll to target and flash highlight directly on DOM
+  // Works for any nesting depth without prop drilling
+  useEffect(() => {
+    if (!targetPostId || loading || scrolledRef.current) return
+    const wrapper = document.getElementById(`post-${targetPostId}`)
+    if (!wrapper) return
+    scrolledRef.current = true
+    setTimeout(() => {
+      wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // The inner card is the first child div with the group class
+      const card = wrapper.querySelector('.group') as HTMLElement | null
+      if (card) {
+        card.classList.add('post-highlight')
+        setTimeout(() => card.classList.remove('post-highlight'), 2200)
+      }
+    }, 350)
+  }, [targetPostId, loading, posts])
 
   async function handlePost(body: object) {
     setSubmitError(null)

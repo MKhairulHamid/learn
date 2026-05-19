@@ -73,7 +73,10 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
   }
 
   return (
-    <div className={`${post.depth > 0 ? `ml-6 pl-3 border-l-2 ${DEPTH_COLORS[post.depth] ?? 'border-l-gray-100'}` : ''}`}>
+    <div
+      id={`post-${post.id}`}
+      className={`${post.depth > 0 ? `ml-6 pl-3 border-l-2 ${DEPTH_COLORS[post.depth] ?? 'border-l-gray-100'}` : ''}`}
+    >
       <div className={`group rounded-xl p-3.5 transition-colors ${post.is_hidden ? 'opacity-50' : ''} ${post.depth === 0 ? 'bg-gray-50 border border-gray-100' : 'bg-white'}`}>
 
         {/* Header */}
@@ -191,7 +194,7 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
               onReply={onReply}
               onHide={onHide}
               isAdmin={_isAdmin}
-            />
+              />
           ))}
         </div>
       )}

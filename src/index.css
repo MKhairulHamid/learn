@@ -57,6 +57,17 @@
   padding: 0 4px;
 }
 
+/* Discussion post highlight flash */
+@keyframes post-highlight {
+  0%   { box-shadow: 0 0 0 3px #06b6d4, 0 0 0 6px rgba(6,182,212,0.25); background-color: #ecfeff; }
+  70%  { box-shadow: 0 0 0 3px rgba(6,182,212,0.3), 0 0 0 6px rgba(6,182,212,0.08); background-color: #f0fdff; }
+  100% { box-shadow: none; background-color: transparent; }
+}
+.post-highlight {
+  animation: post-highlight 2s ease-out forwards;
+  border-radius: 12px;
+}
+
 /* Tippy popup reset */
 .tippy-box { background: transparent; box-shadow: none; padding: 0; }
 .tippy-content { padding: 0; }
