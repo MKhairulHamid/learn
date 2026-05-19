@@ -42,7 +42,8 @@ export function DiscussionEditor({
       Mention.configure({
         HTMLAttributes: { class: 'mention' },
         suggestion: {
-          items: async ({ query }: { query: string }) => fetchMentionUsers(query),
+          items: async ({ query }: { query: string }) =>
+            query.length < 3 ? [] : fetchMentionUsers(query),
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           render: (): any => {
             let component: ReactRenderer<MentionListRef>
