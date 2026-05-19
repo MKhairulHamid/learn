@@ -11,7 +11,7 @@ import { useAuth } from '../../context/AuthContext'
 interface Props {
   post: Post
   onVote: (postId: string, hasVoted: boolean) => void
-  onReply: (body: object, parentId: string) => Promise<void>
+  onReply: (body: object, parentId: string) => Promise<{ error?: string } | void>
   onHide: (postId: string, hide: boolean) => void
   isAdmin: boolean
 }
@@ -66,7 +66,8 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
 
   async function handleReply(body: object) {
     setSubmitError(null)
-    const { error } = await onReply(body, post.id) as unknown as { error?: string } ?? {}
+    const result = await onReply(body, post.id)
+    const error = result && 'error' in result ? result.error : undefined
     if (error) { setSubmitError(error); return }
     setReplying(false)
   }

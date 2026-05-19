@@ -3,8 +3,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
 import Mention from '@tiptap/extension-mention'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import tippy from 'tippy.js'
-import type { Instance as TippyInstance } from 'tippy.js'
 import { MentionList } from './MentionList'
 import type { MentionListRef } from './MentionList'
 import { fetchMentionUsers } from '../../hooks/useDiscussion'
@@ -40,16 +40,19 @@ export function DiscussionEditor({
         HTMLAttributes: { class: 'mention' },
         suggestion: {
           items: async ({ query }: { query: string }) => fetchMentionUsers(query),
-          render: () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          render: (): any => {
             let component: ReactRenderer<MentionListRef>
-            let popup: TippyInstance[]
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let popup: any[]
 
             return {
-              onStart(props: Parameters<NonNullable<ReturnType<typeof Mention.configure>['options']['suggestion']['render']>>[0]['onStart'] extends ((p: infer P) => void) ? P : never) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onStart(props: any) {
                 component = new ReactRenderer(MentionList, { props, editor: props.editor })
                 if (!props.clientRect) return
                 popup = tippy('body', {
-                  getReferenceClientRect: props.clientRect as () => DOMRect,
+                  getReferenceClientRect: props.clientRect,
                   appendTo: () => document.body,
                   content: component.element,
                   showOnCreate: true,
@@ -58,18 +61,18 @@ export function DiscussionEditor({
                   placement: 'bottom-start',
                 })
               },
-              onUpdate(props: unknown) {
-                component.updateProps(props as Record<string, unknown>)
-                const p = props as { clientRect?: () => DOMRect }
-                if (!p.clientRect) return
-                popup[0].setProps({ getReferenceClientRect: p.clientRect })
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onUpdate(props: any) {
+                component.updateProps(props)
+                if (!props.clientRect) return
+                popup[0]?.setProps({ getReferenceClientRect: props.clientRect })
               },
               onKeyDown(props: { event: KeyboardEvent }) {
-                if (props.event.key === 'Escape') { popup[0].hide(); return true }
+                if (props.event.key === 'Escape') { popup[0]?.hide(); return true }
                 return component.ref?.onKeyDown(props) ?? false
               },
               onExit() {
-                popup[0].destroy()
+                popup[0]?.destroy()
                 component.destroy()
               },
             }
