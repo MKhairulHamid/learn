@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useEditor, EditorContent, ReactRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -28,6 +29,8 @@ export function DiscussionEditor({
   submitLabel = 'Post',
   autoFocus = false,
 }: Props) {
+  const [isEmpty, setIsEmpty] = useState(true)
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -80,6 +83,8 @@ export function DiscussionEditor({
         },
       }),
     ],
+    onCreate({ editor }) { setIsEmpty(editor.isEmpty) },
+    onUpdate({ editor }) { setIsEmpty(editor.isEmpty) },
     autofocus: autoFocus,
     editorProps: {
       attributes: {
@@ -87,8 +92,6 @@ export function DiscussionEditor({
       },
     },
   })
-
-  const isEmpty = !editor || editor.isEmpty
 
   async function handleSubmit() {
     if (!editor || isEmpty) return
