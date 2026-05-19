@@ -3,7 +3,7 @@ import { generateHTML } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Mention from '@tiptap/extension-mention'
-import { ChevronDown, ChevronUp, CornerDownRight, EyeOff, Eye, ArrowUp, MoreHorizontal } from 'lucide-react'
+import { ChevronRight, CornerDownRight, EyeOff, Eye, ArrowUp, MoreHorizontal } from 'lucide-react'
 import type { DiscussionPost as Post } from '../../hooks/useDiscussion'
 import { DiscussionEditor } from './DiscussionEditor'
 import { useAuth } from '../../context/AuthContext'
@@ -156,16 +156,6 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
             </button>
           )}
 
-          {/* Toggle replies */}
-          {hasReplies && (
-            <button
-              onClick={() => setRepliesOpen(o => !o)}
-              className="cursor-pointer flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 ml-auto transition-colors"
-            >
-              {repliesOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-              {post.replies!.length} {post.replies!.length === 1 ? 'reply' : 'replies'}
-            </button>
-          )}
         </div>
 
         {/* Reply editor */}
@@ -183,20 +173,65 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
         )}
       </div>
 
-      {/* Nested replies */}
-      {hasReplies && repliesOpen && (
-        <div className="mt-2 space-y-2">
-          {post.replies!.map(reply => (
-            <DiscussionPost
-              key={reply.id}
-              post={reply}
-              onVote={onVote}
-              onReply={onReply}
-              onHide={onHide}
-              isAdmin={_isAdmin}
-              />
-          ))}
-        </div>
+      {/* ── Replies section ─────────────────────────────────────── */}
+      {hasReplies && (
+        <>
+          {/* Toggle bar — full width, clearly tappable */}
+          <button
+            onClick={() => setRepliesOpen(o => !o)}
+            className="cursor-pointer w-full flex items-center gap-2 mt-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none
+              text-gray-500 hover:text-gray-800 hover:bg-gray-100 active:bg-gray-200"
+          >
+            {/* Animated chevron */}
+            <span className={`transition-transform duration-200 ${repliesOpen ? 'rotate-90' : 'rotate-0'}`}>
+              <ChevronRight size={14} />
+            </span>
+
+            {/* Label */}
+            <span>
+              {repliesOpen
+                ? `Hide ${post.replies!.length} ${post.replies!.length === 1 ? 'reply' : 'replies'}`
+                : `Show ${post.replies!.length} ${post.replies!.length === 1 ? 'reply' : 'replies'}`
+              }
+            </span>
+
+            {/* Avatars of repliers (collapsed only) */}
+            {!repliesOpen && (
+              <span className="flex items-center -space-x-1.5 ml-1">
+                {[...new Map(post.replies!.map(r => [r.user_id, r])).values()]
+                  .slice(0, 3)
+                  .map(r => (
+                    <span
+                      key={r.user_id}
+                      className="w-5 h-5 rounded-full bg-primary-200 text-primary-800 text-[9px] font-bold flex items-center justify-center ring-1 ring-white"
+                    >
+                      {initials(r.author)[0]}
+                    </span>
+                  ))
+                }
+              </span>
+            )}
+
+            {/* Divider line fills remaining space */}
+            <span className="flex-1 h-px bg-gray-200 ml-1" />
+          </button>
+
+          {/* Replies list */}
+          {repliesOpen && (
+            <div className="mt-1 space-y-2">
+              {post.replies!.map(reply => (
+                <DiscussionPost
+                  key={reply.id}
+                  post={reply}
+                  onVote={onVote}
+                  onReply={onReply}
+                  onHide={onHide}
+                  isAdmin={_isAdmin}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
