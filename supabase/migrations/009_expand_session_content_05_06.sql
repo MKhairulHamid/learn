@@ -517,7 +517,7 @@ $en05$,
 
 Sejauh ini kamu telah mengambil baris individual. Tapi kebanyakan pertanyaan bisnis membutuhkan ringkasan: "Berapa pesanan yang kami terima bulan lalu?" "Berapa nilai pesanan rata-rata?" "Kategori produk mana yang menghasilkan pendapatan terbanyak?"
 
-**Fungsi agregat** mengambil sekelompok baris dan mengembalikan satu nilai. Mereka merangkum banyak baris menjadi satu angka ringkasan.
+**Fungsi agregat** mengambil sekelompok baris dan mengembalikan satu nilai. Fungsi ini merangkum banyak baris menjadi satu angka ringkasan.
 
 ### COUNT — Berapa Banyak Baris?
 
@@ -880,7 +880,7 @@ ORDER BY p.category, p.product_name;
 - INNER JOIN: hanya baris yang cocok. LEFT JOIN: semua dari kiri, yang cocok dari kanan.
 - CTE (klausa WITH) memecah query kompleks menjadi langkah-langkah bernama yang mudah dibaca.
 
-**Sesi berikutnya:** SQL Lanjutan — Window Functions, superpower SQL analitik.
+**Sesi berikutnya:** SQL Lanjutan — Window Functions, senjata pamungkas SQL analitik.
 $id05$
 WHERE session_number = '05';
 
@@ -1446,7 +1446,7 @@ Mari mulai dengan tugas analitik yang umum: "Tampilkan setiap pesanan, bersama d
 
 Dengan apa yang kamu tahu sejauh ini, kamu mungkin mencoba GROUP BY. Tapi GROUP BY merangkum semua pesanan pelanggan menjadi satu baris — kamu kehilangan detail pesanan individual. Kamu tidak bisa punya "satu baris per pesanan" sekaligus "jumlah di semua pesanan" dengan GROUP BY.
 
-**Window functions menyelesaikan masalah ini.** Mereka memungkinkan kamu melakukan kalkulasi di sekumpulan baris yang terkait sambil tetap mempertahankan setiap baris individual dalam hasil.
+**Window functions menyelesaikan masalah ini.** Fungsi ini memungkinkan kamu melakukan kalkulasi di sekumpulan baris yang terkait sambil tetap mempertahankan setiap baris individual dalam hasil.
 
 ```sql
 -- Ini berhasil dengan window function:

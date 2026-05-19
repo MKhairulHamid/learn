@@ -363,11 +363,11 @@ $en07$,
 
 ## Mengapa Visualisasi Itu Penting
 
-Bayangkan kamu menerima spreadsheet berisi 10.000 baris data penjualan. Manajermu bertanya: "Apakah bisnis kita berkembang?" Kamu scroll ke bawah. Kamu mencoba menghitung rata-rata dalam kepala. Setelah 20 menit, kamu masih belum yakin.
+Bayangkan kamu menerima spreadsheet berisi 10.000 baris data penjualan. Manajermu bertanya: "Apakah bisnis kita berkembang?" Kamu gulir ke bawah. Kamu mencoba menghitung rata-rata dalam kepala. Setelah 20 menit, kamu masih belum yakin.
 
 Sekarang bayangkan sebuah grafik garis yang menunjukkan pendapatan bulanan naik perlahan dari kiri ke kanan, dengan satu penurunan di bulan Februari. Dalam tiga detik, kamu sudah tahu jawabannya: ya, bisnis berkembang, dan ada sesuatu yang terjadi di Februari yang perlu diselidiki.
 
-**Itulah kekuatan visualisasi data.** Ia mengubah angka-angka yang butuh analisis aktif menjadi gambar yang otak kita proses hampir secara otomatis.
+**Itulah kekuatan visualisasi data.** Ia mengubah angka-angka yang butuh analisis aktif menjadi gambar yang diproses otak kita hampir secara otomatis.
 
 ---
 
@@ -453,7 +453,7 @@ Manusia jauh lebih baik membandingkan panjang (batang) daripada sudut (irisan pi
 
 ### Scatter Plot — Korelasi Antara Dua Variabel
 
-Scatter plot menempatkan titik-titik pada grid dua sumbu, di mana setiap titik mewakili satu data point (misalnya, satu pelanggan, satu toko, satu bulan).
+Scatter plot menempatkan titik-titik pada grid dua sumbu, di mana setiap titik mewakili satu titik data (misalnya, satu pelanggan, satu toko, satu bulan).
 
 **Gunakan ketika:**
 - Ingin mengeksplorasi hubungan antara dua variabel numerik
@@ -643,7 +643,7 @@ Looker Studio (dulu Google Data Studio) adalah alat dashboard gratis dari Google
 3. Warna adalah alat komunikasi, bukan dekorasi. Gunakan palet kategoris, sekuensial, atau divergen dengan tepat.
 4. Dashboard menceritakan kisah. Terapkan prinsip desain: hierarki, alignment, whitespace, konsistensi.
 5. Chart bisa berbohong — pelajari cara mengenali dan menghindari teknik yang menyesatkan.
-6. Looker Studio gratis dan powerful untuk membangun dashboard interaktif yang terhubung ke Google Sheets.
+6. Looker Studio gratis dan andal untuk membangun dashboard interaktif yang terhubung ke Google Sheets.
 
 $id07$
 WHERE session_number = '07';
@@ -1058,7 +1058,7 @@ Power BI adalah platform business intelligence dari Microsoft. Ia memungkinkan k
 |-------|-------|---------------|----------|
 | Volume data | ~1 juta baris maks. | Sumber data Google | Puluhan juta baris |
 | Pemodelan data | Dasar (VLOOKUP/pivot) | Tidak ada | Star schema penuh |
-| Kalkulasi kustom | Formula Excel | Terbatas | DAX (sangat powerful) |
+| Kalkulasi kustom | Formula Excel | Terbatas | DAX (sangat canggih) |
 | Berbagi | File via email | Link Google | Power BI Service |
 | Biaya | Termasuk dalam Office | Gratis | Gratis (Desktop) + berbayar (Service) |
 | Kurva belajar | Rendah | Rendah | Menengah-Tinggi |
@@ -1117,7 +1117,7 @@ Klik kanan header kolom → Remove. Hanya simpan yang benar-benar kamu butuhkan.
 Klik dua kali header kolom → Ketik nama baru. Gunakan nama yang jelas: "TanggalPesanan" bukan "order_date_field_v2".
 
 **Filter baris**
-Klik panah dropdown pada header kolom → Filter. Gunaan umum: hapus baris di mana status = "Dibatalkan".
+Klik panah dropdown pada header kolom → Filter. Penggunaan umum: hapus baris di mana status = "Dibatalkan".
 
 **Ubah tipe data**
 Klik ikon di sebelah kiri header kolom untuk mengubah tipe ke: Whole Number, Decimal Number, Text, Date, dll.
@@ -1205,7 +1205,7 @@ DAX adalah bahasa formula Power BI. Power Query mentransformasi data mentahmu se
 
 **Hal terpenting untuk dipahami tentang DAX:**
 
-> Kalkulasi DAX tidak statis — mereka merespons filter apa pun yang aktif di visual atau laporan saat itu.
+> Kalkulasi DAX tidak statis — hasilnya menyesuaikan diri dengan filter apa pun yang aktif di visual atau laporan saat itu.
 
 ---
 

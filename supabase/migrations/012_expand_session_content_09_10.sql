@@ -325,7 +325,7 @@ Bayangkan dua analis sama-sama diminta menjawab pertanyaan yang sama: "Mengapa p
 Menghasilkan presentasi 47 slide. Slide 1–10 adalah metodologi. Slide 11–30 adalah grafik dari setiap metrik yang bisa dibayangkan. Slide 38 berisi jawaban sebenarnya, terpendam di antara dua temuan yang kurang penting. Rapat eksekutif berlangsung 90 menit, dan di akhirnya, tidak ada yang yakin apa yang harus mereka lakukan selanjutnya.
 
 **Analis B (data story):**
-Membuka dengan: "Penjualan turun 18% di Q3 karena kita kehilangan pelanggan enterprise utama (23% dari pendapatan kita) di Juli, dan akuisisi organik tidak cukup untuk mengkompensasinya. Saya merekomendasikan prioritas upaya retensi untuk 10 akun teratas yang tersisa dan mempercepat kampanye akuisisi SMB Q4."
+Membuka dengan: "Penjualan turun 18% di Q3 karena kita kehilangan pelanggan enterprise utama (23% dari pendapatan kita) di Juli, dan akuisisi organik tidak cukup untuk menutupinya. Saya merekomendasikan agar kita memprioritaskan upaya retensi untuk 10 akun teratas yang tersisa dan mempercepat kampanye akuisisi SMB Q4."
 
 Kemudian ia menghabiskan 20 menit berikutnya menunjukkan bukti dan menjawab pertanyaan.
 
@@ -341,7 +341,7 @@ Kedua analis melihat data yang sama. Hanya Analis B yang mendorong keputusan.
 
 ## Mengapa Kebanyakan Laporan Analis Gagal Mendorong Keputusan
 
-1. **Tidak ada rekomendasi yang jelas** — temuan tanpa item tindakan membuat pengambil keputusan menggantung
+1. **Tidak ada rekomendasi yang jelas** — temuan tanpa langkah tindak lanjut membuat pengambil keputusan bingung harus berbuat apa
 2. **Mengubur berita utama** — menempatkan temuan utama di slide 30 alih-alih slide 1
 3. **Berbicara ke data, bukan ke orang** — "Koefisien regresi -0,34 menunjukkan..." vs "Ketika kita menaikkan harga 10%, kita kehilangan sekitar 8% pelanggan"
 4. **Tidak ada "so what" yang jelas** — menyajikan angka tanpa menjelaskan mengapa itu penting
@@ -377,7 +377,7 @@ Argumen pendukungmu harus mencakup gambaran lengkap (collectively exhaustive) ta
 
 ## Framework SCR: Situation → Complication → Resolution
 
-Struktur powerful lainnya, terutama untuk presentasi eksekutif:
+Kerangka ampuh lainnya, terutama untuk presentasi eksekutif:
 
 **Situation:** Tetapkan konteks bersama. Apa yang terjadi sebelum masalah muncul?
 
@@ -461,10 +461,10 @@ Batasi 3–5 temuan utama. Jika kamu punya 12 temuan "utama", tidak ada yang ben
 Ini adalah bagian paling berharga dari laporanmu. Banyak analis melewatkannya atau membuatnya samar. Jangan.
 
 Rekomendasi yang baik:
-- **Spesifik:** "Luncurkan kampanye email re-engagement 14 hari yang menargetkan 15.000 pengguna yang churned dalam 90 hari terakhir" (bukan "tingkatkan retensi pelanggan")
+- **Spesifik:** "Luncurkan kampanye email re-engagement 14 hari yang menargetkan 15.000 pengguna yang sudah churn dalam 90 hari terakhir" (bukan "tingkatkan retensi pelanggan")
 - **Terukur:** Sertakan target (kurangi churn 2 poin persentase)
 - **Diprioritaskan:** Apa yang harus terjadi pertama?
-- **Dimiliki:** Siapa yang bertanggung jawab mengimplementasikannya?
+- **Ada penanggung jawabnya:** Siapa yang bertanggung jawab mengimplementasikannya?
 - **Terikat waktu:** Kapan batasnya?
 
 ### 6. Lampiran
@@ -550,7 +550,7 @@ Jangan pernah mengarang jawaban yang tidak kamu miliki. Itu menghancurkan keperc
 
 **Temuan 2:** Kita kehilangan 140 pelanggan aktif antara Q2 dan Q3 — pengurangan 10%. Retensi, bukan akuisisi, adalah prioritasnya.
 
-**Rekomendasi:** (1) Luncurkan kampanye win-back pelanggan untuk 140 akun yang churned. (2) Lakukan tinjauan tim penjualan wilayah Timur sebelum 15 November. (3) Implementasikan dashboard peringatan dini churn bulanan."
+**Rekomendasi:** (1) Luncurkan kampanye win-back pelanggan untuk 140 akun yang sudah churn. (2) Lakukan tinjauan tim penjualan wilayah Timur sebelum 15 November. (3) Implementasikan dashboard peringatan dini churn bulanan."
 
 ---
 
@@ -1217,7 +1217,7 @@ Kamu sudah tahu SQL dan Excel. Mengapa harus belajar Python? Ini jawabannya yang
 - Pivot table dan grafik dasar
 
 **SQL terbaik untuk:**
-- Mengquery database
+- Melakukan query pada database
 - Mengagregasi tabel besar secara efisien
 - Menggabungkan tabel dengan JOIN
 - Mendefinisikan dan mentransformasi data di database
@@ -1252,7 +1252,7 @@ Google Colab sudah dilengkapi pandas, numpy, matplotlib, seaborn, dan ratusan li
 
 ---
 
-## Dasar-Dasar Python untuk Pemula Mutlak
+## Dasar-Dasar Python untuk Pemula
 
 ### Variabel
 
@@ -1653,7 +1653,7 @@ with pd.ExcelWriter("laporan_mingguan.xlsx", engine="openpyxl") as writer:
 print("Laporan dibuat: laporan_mingguan.xlsx")
 ```
 
-Dengan skrip seperti ini, apa yang dulunya tugas mingguan 2 jam menjadi jalankan otomatis 10 detik.
+Dengan skrip seperti ini, apa yang dulunya tugas mingguan 2 jam kini menjadi proses otomatis 10 detik.
 
 ---
 

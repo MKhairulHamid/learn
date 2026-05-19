@@ -330,7 +330,7 @@ $en03$,
 
 Ini skenario yang berbahaya. Manajermu bilang: "Rata-rata pelanggan kita belanja Rp 500.000 per pesanan. Bagus!" Kamu mengangguk dan lanjut.
 
-Tapi bagaimana jika 990 pelanggan belanja Rp 100.000 dan 10 pelanggan VIP belanja Rp 40.100.000 masing-masing? Rata-ratanya memang Rp 500.000, tapi *kenyataan* dari basis pelangganmu sama sekali berbeda dari apa yang angka itu implikasikan.
+Tapi bagaimana jika 990 pelanggan belanja Rp 100.000 dan 10 pelanggan VIP belanja Rp 40.100.000 masing-masing? Rata-ratanya memang Rp 500.000, tapi *kenyataan* dari basis pelangganmu sama sekali berbeda dari kesan yang ditimbulkan angka itu.
 
 Statistik adalah toolkit yang mencegahmu tertipu — oleh datamu sendiri, oleh presentasi, oleh artikel berita, dan oleh laporan bisnis yang memilih angka-angka yang menguntungkan.
 
@@ -466,7 +466,7 @@ Kuartil membagi data menjadi empat bagian yang sama:
 - **Q1 (persentil ke-25):** Seperempat bawah dari nilai
 - **Q2 (persentil ke-50):** Median
 - **Q3 (persentil ke-75):** Seperempat atas dari nilai
-- **IQR = Q3 - Q1:** 50% tengah dari datamu — ukuran sebaran yang lebih robust karena mengabaikan outlier ekstrem.
+- **IQR = Q3 - Q1:** 50% tengah dari datamu — ukuran sebaran yang lebih andal karena mengabaikan outlier ekstrem.
 
 ---
 
@@ -965,7 +965,7 @@ Bayangkan kamu menjalankan toko online. Kamu melacak:
 
 Kamu bisa menyimpan semua ini di Excel. Dan untuk toko kecil, itu berhasil. Tapi setelah 10.000 pelanggan, 5.000 produk, dan 200.000 pesanan, Excel menjadi lambat, sering crash, dan sulit digunakan oleh banyak orang sekaligus.
 
-**Database** adalah sistem yang lebih terorganisir, lebih powerful, lebih andal untuk menyimpan dan mengambil data. Bayangkan seperti sekumpulan file Excel yang sangat terorganisir (disebut "tabel"), tapi:
+**Database** adalah sistem yang lebih terorganisir, lebih canggih, lebih andal untuk menyimpan dan mengambil data. Bayangkan seperti sekumpulan file Excel yang sangat terorganisir (disebut "tabel"), tapi:
 - Banyak orang bisa membaca dan menulis ke dalamnya secara bersamaan
 - Bisa menampung jutaan (atau miliaran) baris tanpa melambat
 - Tabel bisa **saling terhubung** satu sama lain
@@ -1186,8 +1186,8 @@ ORDER BY city ASC, registration_year DESC;
 ## LIMIT: Selalu Gunakan Saat Eksplorasi
 
 Saat kamu terhubung ke database nyata dengan jutaan baris, `SELECT *` tanpa LIMIT bisa mengembalikan begitu banyak data sehingga:
-- Mencrash tool query-mu
-- Membutuhkan waktu menit untuk dijalankan
+- Membuat tool query-mu macet
+- Butuh waktu bermenit-menit untuk selesai
 - Membebani server database
 
 ```sql

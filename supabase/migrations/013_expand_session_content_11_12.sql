@@ -501,7 +501,7 @@ $en11$,
 
 ## Cara Mendekati Proyek Analisis Dunia Nyata dari Nol
 
-Di dunia nyata, proyek analisis tidak datang dengan dataset yang bersih, pertanyaan yang jelas, dan instruksi yang membantu. Mereka datang sebagai masalah bisnis yang samar, spreadsheet yang berantakan, dan stakeholder yang tidak yakin apa yang mereka inginkan.
+Di dunia nyata, proyek analisis tidak datang dengan dataset yang bersih, pertanyaan yang jelas, dan instruksi yang membantu. Proyek nyata justru datang sebagai masalah bisnis yang samar, spreadsheet yang berantakan, dan stakeholder yang tidak yakin apa yang mereka inginkan.
 
 Sesi ini mengajarkan **metodologi profesional** yang digunakan oleh analis data di perusahaan-perusahaan terkemuka. Setiap fase dijelaskan sehingga kamu bisa menerapkannya pada proyek apa pun — termasuk proyek capstone di akhir sesi ini.
 
@@ -627,7 +627,7 @@ print(df.isnull().sum() / len(df) * 100)  # Persentase
 
 **Kapan imputasi vs hapus:**
 - Hapus jika hilang acak dan < 5% baris
-- Imputasi numerik dengan median (lebih robust terhadap outlier daripada mean)
+- Imputasi numerik dengan median (lebih tahan terhadap outlier daripada mean)
 - Imputasi kategoris dengan modus atau "Tidak Diketahui"
 
 ### Duplikat
@@ -787,7 +787,7 @@ Ikuti struktur dari Sesi 9:
 2. **Latar Belakang dan Tujuan** (1 paragraf)
 3. **Metodologi** (sumber data, periode waktu, asumsi, keterbatasan)
 4. **Temuan Utama** (3–5 temuan, masing-masing dengan bukti dan interpretasi)
-5. **Rekomendasi** (spesifik, terukur, dimiliki, terikat waktu)
+5. **Rekomendasi** (spesifik, terukur, ada penanggung jawab, terikat waktu)
 6. **Lampiran** (tabel data, grafik tambahan)
 
 ---
@@ -891,12 +891,12 @@ Untuk lulus: minimum 70 poin keseluruhan, minimum 15 poin di Kedalaman Analitis 
 ## Poin-Poin Kunci
 
 1. Proyek analisis nyata memiliki 8 fase — jangan melewati satupun.
-2. Wawancara stakeholder sebelum menyentuh data adalah hal yang tidak bisa dinegosiasikan.
+2. Wawancara stakeholder sebelum menyentuh data adalah langkah yang tidak boleh dilewatkan.
 3. Penilaian kualitas data melindungi kredibilitasmu — jangan percaya data secara buta.
 4. Dokumentasikan setiap keputusan pembersihan — bagian metodologimu bergantung padanya.
 5. EDA adalah pekerjaan detektif — biarkan data mengejutkanmu sebelum kamu membangun hipotesis.
 6. GitHub dan portofolio LinkedIn mengubah pekerjaan proyekmu menjadi modal karier.
-7. Capstone adalah bukti kompetensimu — perlakukan seperti keterlibatan klien nyata.
+7. Capstone adalah bukti kompetensimu — perlakukan seperti proyek klien sungguhan.
 
 $id11$
 WHERE session_number = '11';
@@ -1309,7 +1309,7 @@ Pertimbangkan kasus-kasus nyata ini:
 
 **Kasus 1: Algoritma rekrutmen** — Sebuah perusahaan teknologi besar membangun model machine learning untuk menyaring resume. Model belajar dari data perekrutan historis — yang didominasi laki-laki karena industri teknologi secara historis banyak merekrut laki-laki. Model belajar memberikan penalti pada resume yang mengandung kata "perempuan" (seperti dalam "klub catur perempuan"). Perusahaan menghentikan alat ini, tapi hanya setelah menemukan bias bertahun-tahun kemudian.
 
-**Kasus 2: Disparitas skor kredit** — Beberapa perusahaan fintech menemukan model kredit mereka memberikan skor yang jauh lebih rendah kepada pelamar dari kode pos tertentu. Kode pos tersebut ternyata berkorelasi dengan ras. Perusahaan tidak bermaksud mendiskriminasi — tapi datanya mencerminkan pola peminjaman historis yang sendirinya diskriminatif.
+**Kasus 2: Disparitas skor kredit** — Beberapa perusahaan fintech menemukan model kredit mereka memberikan skor yang jauh lebih rendah kepada pelamar dari kode pos tertentu. Kode pos tersebut ternyata berkorelasi dengan ras. Perusahaan tidak bermaksud mendiskriminasi — tapi datanya mencerminkan pola peminjaman historis yang memang diskriminatif.
 
 Dalam semua kasus, para analis tidak jahat. Datanya nyata. Model bekerja secara teknis. Tapi hasilnya merugikan orang.
 
@@ -1321,7 +1321,7 @@ Dalam semua kasus, para analis tidak jahat. Datanya nyata. Model bekerja secara 
 
 ### Selection Bias (Bias Seleksi)
 
-Bias seleksi terjadi ketika data yang kamu miliki tidak mewakili populasi yang ingin kamu buat klaim tentangnya.
+Bias seleksi terjadi ketika data yang kamu miliki tidak mewakili populasi yang ingin kamu ambil kesimpulannya.
 
 **Contoh:** Kamu mensurvei pelangganmu tentang kepuasan produk. Kamu mendapat 500 respons. Tapi tingkat respons surveimu 15%, dan orang yang paling mungkin merespons adalah pelanggan yang paling terlibat (puas) atau paling frustrasi. 85% yang tidak merespons adalah pelanggan "rata-rata" yang pengalamannya paling perlu kamu pahami.
 
@@ -1451,7 +1451,7 @@ Pelanggaran data dunia nyata yang paling umum bukan peretasan canggih — ini ad
 **Aturan:** Jangan pernah mengirim data pribadi mentah melalui alat pesan atau email. Jika harus berbagi data, gunakan:
 - Berbagi file aman (Google Drive dengan kontrol akses, bukan "siapa pun dengan link")
 - Laporan teragregasi alih-alih rekaman individual
-- Dataset yang dianonimkan atau dipseudonymkan
+- Dataset yang dianonimkan atau dipseudonimkan
 
 ### Anonimisasi dan Pseudonimisasi
 
@@ -1646,7 +1646,7 @@ Di akhir program ini, kamu seharusnya memiliki:
 4. Keamanan data adalah tanggung jawab semua orang: least privilege, tidak ada PII mentah di Slack, anonimkan sebelum berbagi.
 5. Kerangka etika (keadilan, transparansi, akuntabilitas) melampaui kepatuhan hukum.
 6. Sertifikasi BNSP memvalidasi kompetensimu terhadap standar nasional — persiapkan portofoliomu dan latih menjelaskan pemikiranmu.
-7. Kariermu dimulai dengan capstone, portofolio GitHub, dan kehadiran LinkedIn — perlakukan mereka seserius kemampuan teknis.
+7. Kariermu dimulai dengan capstone, portofolio GitHub, dan profil LinkedIn yang kuat — perlakukan semua itu seserius kemampuan teknis.
 
 $id12$
 WHERE session_number = '12';

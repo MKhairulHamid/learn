@@ -238,11 +238,11 @@ $en01$,
   content_id = $id01$
 # Sesi 01 — Pengenalan Data Analytics & Karier Data Analyst
 
-## Selamat Datang di Perjalanan Data Kamu
+## Selamat Datang di Perjalanan Datamu
 
 Kamu akan mempelajari salah satu skill paling berharga di abad ke-21 ini. Data analytics ada di mana-mana — mulai dari rekomendasi yang ditampilkan Netflix, cara Tokopedia menentukan produk apa yang muncul paling atas di hasil pencarian, hingga bagaimana rumah sakit memutuskan berapa banyak perawat yang perlu dijadwalkan pada hari Senin pagi.
 
-Kabar baiknya? Kamu tidak perlu jadi ahli matematika atau lulusan ilmu komputer. Yang kamu butuhkan adalah rasa ingin tahu, kemauan untuk terus bertanya, dan kesabaran untuk belajar selangkah demi selangkah. Itulah yang dirancang oleh kursus ini.
+Kabar baiknya? Kamu tidak perlu jadi ahli matematika atau lulusan ilmu komputer. Yang kamu butuhkan adalah rasa ingin tahu, kemauan untuk terus bertanya, dan kesabaran untuk belajar selangkah demi selangkah. Dan kelas inilah yang akan membantumu mengembangkan semua itu.
 
 ---
 
@@ -742,7 +742,7 @@ $en02$,
 
 Setiap kali seseorang belajar Python, mereka menulis artikel yang bilang "Excel sudah mati." Excel tidak mati. Excel digunakan oleh lebih dari 750 juta orang di seluruh dunia dan merupakan alat komunikasi data default di hampir setiap perusahaan Indonesia yang akan kamu masuki.
 
-Inilah kebenarannya: **SQL dan Python membuatmu powerful. Excel membuatmu dimengerti.**
+Inilah kebenarannya: **SQL dan Python memberimu kemampuan. Excel membuat hasil kerjamu dipahami orang lain.**
 
 Ketika kamu perlu berbagi analisis dengan manajer keuangan yang tidak tahu apa itu Python, kamu kirim file Excel. Ketika kamu perlu cepat mengecek angka saat rapat, kamu buka Excel. Ketika klien mengirimkan data, datanya pasti berupa file Excel.
 
@@ -910,9 +910,9 @@ INDEX-MATCH menyelesaikan kelemahan terbesar VLOOKUP (hanya bisa melihat ke kana
 
 ---
 
-## Pivot Table: Tombol Ringkasan Ajaib
+## Pivot Table: Mesin Ringkasan Ajaib
 
-Pivot Table adalah salah satu fitur paling powerful di Excel. Fitur ini memungkinkan kamu merangkum ribuan baris data menjadi tabel ringkasan yang jelas — dalam waktu sekitar 30 detik, tanpa formula apapun.
+Pivot Table adalah salah satu fitur paling canggih di Excel. Fitur ini memungkinkan kamu merangkum ribuan baris data menjadi tabel ringkasan yang jelas — dalam waktu sekitar 30 detik, tanpa formula apapun.
 
 **Analogi:** Bayangkan kamu punya 10.000 struk kertas dari setahun penjualan. Menyortirnya secara manual per kota dan menjumlahkan totalnya akan memakan waktu berhari-hari. Pivot table seperti memiliki mesin yang menyortirnya ke dalam tumpukan dan menghitung totalnya secara instan.
 
