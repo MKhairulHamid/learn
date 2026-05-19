@@ -8,6 +8,7 @@ import {
 import { useDiscussion } from '../../hooks/useDiscussion'
 import type { DiscussionPost as Post } from '../../hooks/useDiscussion'
 import { useAuth } from '../../context/AuthContext'
+import { useCohort } from '../../hooks/useCohort'
 import { DiscussionPost } from './DiscussionPost'
 import { DiscussionEditor } from './DiscussionEditor'
 
@@ -55,12 +56,14 @@ interface Props { sessionId: string }
 
 export function DiscussionPanel({ sessionId }: Props) {
   const { user, profile } = useAuth()
-  const { posts, loading, error, submitting, submitPost, toggleVote, hidePost } = useDiscussion(sessionId)
+  const { cohortId } = useCohort()
+  const { posts, loading, error, submitting, submitPost, toggleVote, hidePost } = useDiscussion(sessionId, cohortId)
 
   const [submitError, setSubmitError]   = useState<string | null>(null)
   const [sort, setSort]                 = useState<SortKey>('votes_desc')
   const [collapsed, setCollapsed]       = useState(false)
   const [myPostsOnly, setMyPostsOnly]   = useState(false)
+  const [visibleCount, setVisibleCount] = useState(3)
 
   const scrolledRef = useRef(false)
   const location    = useLocation()
@@ -81,6 +84,9 @@ export function DiscussionPanel({ sessionId }: Props) {
     return sortPosts(filtered, sort)
   }, [posts, sort, myPostsOnly, user])
 
+  // Reset pagination when sort or filter changes
+  useEffect(() => { setVisibleCount(3) }, [sort, myPostsOnly])
+
   // Hash-based deep-link scroll + highlight
   const targetPostId = useMemo(() => {
     const match = location.hash.match(/^#post-([0-9a-f-]{36})$/)
@@ -89,8 +95,9 @@ export function DiscussionPanel({ sessionId }: Props) {
 
   useEffect(() => {
     if (!targetPostId || loading || scrolledRef.current) return
-    // Auto-expand if collapsed so the post is visible
+    // Auto-expand so the target post is always in view
     setCollapsed(false)
+    setVisibleCount(Number.MAX_SAFE_INTEGER)
     const wrapper = document.getElementById(`post-${targetPostId}`)
     if (!wrapper) return
     scrolledRef.current = true
@@ -107,7 +114,9 @@ export function DiscussionPanel({ sessionId }: Props) {
   async function handlePost(body: object) {
     setSubmitError(null)
     const result = await submitPost(body)
-    if (result.error) setSubmitError(result.error)
+    if (result.error) { setSubmitError(result.error); return }
+    // Expand so the new post (arriving via Realtime) is visible
+    setVisibleCount(v => v + 1)
   }
 
   async function handleReply(body: object, parentId: string) {
@@ -273,25 +282,42 @@ export function DiscussionPanel({ sessionId }: Props) {
               )}
 
               {/* Posts */}
-              {!loading && visiblePosts.length > 0 && (
-                <div className="space-y-3">
-                  {visiblePosts.map(post => (
-                    <DiscussionPost
-                      key={post.id}
-                      post={post}
-                      onVote={toggleVote}
-                      onReply={handleReply}
-                      onHide={hidePost}
-                      isAdmin={isAdmin}
-                    />
-                  ))}
-                  {myPostsOnly && myPostsCount < totalCount && (
-                    <p className="text-center text-xs text-gray-400 pt-1">
-                      Showing {myPostsCount} of {totalCount} posts · <button onClick={() => setMyPostsOnly(false)} className="cursor-pointer text-primary-600 hover:underline">show all</button>
-                    </p>
-                  )}
-                </div>
-              )}
+              {!loading && visiblePosts.length > 0 && (() => {
+                const displayed = visiblePosts.slice(0, visibleCount)
+                const remaining = visiblePosts.length - displayed.length
+                return (
+                  <div className="space-y-3">
+                    {displayed.map(post => (
+                      <DiscussionPost
+                        key={post.id}
+                        post={post}
+                        onVote={toggleVote}
+                        onReply={handleReply}
+                        onHide={hidePost}
+                        isAdmin={isAdmin}
+                      />
+                    ))}
+
+                    {/* Show more / filter hint */}
+                    {remaining > 0 ? (
+                      <button
+                        onClick={() => setVisibleCount(c => c + 3)}
+                        className="cursor-pointer w-full py-2.5 rounded-xl border border-dashed border-gray-200 text-sm text-gray-400 hover:text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+                      >
+                        Show {Math.min(remaining, 3)} more post{Math.min(remaining, 3) !== 1 ? 's' : ''}
+                        {remaining > 3 && <span className="text-gray-300 ml-1">({remaining} remaining)</span>}
+                      </button>
+                    ) : (
+                      myPostsOnly && myPostsCount < totalCount && (
+                        <p className="text-center text-xs text-gray-400 pt-1">
+                          Showing {myPostsCount} of {totalCount} posts ·{' '}
+                          <button onClick={() => setMyPostsOnly(false)} className="cursor-pointer text-primary-600 hover:underline">show all</button>
+                        </p>
+                      )
+                    )}
+                  </div>
+                )
+              })()}
             </>
           )}
         </>

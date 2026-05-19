@@ -9,6 +9,7 @@ import { MatchingExercise } from '../components/exercises/MatchingExercise'
 import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
+import { useCohort } from '../hooks/useCohort'
 import { runQuery } from '../lib/sqlSimulator'
 import { evaluateExercise } from '../lib/evaluator'
 import { supabase } from '../lib/supabase'
@@ -22,9 +23,12 @@ export default function ExercisePage() {
   const { profile } = useAuth()
   const lang = (localStorage.getItem('i18nextLng') ?? 'en') as 'en' | 'id'
 
+  const { cohortId, status } = useCohort()
+  const activeCohortId = status === 'active' ? cohortId : null
+
   const { exercise, loading, error } = useExercise(id)
   const { exercises: sessionExercises } = useExercises(exercise?.session_id)
-  const { submissions, saveSubmission } = useSubmissions(id, profile?.id)
+  const { submissions, saveSubmission } = useSubmissions(id, profile?.id, activeCohortId)
   const { markComplete } = useProgress()
 
   // Find next exercise in the same session
@@ -57,7 +61,7 @@ export default function ExercisePage() {
     const { results, allPassed: passed, score } = await evaluateExercise(answer, testCases, lang)
     setTestResults(results)
     setAllPassed(passed)
-    await saveSubmission({ user_id: profile.id, exercise_id: exercise.id, submitted_code: answer, passed, test_results: results, attempt_number: attemptCount + 1, score })
+    await saveSubmission({ user_id: profile.id, exercise_id: exercise.id, cohort_id: activeCohortId, submitted_code: answer, passed, test_results: results, attempt_number: attemptCount + 1, score })
     if (passed && exercise.session_id) {
       await markComplete(exercise.session_id)
       await supabase.from('user_activity_logs').insert({ user_id: profile.id, action_type: 'exercise_complete' as const, metadata: { exercise_id: exercise.id, score } })
@@ -77,6 +81,7 @@ export default function ExercisePage() {
     await saveSubmission({
       user_id: profile.id,
       exercise_id: exercise.id,
+      cohort_id: activeCohortId,
       submitted_code: query,
       passed,
       test_results: results,

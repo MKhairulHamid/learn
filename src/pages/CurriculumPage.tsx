@@ -1,11 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, Lock, PlayCircle } from 'lucide-react'
+import {
+  CheckCircle2, Clock, ChevronDown, ChevronUp, Lock, PlayCircle,
+  CalendarDays, Sparkles,
+} from 'lucide-react'
 import { usePhases } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
+import { useCohort } from '../hooks/useCohort'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Badge } from '../components/ui/Badge'
+import { CohortNotice } from '../components/cohort/CohortNotice'
+import type { Session } from '../types'
 
 const PHASE_COLORS: Record<number, string> = {
   1: 'from-blue-500 to-cyan-500',
@@ -21,11 +27,16 @@ const PHASE_BG: Record<number, string> = {
   4: 'bg-emerald-50 border-emerald-100',
 }
 
+// Short date label, e.g. "14 Jun"
+const fmtShort = (d: string) =>
+  new Date(d + 'T00:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+
 export default function CurriculumPage() {
   const { t, i18n } = useTranslation(['common', 'curriculum'])
   const navigate = useNavigate()
-  const { phases, loading } = usePhases()
+  const { phases, orientation, loading } = usePhases()
   const { isCompleted, completedCount, loading: progressLoading } = useProgress()
+  const cohort = useCohort()
   const [expandedPhase, setExpandedPhase] = useState<number>(1)
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
@@ -36,14 +47,7 @@ export default function CurriculumPage() {
   const sessionTitle = (s: { title_id: string; title_en: string }) =>
     lang === 'id' ? s.title_id : s.title_en
 
-  const isPhaseUnlocked = (phaseIndex: number) => {
-    if (phaseIndex === 0) return true
-    const prevPhase = phases[phaseIndex - 1]
-    if (!prevPhase?.sessions) return false
-    return prevPhase.sessions.every(s => isCompleted(s.id))
-  }
-
-  if (loading || progressLoading) {
+  if (loading || progressLoading || cohort.loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
@@ -51,10 +55,45 @@ export default function CurriculumPage() {
     )
   }
 
+  // Hard gate: no usable cohort relationship → block the curriculum entirely.
+  const blocked = !cohort.isAdmin &&
+    (cohort.status === 'none' || cohort.status === 'rejected' ||
+     cohort.status === 'removed' || cohort.status === 'expired')
+
+  if (blocked) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">{t('common:nav.curriculum')}</h1>
+        <p className="text-gray-500 text-sm mb-6">{t('common:landing.curriculum_subtitle')}</p>
+        <CohortNotice status={cohort.status} cohort={cohort.cohort} courseStarted={cohort.courseStarted} />
+      </div>
+    )
+  }
+
+  // Renders one lesson row's right-hand meta (duration / unlock date / locked).
+  const lessonMeta = (session: Session, accessible: boolean) => {
+    const sched = cohort.getScheduleFor(session.id)
+    if (!accessible) {
+      return (
+        <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
+          <Lock size={12} />
+          {sched ? `Unlocks ${fmtShort(sched.scheduled_date)}` : 'Locked'}
+        </span>
+      )
+    }
+    return (
+      <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
+        {sched
+          ? <><CalendarDays size={13} /> {fmtShort(sched.scheduled_date)}</>
+          : <><Clock size={13} /> {session.estimated_duration_minutes} {t('common:common.minutes')}</>}
+      </span>
+    )
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{t('common:nav.curriculum')}</h1>
         <p className="mt-1 text-gray-500 text-sm">
           {t('common:landing.curriculum_subtitle')}
@@ -64,23 +103,59 @@ export default function CurriculumPage() {
         </div>
       </div>
 
+      {/* Cohort status banner */}
+      {!cohort.isAdmin && (
+        <div className="mb-6">
+          <CohortNotice status={cohort.status} cohort={cohort.cohort} courseStarted={cohort.courseStarted} />
+        </div>
+      )}
+
+      {/* Orientation — Lesson 0 */}
+      {orientation && (() => {
+        const accessible = cohort.isSessionAccessible(orientation)
+        const done = isCompleted(orientation.id)
+        return (
+          <button
+            disabled={!accessible}
+            onClick={() => navigate(`/session/${orientation.id}`)}
+            className={`w-full flex items-center gap-4 p-5 mb-4 rounded-2xl border text-left transition-all
+              ${accessible
+                ? 'bg-gradient-to-r from-primary-50 to-cyan-50 border-primary-100 hover:shadow-md cursor-pointer'
+                : 'bg-gray-50 border-gray-100 opacity-60 cursor-not-allowed'}`}
+          >
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-600 to-cyan-500 flex items-center justify-center shrink-0">
+              <Sparkles size={22} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="primary" size="sm">Start here</Badge>
+                {done && <Badge variant="success" size="sm">✓ {t('common:common.completed')}</Badge>}
+              </div>
+              <h2 className="mt-1 font-semibold text-gray-900 text-base">{sessionTitle(orientation)}</h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Lesson 0 · Get oriented and meet your cohort
+              </p>
+            </div>
+            {accessible
+              ? <PlayCircle size={22} className="text-primary-500 shrink-0" />
+              : <Lock size={18} className="text-gray-300 shrink-0" />}
+          </button>
+        )
+      })()}
+
       {/* Phases */}
       <div className="space-y-4">
-        {phases.map((phase, phaseIdx) => {
-          const unlocked = isPhaseUnlocked(phaseIdx)
+        {phases.map(phase => {
           const phaseCompleted = phase.sessions?.every(s => isCompleted(s.id)) ?? false
           const phaseProgress = phase.sessions?.filter(s => isCompleted(s.id)).length ?? 0
           const isExpanded = expandedPhase === phase.phase_number
 
           return (
             <div key={phase.id}
-              className={`rounded-2xl border overflow-hidden shadow-sm transition-shadow ${
-                unlocked ? 'hover:shadow-md' : 'opacity-60'
-              } ${PHASE_BG[phase.phase_number]}`}>
+              className={`rounded-2xl border overflow-hidden shadow-sm transition-shadow hover:shadow-md ${PHASE_BG[phase.phase_number]}`}>
 
               {/* Phase header */}
               <button
-                disabled={!unlocked}
                 onClick={() => setExpandedPhase(isExpanded ? 0 : phase.phase_number)}
                 className="w-full flex items-center gap-4 p-5 text-left"
               >
@@ -91,11 +166,6 @@ export default function CurriculumPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="gray" size="sm">Phase {phase.phase_number}</Badge>
                     {phaseCompleted && <Badge variant="success" size="sm">✓ Complete</Badge>}
-                    {!unlocked && (
-                      <Badge variant="gray" size="sm">
-                        <Lock size={10} className="mr-1" /> {t('common:landing.locked')}
-                      </Badge>
-                    )}
                   </div>
                   <h2 className="mt-1 font-semibold text-gray-900 text-base">{phaseName(phase)}</h2>
                   <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{phaseDesc(phase)}</p>
@@ -111,24 +181,21 @@ export default function CurriculumPage() {
               </button>
 
               {/* Phase progress bar */}
-              {unlocked && (
-                <div className="px-5 pb-3">
-                  <ProgressBar
-                    value={phaseProgress}
-                    max={phase.sessions?.length ?? 3}
-                    showText={false}
-                    size="sm"
-                  />
-                </div>
-              )}
+              <div className="px-5 pb-3">
+                <ProgressBar
+                  value={phaseProgress}
+                  max={phase.sessions?.length ?? 3}
+                  showText={false}
+                  size="sm"
+                />
+              </div>
 
               {/* Sessions list */}
-              {isExpanded && unlocked && (
+              {isExpanded && (
                 <div className="border-t border-white/60 divide-y divide-white/40">
-                  {phase.sessions?.map((session, sIdx) => {
+                  {phase.sessions?.map(session => {
                     const done = isCompleted(session.id)
-                    const prevDone = sIdx === 0 || isCompleted(phase.sessions![sIdx - 1].id)
-                    const accessible = sIdx === 0 || prevDone
+                    const accessible = cohort.isSessionAccessible(session)
 
                     return (
                       <button
@@ -145,7 +212,7 @@ export default function CurriculumPage() {
                             ? <CheckCircle2 size={20} className="text-green-500" />
                             : accessible
                               ? <PlayCircle size={20} className="text-primary-500" />
-                              : <Circle size={20} className="text-gray-300" />}
+                              : <Lock size={18} className="text-gray-300" />}
                         </div>
 
                         {/* Session info */}
@@ -163,11 +230,8 @@ export default function CurriculumPage() {
                           </p>
                         </div>
 
-                        {/* Duration */}
-                        <div className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
-                          <Clock size={13} />
-                          {session.estimated_duration_minutes} {t('common:common.minutes')}
-                        </div>
+                        {/* Right meta */}
+                        {lessonMeta(session, accessible)}
                       </button>
                     )
                   })}

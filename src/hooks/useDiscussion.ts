@@ -24,7 +24,14 @@ export interface DiscussionPost {
   depth: number
 }
 
-export function useDiscussion(sessionId: string | undefined) {
+/**
+ * Session discussion, isolated per cohort.
+ *
+ * `cohortId` scopes the thread to a single cohort so each batch has its own
+ * discussion space. When it is `null` (e.g. an admin with no cohort) every
+ * post for the session is shown.
+ */
+export function useDiscussion(sessionId: string | undefined, cohortId: string | null = null) {
   const { user } = useAuth()
   const [posts, setPosts] = useState<DiscussionPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,11 +44,14 @@ export function useDiscussion(sessionId: string | undefined) {
     setError(null)
 
     try {
-      // Fetch all posts for this session (RLS hides hidden ones for non-admins)
-      const { data: rawPosts, error: fetchErr } = await supabase
+      // Fetch posts for this session, scoped to the cohort when known.
+      // (RLS hides hidden ones for non-admins.)
+      let query = supabase
         .from('discussion_posts')
         .select('*')
         .eq('session_id', sessionId)
+      if (cohortId) query = query.eq('cohort_id', cohortId)
+      const { data: rawPosts, error: fetchErr } = await query
         .order('created_at', { ascending: true })
 
       if (fetchErr) throw fetchErr
@@ -111,7 +121,7 @@ export function useDiscussion(sessionId: string | undefined) {
     } finally {
       setLoading(false)
     }
-  }, [sessionId, user])
+  }, [sessionId, user, cohortId])
 
   useEffect(() => {
     fetchPosts()
@@ -149,6 +159,7 @@ export function useDiscussion(sessionId: string | undefined) {
       session_id: sessionId,
       user_id: user.id,
       parent_id: parentId ?? null,
+      cohort_id: cohortId,
       body,
     })
     setSubmitting(false)
@@ -157,7 +168,7 @@ export function useDiscussion(sessionId: string | undefined) {
       return { error: error.message }
     }
     return {}
-  }, [user, sessionId])
+  }, [user, sessionId, cohortId])
 
   const toggleVote = useCallback(async (postId: string, hasVoted: boolean) => {
     if (!user) return

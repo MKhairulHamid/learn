@@ -4,9 +4,11 @@ import { BookOpen, Code2, TrendingUp, Clock, ArrowRight, Zap, CheckCircle2 } fro
 import { useAuth } from '../context/AuthContext'
 import { useProgress } from '../hooks/useProgress'
 import { usePhases } from '../hooks/usePhases'
+import { useCohort } from '../hooks/useCohort'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
+import { CohortNotice } from '../components/cohort/CohortNotice'
 import type { ReactNode } from 'react'
 
 function getGreeting(t: (key: string) => string) {
@@ -22,6 +24,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const { completedCount, isCompleted, progress } = useProgress()
   const { phases } = usePhases()
+  const cohort = useCohort()
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Learner'
@@ -33,10 +36,10 @@ export default function Dashboard() {
   ) ?? phases[0]
   const currentPhaseNum = currentPhase?.phase_number ?? 1
 
-  // Find next session to do
+  // Find next session to do — must be incomplete AND unlocked for this cohort
   const nextSession = phases
     .flatMap(p => p.sessions ?? [])
-    .find(s => !isCompleted(s.id))
+    .find(s => !isCompleted(s.id) && cohort.isSessionAccessible(s))
 
   // Recent completions
   const recentCompleted = [...progress]
@@ -61,6 +64,17 @@ export default function Dashboard() {
           <Badge variant="primary" size="md">Admin</Badge>
         )}
       </div>
+
+      {/* Cohort status */}
+      {!cohort.loading && !cohort.isAdmin && (
+        <div className="mb-6">
+          <CohortNotice
+            status={cohort.status}
+            cohort={cohort.cohort}
+            courseStarted={cohort.courseStarted}
+          />
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

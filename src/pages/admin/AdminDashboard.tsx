@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard } from 'lucide-react'
+import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap } from 'lucide-react'
 import { StatsCard } from '../../components/admin/StatsCard'
 import { ActivityFeed } from '../../components/admin/ActivityFeed'
 import { UserTable } from '../../components/admin/UserTable'
 import { ExerciseAnalyticsPanel } from '../../components/admin/ExerciseAnalyticsPanel'
+import { CohortManagerPanel } from '../../components/admin/CohortManagerPanel'
 import { useAdminStats, useActivityFeed, useUserList } from '../../hooks/useAdminStats'
 
-type Tab = 'overview' | 'analytics'
+type Tab = 'overview' | 'cohorts' | 'analytics'
 
 export default function AdminDashboard() {
   const { stats, loading: statsLoading } = useAdminStats()
@@ -42,6 +43,17 @@ export default function AdminDashboard() {
             >
               <LayoutDashboard size={14} />
               Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('cohorts')}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'cohorts'
+                  ? 'border-primary-500 text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <GraduationCap size={14} />
+              Cohorts
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
@@ -114,6 +126,10 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'cohorts' && (
+          <CohortManagerPanel />
         )}
 
         {activeTab === 'analytics' && (

@@ -83,7 +83,11 @@ export function useExercise(exerciseId?: string) {
   return { exercise, loading, error }
 }
 
-export function useSubmissions(exerciseId?: string, userId?: string) {
+export function useSubmissions(
+  exerciseId?: string,
+  userId?: string,
+  cohortId: string | null = null,
+) {
   const [submissions, setSubmissions] = useState<ExerciseSubmission[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -93,16 +97,19 @@ export function useSubmissions(exerciseId?: string, userId?: string) {
       return
     }
 
-    const { data } = await supabase
+    // Submissions are isolated per cohort — an active member only sees the
+    // attempts they made within their current cohort.
+    let query = supabase
       .from('exercise_submissions')
       .select('*')
       .eq('exercise_id', exerciseId)
       .eq('user_id', userId)
-      .order('submitted_at', { ascending: false })
+    if (cohortId) query = query.eq('cohort_id', cohortId)
+    const { data } = await query.order('submitted_at', { ascending: false })
 
     setSubmissions(data ?? [])
     setLoading(false)
-  }, [exerciseId, userId])
+  }, [exerciseId, userId, cohortId])
 
   useEffect(() => { fetchSubmissions() }, [fetchSubmissions])
 

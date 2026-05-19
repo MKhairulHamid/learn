@@ -27,7 +27,7 @@ export interface Phase {
 
 export interface Session {
   id: string
-  phase_id: string
+  phase_id: string | null
   session_number: string
   title_id: string
   title_en: string
@@ -91,6 +91,7 @@ export interface ExerciseSubmission {
   id: string
   user_id: string
   exercise_id: string
+  cohort_id?: string | null   // populated once cohort isolation lands (Batch 5)
   submitted_code: string
   passed: boolean
   test_results: TestResult[]
@@ -105,4 +106,57 @@ export interface ActivityLog {
   action_type: 'login' | 'session_view' | 'exercise_start' | 'exercise_submit' | 'session_complete'
   metadata: Record<string, unknown>
   created_at: string
+}
+
+// ── Cohort system ──────────────────────────────────────────────────
+
+export type EnrollmentStatus = 'pending' | 'active' | 'rejected' | 'removed'
+
+export interface Cohort {
+  id: string
+  name: string
+  description: string
+  admission_open_at: string
+  course_start_at: string
+  course_close_at: string
+  access_duration_months: number
+  max_seats: number | null
+  admission_open: boolean
+  is_published: boolean
+  created_by: string | null
+  created_at: string
+}
+
+export interface CohortLessonSchedule {
+  id: string
+  cohort_id: string
+  session_id: string
+  scheduled_date: string        // ISO date (yyyy-mm-dd)
+  zoom_link: string | null
+  recording_url: string | null
+  unlock_override: boolean | null  // null = auto by date; true = force open; false = force locked
+  notes: string | null
+  created_at: string
+}
+
+export interface CohortEnrollment {
+  id: string
+  cohort_id: string
+  user_id: string
+  status: EnrollmentStatus
+  applied_at: string
+  approved_at: string | null
+  approved_by: string | null
+  access_expires_at: string | null
+  notes: string | null
+}
+
+export interface CohortSessionProgress {
+  id: string
+  cohort_id: string
+  user_id: string
+  session_id: string
+  completed: boolean
+  completed_at: string | null
+  score: number
 }
