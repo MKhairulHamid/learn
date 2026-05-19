@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../ui/Button'
+import { NotificationDropdown } from '../discussion/NotificationDropdown'
+import { useNotifications } from '../../hooks/useNotifications'
 
 export function Navbar() {
   const { t, i18n } = useTranslation('common')
@@ -16,8 +18,10 @@ export function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const currentLang = i18n.resolvedLanguage === 'id' ? 'id' : 'en'
+  const { notifications, unreadCount, loading: notifLoading, markRead, markAllRead } = useNotifications()
 
   const toggleLang = () => {
     i18n.changeLanguage(currentLang === 'en' ? 'id' : 'en')
@@ -104,11 +108,27 @@ export function Navbar() {
               </span>
             </button>
 
+            {/* Notification bell (desktop, logged-in only) */}
+            {user && (
+              <div className="hidden md:block">
+                <NotificationDropdown
+                  notifications={notifications}
+                  unreadCount={unreadCount}
+                  loading={notifLoading}
+                  open={notifOpen}
+                  onToggle={() => { setNotifOpen(o => !o); setUserMenuOpen(false) }}
+                  onClose={() => setNotifOpen(false)}
+                  onMarkRead={markRead}
+                  onMarkAllRead={markAllRead}
+                />
+              </div>
+            )}
+
             {user ? (
               /* ── User avatar + dropdown ── */
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={() => setUserMenuOpen(o => !o)}
+                  onClick={() => { setUserMenuOpen(o => !o); setNotifOpen(false) }}
                   className="hidden md:flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white text-xs font-bold">

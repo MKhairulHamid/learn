@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
 import { SessionExercises } from '../components/exercises/SessionExercises'
+import { DiscussionPanel } from '../components/discussion/DiscussionPanel'
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -256,8 +257,11 @@ export default function SessionPage() {
         {id && <SessionExercises sessionId={id} lang={lang} />}
       </div>
 
+      {/* Discussion */}
+      {id && <DiscussionPanel sessionId={id} />}
+
       {/* Footer actions */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center justify-between gap-4 flex-wrap mt-8">
         <Button variant="outline" onClick={() => navigate('/curriculum')}>
           <ArrowLeft size={16} />
           {t('common.back')}
