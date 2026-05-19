@@ -1,9 +1,37 @@
-import { useState } from 'react'
-import { MessageSquare, Loader2, AlertCircle, Lock } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { MessageSquare, Loader2, AlertCircle, Lock, ArrowUpDown, ArrowUp, ArrowDown, Clock } from 'lucide-react'
 import { useDiscussion } from '../../hooks/useDiscussion'
+import type { DiscussionPost as Post } from '../../hooks/useDiscussion'
 import { useAuth } from '../../context/AuthContext'
 import { DiscussionPost } from './DiscussionPost'
 import { DiscussionEditor } from './DiscussionEditor'
+
+type SortKey = 'votes_desc' | 'votes_asc' | 'date_desc' | 'date_asc'
+
+interface SortOption {
+  key: SortKey
+  label: string
+  shortLabel: string
+  icon: React.ReactNode
+}
+
+const SORT_OPTIONS: SortOption[] = [
+  { key: 'votes_desc', label: 'Most voted',   shortLabel: 'Top',    icon: <ArrowUp size={13} /> },
+  { key: 'votes_asc',  label: 'Least voted',  shortLabel: 'Low',    icon: <ArrowDown size={13} /> },
+  { key: 'date_desc',  label: 'Latest first', shortLabel: 'New',    icon: <Clock size={13} /> },
+  { key: 'date_asc',   label: 'Oldest first', shortLabel: 'Old',    icon: <ArrowUpDown size={13} /> },
+]
+
+function sortPosts(posts: Post[], key: SortKey): Post[] {
+  return [...posts].sort((a, b) => {
+    switch (key) {
+      case 'votes_desc': return b.vote_count - a.vote_count || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      case 'votes_asc':  return a.vote_count - b.vote_count || new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      case 'date_desc':  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      case 'date_asc':   return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    }
+  })
+}
 
 interface Props {
   sessionId: string
@@ -13,8 +41,11 @@ export function DiscussionPanel({ sessionId }: Props) {
   const { user, profile } = useAuth()
   const { posts, loading, error, submitting, submitPost, toggleVote, hidePost } = useDiscussion(sessionId)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [sort, setSort] = useState<SortKey>('votes_desc')
   const isAdmin = profile?.role === 'admin'
   const totalCount = countTree(posts)
+
+  const sortedPosts = useMemo(() => sortPosts(posts, sort), [posts, sort])
 
   async function handlePost(body: object) {
     setSubmitError(null)
@@ -28,14 +59,40 @@ export function DiscussionPanel({ sessionId }: Props) {
 
   return (
     <section id="discussion" className="mt-10 border-t border-gray-100 pt-8">
+
       {/* Header */}
-      <div className="flex items-center gap-2.5 mb-6">
-        <MessageSquare size={18} className="text-primary-600" />
-        <h2 className="text-lg font-bold text-gray-900">Discussion</h2>
-        {totalCount > 0 && (
-          <span className="text-xs font-semibold text-primary-700 bg-primary-100 px-2 py-0.5 rounded-full">
-            {totalCount}
-          </span>
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <div className="flex items-center gap-2.5">
+          <MessageSquare size={18} className="text-primary-600" />
+          <h2 className="text-lg font-bold text-gray-900">Discussion</h2>
+          {totalCount > 0 && (
+            <span className="text-xs font-semibold text-primary-700 bg-primary-100 px-2 py-0.5 rounded-full">
+              {totalCount}
+            </span>
+          )}
+        </div>
+
+        {/* Sort controls — only show when there are posts */}
+        {!loading && posts.length > 1 && (
+          <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+            {SORT_OPTIONS.map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setSort(opt.key)}
+                title={opt.label}
+                className={`cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  sort === opt.key
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {opt.icon}
+                {/* Show full label on md+, short label on mobile */}
+                <span className="hidden sm:inline">{opt.label}</span>
+                <span className="sm:hidden">{opt.shortLabel}</span>
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
@@ -91,9 +148,9 @@ export function DiscussionPanel({ sessionId }: Props) {
           )}
 
           {/* Posts */}
-          {!loading && posts.length > 0 && (
+          {!loading && sortedPosts.length > 0 && (
             <div className="space-y-3">
-              {posts.map(post => (
+              {sortedPosts.map(post => (
                 <DiscussionPost
                   key={post.id}
                   post={post}
