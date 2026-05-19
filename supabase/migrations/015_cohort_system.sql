@@ -22,44 +22,44 @@ insert into public.sessions (
   null, '00',
   'Perkenalan & Orientasi Kelas',
   'Class Introduction & Orientation',
-  $id$## Selamat Datang di Program 👋
+  $id$## Selamat Datang! 👋
 
-Kamu akan memulai perjalanan belajar untuk menjadi Data Analyst yang siap kerja. Sebelum masuk ke materi pertama, mari kita orientasi dulu — sesi singkat ini menjelaskan cara kerja program dan membantu kamu berkenalan dengan teman satu cohort.
+Selamat! Kamu akan memulai perjalanan untuk menjadi Data Analyst yang siap kerja. Sebelum masuk ke pelajaran pertama, mari berkenalan dulu lewat sesi orientasi singkat ini — di sini kamu akan memahami cara kerja program sekaligus mengenal teman-teman satu angkatan.
 
 ## Cara Kerja Program Ini
 
-Ini adalah **program berbasis cohort** — kamu belajar bersama satu kelompok yang mulai dan selesai bersama-sama.
+Program ini berjalan **per angkatan** — kamu belajar bersama satu kelompok yang memulai dan menyelesaikan program pada waktu yang sama.
 
-- **Sesi live** diadakan pada tanggal yang sudah dijadwalkan. Setiap pelajaran di platform ini berpasangan dengan satu sesi live.
-- **Pelajaran terbuka berdasarkan tanggal.** Sebuah pelajaran tersedia pada hari jadwalnya — kamu tidak bisa melompat ke depan, dan tidak akan tertinggal.
-- **Akses materi** berlaku selama periode tertentu setelah kelas dimulai, jadi kamu bisa mengulang kapan saja.
+- **Sesi live** diadakan sesuai jadwal yang sudah ditentukan. Setiap pelajaran di platform ini berpasangan dengan satu sesi live.
+- **Pelajaran terbuka sesuai jadwal.** Sebuah pelajaran baru bisa diakses pada tanggal yang dijadwalkan — kamu tidak bisa mendahului jadwal, tapi juga tidak akan tertinggal.
+- **Akses materi** tetap terbuka selama periode tertentu setelah program dimulai, jadi kamu bebas mengulang kapan saja.
 
-## Menggunakan Platform
+## Mengenal Platform
 
 Setiap halaman pelajaran berisi:
 
-- **Materi pelajaran** — baca sebelum atau sesudah sesi live
+- **Materi belajar** — bisa dibaca sebelum atau sesudah sesi live
 - **Latihan interaktif** — praktik SQL, Python, dan lainnya langsung di browser
-- **Diskusi** — bertanya dan saling membantu; setiap cohort punya ruang sendiri
+- **Diskusi** — tempat bertanya dan saling membantu; setiap angkatan punya ruangnya sendiri
 
-Tandai pelajaran **selesai** ketika kamu sudah menyelesaikannya. Progres kamu dicatat per cohort.
+Jangan lupa tandai pelajaran sebagai **selesai** setelah kamu menyelesaikannya. Progresmu dicatat secara terpisah untuk tiap angkatan.
 
 ## Tugas Pertamamu — Perkenalkan Diri
 
-Scroll ke bawah ke bagian **Diskusi** di pelajaran ini dan posting perkenalan singkat:
+Gulir ke bawah ke bagian **Diskusi** pada halaman ini, lalu tulis perkenalan singkat tentang dirimu:
 
-1. Nama kamu dan domisili
-2. Latar belakang — pekerjaan sekarang, kuliah, atau tujuan karir
-3. Apa yang ingin kamu dapatkan dari program ini
-4. Satu fakta seru tentang kamu
+1. Nama dan kota tempat tinggalmu
+2. Latar belakang — pekerjaan saat ini, pendidikan, atau tujuan kariermu
+3. Apa yang ingin kamu capai lewat program ini
+4. Satu fakta menarik tentang dirimu
 
-Luangkan waktu untuk membalas minimal dua perkenalan lain. Teman satu cohort adalah jaringanmu — mulai bangun hari ini.
+Sempatkan juga membalas minimal dua perkenalan dari teman lain. Teman-teman satu angkatan adalah relasimu — mulailah membangun koneksi sejak hari ini.
 
 ## Yang Kami Harapkan
 
-- **Hadir.** Ikuti sesi live dan jaga ritme sesuai jadwal.
-- **Praktik.** Analisis adalah keterampilan — tumbuh dengan mengerjakan latihan, bukan hanya menonton.
-- **Saling menghargai.** Bertanyalah dengan bebas dan bantu yang lain. Tidak ada pertanyaan yang terlalu mendasar.
+- **Hadir dan aktif.** Ikuti setiap sesi live dan jaga ritme belajarmu sesuai jadwal.
+- **Banyak berlatih.** Analisis data adalah keterampilan — kemampuanmu berkembang dengan mengerjakan latihan, bukan sekadar menonton.
+- **Saling menghargai.** Jangan ragu bertanya dan bantulah teman yang sedang kesulitan. Tidak ada pertanyaan yang dianggap sepele.
 
 Sampai jumpa di Pelajaran 1. Mari kita mulai! 🚀
 $id$,
@@ -105,7 +105,7 @@ Take a moment to reply to at least two other introductions. The people in your c
 See you in Lesson 1. Let's get started! 🚀
 $en$,
   '',
-  'Memahami cara kerja program dan terhubung dengan teman satu cohort.',
+  'Memahami cara kerja program dan mengenal teman-teman satu angkatan.',
   'Understand how the program works and connect with your cohort.',
   0, 30
 )
