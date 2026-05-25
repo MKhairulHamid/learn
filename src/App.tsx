@@ -22,6 +22,7 @@ const AdminDashboard        = lazy(() => import('./pages/admin/AdminDashboard'))
 const UserDetailPage        = lazy(() => import('./pages/admin/UserDetailPage'))
 const ExerciseAnalyticsPage = lazy(() => import('./pages/admin/ExerciseAnalyticsPage'))
 const ProfilePage           = lazy(() => import('./pages/ProfilePage'))
+const DemoPage              = lazy(() => import('./pages/DemoPage'))
 const NotFound              = lazy(() => import('./pages/NotFound'))
 
 // ── Route guards ──────────────────────────────────────────────
@@ -125,6 +126,10 @@ function AppRoutes() {
           </Route>
 
           <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Standalone demo / sales page — direct URL only, not in any nav */}
+          <Route path="/demo" element={<DemoPage />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
