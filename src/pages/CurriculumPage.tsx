@@ -38,13 +38,18 @@ export default function CurriculumPage() {
   const cohort = useCohort()
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
-  // Students are locked to their cohort's program.
-  // Editors (admin/mentor) can switch between all programs.
-  const [picked, setPicked] = useState<string | null>(null)
-  const studentProgramId = cohort.cohort?.program_id ?? programs[0]?.id
-  const programId = cohort.isEditor
-    ? (picked ?? studentProgramId)
-    : studentProgramId
+  // Editors browse every program; students pick among the programs they're
+  // enrolled in. The active program drives cohort, schedule, and progress.
+  const selectablePrograms = cohort.isEditor
+    ? programs
+    : programs.filter(p => cohort.enrolledProgramIds.includes(p.id))
+
+  const defaultProgramId = cohort.isEditor
+    ? programs[0]?.id
+    : (cohort.cohort?.program_id ?? selectablePrograms[0]?.id)
+  const programId = (cohort.activeProgramId && selectablePrograms.some(p => p.id === cohort.activeProgramId))
+    ? cohort.activeProgramId
+    : defaultProgramId
 
   const { phases, orientation, loading } = usePhases(programId)
   const { isCompleted, loading: progressLoading } = useProgress()
@@ -72,7 +77,7 @@ export default function CurriculumPage() {
   }
 
   // Hard gate: no usable cohort relationship → block the curriculum entirely.
-  const blocked = !cohort.isAdmin &&
+  const blocked = !cohort.isEditor &&
     (cohort.status === 'none' || cohort.status === 'rejected' ||
      cohort.status === 'removed' || cohort.status === 'expired')
 
@@ -115,15 +120,15 @@ export default function CurriculumPage() {
           {t('common:landing.curriculum_subtitle')}
         </p>
 
-        {/* Program switcher — editors (admin/mentor) only */}
-        {cohort.isEditor && programs.length > 1 && (
+        {/* Program switcher — shown when more than one program is selectable */}
+        {selectablePrograms.length > 1 && (
           <div className="mt-4 flex flex-wrap gap-2">
-            {programs.map(p => {
+            {selectablePrograms.map(p => {
               const active = p.id === programId
               return (
                 <button
                   key={p.id}
-                  onClick={() => { setPicked(p.id); setExpandedPhase(1) }}
+                  onClick={() => { cohort.setActiveProgram(p.id); setExpandedPhase(1) }}
                   className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium border transition-colors ${
                     active
                       ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
@@ -138,10 +143,9 @@ export default function CurriculumPage() {
           </div>
         )}
 
-        {/* Students: show which program they're enrolled in */}
-        {!cohort.isEditor && cohort.cohort && (() => {
-          const prog = programs.find(p => p.id === cohort.cohort!.program_id)
-          if (!prog) return null
+        {/* Single-program student: show which program they're enrolled in */}
+        {!cohort.isEditor && selectablePrograms.length === 1 && (() => {
+          const prog = selectablePrograms[0]
           return (
             <div className="mt-3 inline-flex items-center gap-2 text-sm text-gray-500">
               <span>{prog.icon}</span>
@@ -161,8 +165,8 @@ export default function CurriculumPage() {
         </div>
       </div>
 
-      {/* Cohort status banner */}
-      {!cohort.isAdmin && (
+      {/* Cohort status banner — students only */}
+      {!cohort.isEditor && (
         <div className="mb-6">
           <CohortNotice status={cohort.status} cohort={cohort.cohort} courseStarted={cohort.courseStarted} />
         </div>

@@ -33,10 +33,18 @@ export default function SessionPage() {
   const location = useLocation()
   const { user } = useAuth()
   const exercisesRef = useRef<HTMLDivElement>(null)
-  const { session: fetched, loading } = useSession(id)
+  const { session: fetched, programId, loading } = useSession(id)
   const { isCompleted, markComplete } = useProgress()
   const cohort = useCohort()
+  const { setActiveProgram } = cohort
   const lang = i18n.language === 'id' ? 'id' : 'en'
+
+  // Resolve cohort/progress against the program this lesson belongs to, so a
+  // learner enrolled in multiple programs sees the right schedule and progress.
+  // Orientation (programId null) is shared and keeps the current program.
+  useEffect(() => {
+    if (programId) setActiveProgram(programId)
+  }, [programId, setActiveProgram])
 
   // Local draft holds saved edits so the page reflects them without a refetch.
   const [draft, setDraft] = useState<Session | null>(null)
@@ -81,7 +89,11 @@ export default function SessionPage() {
     }
   }, [location.state])
 
-  if (loading || cohort.loading) {
+  // Wait until the cohort context has switched to this lesson's program,
+  // otherwise gating would briefly use the previously active program's cohort.
+  const programResolving = !!programId && cohort.activeProgramId !== programId
+
+  if (loading || cohort.loading || programResolving) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />

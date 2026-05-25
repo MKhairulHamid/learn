@@ -58,20 +58,30 @@ export function usePhases(programId?: string) {
 
 export function useSession(sessionId: string | undefined) {
   const [session, setSession] = useState<Session | null>(null)
+  // The session's owning program (via its phase); null for the shared orientation.
+  const [programId, setProgramId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!sessionId) { setLoading(false); return }
+    setLoading(true)
     supabase
       .from('sessions')
-      .select('*')
+      .select('*, phase:phases(program_id)')
       .eq('id', sessionId)
       .single()
       .then(({ data }) => {
-        setSession(data as Session | null)
+        if (data) {
+          const { phase, ...rest } = data as Session & { phase: { program_id: string } | null }
+          setSession(rest as Session)
+          setProgramId(phase?.program_id ?? null)
+        } else {
+          setSession(null)
+          setProgramId(null)
+        }
         setLoading(false)
       })
   }, [sessionId])
 
-  return { session, loading }
+  return { session, programId, loading }
 }
