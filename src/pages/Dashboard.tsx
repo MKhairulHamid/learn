@@ -32,11 +32,17 @@ export default function Dashboard() {
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Learner'
   const greeting = getGreeting(t)
 
+  // Enrolled program (for the student program card)
+  const enrolledProgram = programs.find(p => p.id === cohort.cohort?.program_id)
+
   // Current phase: first phase with incomplete sessions
   const currentPhase = phases.find(p =>
     p.sessions?.some(s => !isCompleted(s.id))
   ) ?? phases[0]
   const currentPhaseNum = currentPhase?.phase_number ?? 1
+
+  const totalSessions = phases.reduce((n, p) => n + (p.sessions?.length ?? 0), 0)
+  const totalPhases = phases.length
 
   // Find next session to do — must be incomplete AND unlocked for this cohort
   const nextSession = phases
@@ -78,13 +84,39 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Enrolled program card — students only */}
+      {!cohort.isAdmin && enrolledProgram && (
+        <div
+          className={`bg-gradient-to-r ${enrolledProgram.color} rounded-2xl p-5 mb-6 text-white`}
+          onClick={() => navigate('/curriculum')}
+          role="button"
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{enrolledProgram.icon}</span>
+              <div>
+                <p className="text-xs font-medium opacity-75 uppercase tracking-wide">Enrolled Program</p>
+                <h2 className="font-bold text-base leading-snug">
+                  {lang === 'id' ? enrolledProgram.name_id : enrolledProgram.name_en}
+                </h2>
+                {cohort.cohort && (
+                  <p className="text-xs opacity-70 mt-0.5">{cohort.cohort.name}</p>
+                )}
+              </div>
+            </div>
+            <ArrowRight size={18} className="opacity-70 shrink-0" />
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <StatCard
           icon={<BookOpen size={20} className="text-primary-600" />}
           label={t('dashboard.sessions_completed')}
           value={String(completedCount)}
-          total="12"
+          total={String(totalSessions || 12)}
           bg="bg-primary-50"
         />
         <StatCard
@@ -98,7 +130,7 @@ export default function Dashboard() {
           icon={<TrendingUp size={20} className="text-emerald-600" />}
           label={t('dashboard.current_phase')}
           value={String(currentPhaseNum)}
-          total="4"
+          total={String(totalPhases || 4)}
           bg="bg-emerald-50"
         />
       </div>
@@ -108,7 +140,7 @@ export default function Dashboard() {
         <h2 className="text-base font-semibold text-gray-800 mb-4">{t('dashboard.progress_title')}</h2>
         <ProgressBar
           value={completedCount}
-          max={12}
+          max={totalSessions || 12}
           label={currentPhase
             ? `Phase ${currentPhaseNum} — ${lang === 'id' ? currentPhase.name_id : currentPhase.name_en}`
             : 'All sessions complete!'}
