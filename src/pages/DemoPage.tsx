@@ -784,17 +784,17 @@ function SceneSession({ phase }: { phase: string }) {
         <div className="p-2">
           {[
             { phase: 'Phase 1', sessions: [
-              { num: '01', name: 'Data Fundamentals', done: true },
-              { num: '02', name: 'Excel Basics', done: true },
-              { num: '03', name: 'Data Cleaning', done: true },
+              { num: '01', name: 'Data Fundamentals', done: true,  active: false, locked: false },
+              { num: '02', name: 'Excel Basics',       done: true,  active: false, locked: false },
+              { num: '03', name: 'Data Cleaning',      done: true,  active: false, locked: false },
             ]},
             { phase: 'Phase 2', sessions: [
-              { num: '04', name: 'SELECT & GROUP BY', done: true, active: false },
-              { num: '05', name: 'JOINs & Subqueries', done: false, active: true },
-              { num: '06', name: 'Window Functions', done: false, locked: true },
+              { num: '04', name: 'SELECT & GROUP BY',  done: true,  active: false, locked: false },
+              { num: '05', name: 'JOINs & Subqueries', done: false, active: true,  locked: false },
+              { num: '06', name: 'Window Functions',   done: false, active: false, locked: true  },
             ]},
             { phase: 'Phase 3', sessions: [
-              { num: '07', name: 'Intro to BI', done: false, locked: true },
+              { num: '07', name: 'Intro to BI',        done: false, active: false, locked: true  },
             ]},
           ].map((group, gi) => (
             <div key={gi} className="mb-2">
@@ -802,7 +802,7 @@ function SceneSession({ phase }: { phase: string }) {
               {group.sessions.map((s, si) => (
                 <div key={si} className={`flex items-center gap-2 rounded-lg px-2 py-1.5 mb-0.5 ${s.active ? 'bg-primary-50' : 'hover:bg-gray-50'}`}>
                   {s.done ? <CheckCircle2 size={12} className="text-green-500 shrink-0" />
-                    : (s as any).locked ? <Lock size={10} className="text-gray-300 shrink-0" />
+                    : s.locked ? <Lock size={10} className="text-gray-300 shrink-0" />
                     : <div className={`w-3 h-3 rounded-full border-2 shrink-0 ${s.active ? 'border-primary-500' : 'border-gray-300'}`} />}
                   <span className={`text-[10px] leading-tight truncate ${s.active ? 'font-semibold text-primary-700' : s.done ? 'text-gray-600' : 'text-gray-400'}`}>{s.name}</span>
                 </div>
