@@ -107,15 +107,26 @@ export function useCohortDetail(cohortId: string | null) {
       supabase.from('sessions').select('id, session_number, title_en, title_id, order_num')
         .order('order_num', { ascending: true }),
       supabase.from('cohort_lesson_schedule').select('*').eq('cohort_id', cohortId),
-      supabase.from('cohort_enrollments')
-        .select('*, profile:profiles(id, full_name, email)')
+      // No FK from cohort_enrollments → profiles (user_id points at auth.users),
+      // so profiles can't be embedded — fetch and join them separately.
+      supabase.from('cohort_enrollments').select('*')
         .eq('cohort_id', cohortId)
         .order('applied_at', { ascending: true }),
     ])
+
+    const enrollRows = (enr as CohortEnrollment[] | null) ?? []
+    const userIds = [...new Set(enrollRows.map(e => e.user_id))]
+    const { data: profs } = userIds.length
+      ? await supabase.from('profiles').select('id, full_name, email').in('id', userIds)
+      : { data: [] }
+    const profById = new Map(
+      ((profs as EnrollmentWithProfile['profile'][] | null) ?? []).map(p => [p!.id, p]),
+    )
+
     setCohort((c as Cohort | null) ?? null)
     setSessions((sess as SessionRef[] | null) ?? [])
     setSchedule((sched as CohortLessonSchedule[] | null) ?? [])
-    setEnrollments((enr as EnrollmentWithProfile[] | null) ?? [])
+    setEnrollments(enrollRows.map(e => ({ ...e, profile: profById.get(e.user_id) ?? null })))
     setLoading(false)
   }, [cohortId])
 
