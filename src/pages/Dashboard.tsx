@@ -55,7 +55,6 @@ export default function Dashboard() {
           <p className="text-sm text-gray-500">{getGreeting(t)},</p>
           <h1 className="text-2xl font-bold text-gray-900 mt-0.5">{displayName} 👋</h1>
         </div>
-        {profile?.role === 'admin' && <Badge variant="primary" size="md">Admin</Badge>}
       </div>
 
       {/* Editors browse every program; students see their enrolled programs. */}
