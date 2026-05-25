@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRight, CheckCircle2, Clock, CalendarDays, Sparkles, Lock,
@@ -36,6 +36,8 @@ export default function Dashboard() {
   const lang: Lang = i18n.language === 'id' ? 'id' : 'en'
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Learner'
+
+  if (profile?.role === 'admin') return <Navigate to="/admin" replace />
 
   if (loading) {
     return (

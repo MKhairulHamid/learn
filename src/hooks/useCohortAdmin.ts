@@ -11,6 +11,7 @@ import type {
 export interface CohortWithCounts extends Cohort {
   activeCount: number
   pendingCount: number
+  programName: string
 }
 
 // One curriculum session, flattened — used to build the schedule editor.
@@ -57,10 +58,10 @@ export function useCohortAdmin() {
     setLoading(true)
     const { data } = await supabase
       .from('cohorts')
-      .select('*')
+      .select('*, program:programs(name_en)')
       .order('course_start_at', { ascending: false })
 
-    const rows = (data as Cohort[] | null) ?? []
+    const rows = (data as (Cohort & { program: { name_en: string } | null })[] | null) ?? []
     const enriched = await Promise.all(rows.map(async c => {
       const [{ count: active }, { count: pending }] = await Promise.all([
         supabase.from('cohort_enrollments').select('*', { count: 'exact', head: true })
@@ -68,7 +69,8 @@ export function useCohortAdmin() {
         supabase.from('cohort_enrollments').select('*', { count: 'exact', head: true })
           .eq('cohort_id', c.id).eq('status', 'pending'),
       ])
-      return { ...c, activeCount: active ?? 0, pendingCount: pending ?? 0 }
+      const { program, ...cohort } = c
+      return { ...cohort, activeCount: active ?? 0, pendingCount: pending ?? 0, programName: program?.name_en ?? '' }
     }))
     setCohorts(enriched)
     setLoading(false)
@@ -95,6 +97,7 @@ export function useCohortAdmin() {
 
 export function useCohortDetail(cohortId: string | null) {
   const [cohort, setCohort] = useState<Cohort | null>(null)
+  const [programName, setProgramName] = useState<string>('')
   const [sessions, setSessions] = useState<SessionRef[]>([])
   const [schedule, setSchedule] = useState<CohortLessonSchedule[]>([])
   const [enrollments, setEnrollments] = useState<EnrollmentWithProfile[]>([])
@@ -103,10 +106,37 @@ export function useCohortDetail(cohortId: string | null) {
   const refetch = useCallback(async () => {
     if (!cohortId) { setLoading(false); return }
     setLoading(true)
-    const [{ data: c }, { data: sess }, { data: sched }, { data: enr }] = await Promise.all([
-      supabase.from('cohorts').select('*').eq('id', cohortId).single(),
-      supabase.from('sessions').select('id, session_number, title_en, title_id, order_num')
-        .order('order_num', { ascending: true }),
+
+    // Fetch cohort first to get program_id for scoping sessions.
+    const { data: c } = await supabase.from('cohorts').select('*').eq('id', cohortId).single()
+    const cohortData = (c as Cohort | null)
+
+    let sessQuery
+    if (cohortData) {
+      const { data: programRow } = await supabase
+        .from('programs').select('name_en').eq('id', cohortData.program_id).single()
+      setProgramName((programRow as { name_en: string } | null)?.name_en ?? '')
+
+      const { data: phaseRows } = await supabase
+        .from('phases').select('id').eq('program_id', cohortData.program_id)
+      const phaseIds = ((phaseRows ?? []) as { id: string }[]).map(p => p.id)
+      sessQuery = phaseIds.length > 0
+        ? supabase.from('sessions')
+            .select('id, session_number, title_en, title_id, order_num')
+            .or(`phase_id.in.(${phaseIds.join(',')}),phase_id.is.null`)
+            .order('order_num', { ascending: true })
+        : supabase.from('sessions')
+            .select('id, session_number, title_en, title_id, order_num')
+            .is('phase_id', null)
+            .order('order_num', { ascending: true })
+    } else {
+      sessQuery = supabase.from('sessions')
+        .select('id, session_number, title_en, title_id, order_num')
+        .order('order_num', { ascending: true })
+    }
+
+    const [{ data: sess }, { data: sched }, { data: enr }] = await Promise.all([
+      sessQuery,
       supabase.from('cohort_lesson_schedule').select('*').eq('cohort_id', cohortId),
       // No FK from cohort_enrollments → profiles (user_id points at auth.users),
       // so profiles can't be embedded — fetch and join them separately.
@@ -124,7 +154,7 @@ export function useCohortDetail(cohortId: string | null) {
       ((profs as EnrollmentWithProfile['profile'][] | null) ?? []).map(p => [p!.id, p]),
     )
 
-    setCohort((c as Cohort | null) ?? null)
+    setCohort(cohortData)
     setSessions((sess as SessionRef[] | null) ?? [])
     setSchedule((sched as CohortLessonSchedule[] | null) ?? [])
     setEnrollments(enrollRows.map(e => ({ ...e, profile: profById.get(e.user_id) ?? null })))
@@ -264,7 +294,7 @@ export function useCohortDetail(cohortId: string | null) {
   }, [cohort, refetch])
 
   return {
-    cohort, sessions, schedule, enrollments, loading, refetch,
+    cohort, programName, sessions, schedule, enrollments, loading, refetch,
     updateCohort, setAdmissionOpen,
     saveScheduleRow, removeScheduleRow, generateSchedule,
     approveEnrollment, setEnrollmentStatus, removeEnrollment, addUser,

@@ -119,7 +119,7 @@ export function useActivityFeed() {
   const fetchFeed = useCallback(async () => {
     const { data } = await supabase
       .from('user_activity_logs')
-      .select('*, profiles(full_name, email)')
+      .select('*, profiles(full_name, email, username)')
       .order('created_at', { ascending: false })
       .limit(50)
 

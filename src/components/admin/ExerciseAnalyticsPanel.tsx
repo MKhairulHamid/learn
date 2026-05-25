@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { TrendingDown, Users, CheckCircle2 } from 'lucide-react'
+import { TrendingDown, Users, CheckCircle2, Filter } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import type { Exercise } from '../../types'
+import type { Exercise, Program } from '../../types'
 
 interface ExerciseStat {
   id: string
@@ -12,6 +12,11 @@ interface ExerciseStat {
   attempts: number
   passed: number
   passRate: number
+}
+
+interface CohortOption {
+  id: string
+  name: string
 }
 
 const DIFFICULTY_BADGE: Record<string, string> = {
@@ -33,26 +38,104 @@ function passRateTextColor(rate: number): string {
 }
 
 export function ExerciseAnalyticsPanel() {
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [selectedProgram, setSelectedProgram] = useState<string>('all')
+  const [cohorts, setCohorts] = useState<CohortOption[]>([])
+  const [selectedCohort, setSelectedCohort] = useState<string>('all')
+
   const [stats, setStats] = useState<ExerciseStat[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Load programs once
+  useEffect(() => {
+    supabase.from('programs').select('*').eq('is_published', true).order('order_num')
+      .then(({ data }) => setPrograms((data as Program[] | null) ?? []))
+  }, [])
+
+  // Load cohorts when program changes
+  useEffect(() => {
+    setCohorts([])
+    setSelectedCohort('all')
+    if (selectedProgram === 'all') return
+    supabase.from('cohorts').select('id, name').eq('program_id', selectedProgram)
+      .order('course_start_at', { ascending: false })
+      .then(({ data }) => setCohorts((data as CohortOption[] | null) ?? []))
+  }, [selectedProgram])
+
+  // Load analytics when filters change
   useEffect(() => {
     async function load() {
       setLoading(true)
       setError(null)
 
-      const [exResult, subResult] = await Promise.all([
-        supabase.from('exercises').select('id, title_en, title_id, difficulty, session_id'),
-        supabase.from('exercise_submissions').select('exercise_id, passed'),
-      ])
+      // Build the exercise query, scoped to program if selected.
+      let exerciseIds: string[] | null = null
+      if (selectedProgram !== 'all') {
+        const { data: phaseRows } = await supabase
+          .from('phases').select('id').eq('program_id', selectedProgram)
+        const phaseIds = ((phaseRows ?? []) as { id: string }[]).map(p => p.id)
+
+        if (phaseIds.length > 0) {
+          const { data: sessRows } = await supabase
+            .from('sessions').select('id')
+            .in('phase_id', phaseIds)
+          const sessIds = ((sessRows ?? []) as { id: string }[]).map(s => s.id)
+
+          if (sessIds.length > 0) {
+            const { data: exRows } = await supabase
+              .from('exercises').select('id').in('session_id', sessIds)
+            exerciseIds = ((exRows ?? []) as { id: string }[]).map(e => e.id)
+          } else {
+            exerciseIds = []
+          }
+        } else {
+          exerciseIds = []
+        }
+      }
+
+      // Build submission query, scoped to cohort if selected.
+      let cohortUserIds: string[] | null = null
+      if (selectedCohort !== 'all') {
+        const { data: enrRows } = await supabase
+          .from('cohort_enrollments').select('user_id')
+          .eq('cohort_id', selectedCohort)
+          .in('status', ['active', 'pending'])
+        cohortUserIds = ((enrRows ?? []) as { user_id: string }[]).map(e => e.user_id)
+      }
+
+      // If program filter returns no exercises, short-circuit.
+      if (exerciseIds !== null && exerciseIds.length === 0) {
+        setStats([])
+        setLoading(false)
+        return
+      }
+
+      // Fetch exercises and submissions in parallel.
+      let exQuery = supabase.from('exercises').select('id, title_en, title_id, difficulty, session_id')
+      if (exerciseIds !== null) exQuery = exQuery.in('id', exerciseIds)
+
+      let subQuery = supabase.from('exercise_submissions').select('exercise_id, passed')
+      if (exerciseIds !== null) subQuery = subQuery.in('exercise_id', exerciseIds)
+      if (cohortUserIds !== null) {
+        if (cohortUserIds.length === 0) {
+          // No enrolled users — no submissions possible.
+          const exResult = await exQuery
+          if (exResult.error) { setError(exResult.error.message); setLoading(false); return }
+          const exercises = (exResult.data ?? []) as Pick<Exercise, 'id' | 'title_en' | 'title_id' | 'difficulty' | 'session_id'>[]
+          setStats(exercises.map(ex => ({ id: ex.id, title_en: ex.title_en, title_id: ex.title_id, difficulty: ex.difficulty, session_id: ex.session_id, attempts: 0, passed: 0, passRate: 0 })))
+          setLoading(false)
+          return
+        }
+        subQuery = subQuery.in('user_id', cohortUserIds)
+      }
+
+      const [exResult, subResult] = await Promise.all([exQuery, subQuery])
 
       if (exResult.error) { setError(exResult.error.message); setLoading(false); return }
       if (subResult.error) { setError(subResult.error.message); setLoading(false); return }
 
-      const exercises = (exResult.data ?? []) as Pick<
-        Exercise, 'id' | 'title_en' | 'title_id' | 'difficulty' | 'session_id'
-      >[]
+      const exercises = (exResult.data ?? []) as Pick<Exercise, 'id' | 'title_en' | 'title_id' | 'difficulty' | 'session_id'>[]
       const submissions = (subResult.data ?? []) as { exercise_id: string; passed: boolean }[]
 
       const computed: ExerciseStat[] = exercises.map(ex => {
@@ -72,23 +155,53 @@ export function ExerciseAnalyticsPanel() {
         }
       })
 
-      // Sort ascending by pass rate (hardest / most failed first)
       computed.sort((a, b) => a.passRate - b.passRate)
-
       setStats(computed)
       setLoading(false)
     }
 
     load()
-  }, [])
+  }, [selectedProgram, selectedCohort])
 
   const totalAttempts = stats.reduce((s, e) => s + e.attempts, 0)
   const avgPassRate = stats.length > 0
     ? Math.round(stats.reduce((s, e) => s + e.passRate, 0) / stats.length)
     : 0
 
+  const selectCls =
+    'px-3 py-1.5 rounded-lg bg-[#111827] border border-white/10 text-sm text-gray-200 ' +
+    'focus:outline-none focus:border-primary-500/50 cursor-pointer'
+
   return (
     <div className="space-y-6">
+      {/* Filters */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <Filter size={14} className="text-gray-500" />
+        <select
+          value={selectedProgram}
+          onChange={e => setSelectedProgram(e.target.value)}
+          className={selectCls}
+        >
+          <option value="all">All programs</option>
+          {programs.map(p => (
+            <option key={p.id} value={p.id}>{p.name_en}</option>
+          ))}
+        </select>
+
+        {selectedProgram !== 'all' && (
+          <select
+            value={selectedCohort}
+            onChange={e => setSelectedCohort(e.target.value)}
+            className={selectCls}
+          >
+            <option value="all">All cohorts</option>
+            {cohorts.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 text-center">

@@ -37,7 +37,8 @@ export function ActivityFeed({ feed, loading }: Props) {
     <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
       {feed.map(entry => {
         const meta = ACTION_META[entry.action_type] ?? { label: entry.action_type, icon: null, color: 'text-gray-400' }
-        const name = (entry.profiles as { full_name?: string | null } | undefined)?.full_name ?? 'Unknown user'
+        const prof = entry.profiles as { full_name?: string | null; email?: string | null } | undefined
+        const name = prof?.full_name || prof?.email || 'Unknown user'
 
         return (
           <div key={entry.id} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800/40 transition-colors">
