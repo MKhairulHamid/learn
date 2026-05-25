@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle2, Clock, ChevronDown, ChevronUp, Lock, PlayCircle,
-  CalendarDays, Sparkles,
+  CalendarDays, Sparkles, ArrowLeft,
 } from 'lucide-react'
 import { usePhases, usePrograms } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
@@ -34,22 +34,19 @@ const fmtShort = (d: string) =>
 export default function CurriculumPage() {
   const { t, i18n } = useTranslation(['common', 'curriculum'])
   const navigate = useNavigate()
+  const { programId } = useParams<{ programId: string }>()
   const { programs, loading: programsLoading } = usePrograms()
   const cohort = useCohort()
+  const { setActiveProgram } = cohort
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
-  // Editors browse every program; students pick among the programs they're
-  // enrolled in. The active program drives cohort, schedule, and progress.
-  const selectablePrograms = cohort.isEditor
-    ? programs
-    : programs.filter(p => cohort.enrolledProgramIds.includes(p.id))
+  // The program is chosen on the index page (/curriculum); resolve cohort,
+  // schedule, and progress against it.
+  useEffect(() => {
+    if (programId) setActiveProgram(programId)
+  }, [programId, setActiveProgram])
 
-  const defaultProgramId = cohort.isEditor
-    ? programs[0]?.id
-    : (cohort.cohort?.program_id ?? selectablePrograms[0]?.id)
-  const programId = (cohort.activeProgramId && selectablePrograms.some(p => p.id === cohort.activeProgramId))
-    ? cohort.activeProgramId
-    : defaultProgramId
+  const program = programs.find(p => p.id === programId)
 
   const { phases, orientation, loading } = usePhases(programId)
   const { isCompleted, loading: progressLoading } = useProgress()
@@ -68,12 +65,22 @@ export default function CurriculumPage() {
   const sessionTitle = (s: { title_id: string; title_en: string }) =>
     lang === 'id' ? s.title_id : s.title_en
 
-  if (loading || progressLoading || cohort.loading || programsLoading) {
+  // Wait until the cohort context has switched to this program, otherwise
+  // gating/progress would briefly reflect the previously active program.
+  const programResolving = !!programId && cohort.activeProgramId !== programId
+
+  if (loading || progressLoading || cohort.loading || programsLoading || programResolving) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
       </div>
     )
+  }
+
+  // Students can only open a program they're enrolled in; send others back to
+  // the program picker.
+  if (!cohort.isEditor && programId && !cohort.enrolledProgramIds.includes(programId)) {
+    return <Navigate to="/curriculum" replace />
   }
 
   // Hard gate: no usable cohort relationship → block the curriculum entirely.
@@ -113,48 +120,27 @@ export default function CurriculumPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+      {/* Back to program picker */}
+      <button
+        onClick={() => navigate('/curriculum')}
+        className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 mb-5 transition-colors"
+      >
+        <ArrowLeft size={16} />
+        {t('common:nav.curriculum')}
+      </button>
+
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('common:nav.curriculum')}</h1>
-        <p className="mt-1 text-gray-500 text-sm">
-          {t('common:landing.curriculum_subtitle')}
-        </p>
-
-        {/* Program switcher — shown when more than one program is selectable */}
-        {selectablePrograms.length > 1 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {selectablePrograms.map(p => {
-              const active = p.id === programId
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => { cohort.setActiveProgram(p.id); setExpandedPhase(1) }}
-                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium border transition-colors ${
-                    active
-                      ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
-                      : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300'
-                  }`}
-                >
-                  <span>{p.icon}</span>
-                  {lang === 'id' ? p.name_id : p.name_en}
-                </button>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Single-program student: show which program they're enrolled in */}
-        {!cohort.isEditor && selectablePrograms.length === 1 && (() => {
-          const prog = selectablePrograms[0]
-          return (
-            <div className="mt-3 inline-flex items-center gap-2 text-sm text-gray-500">
-              <span>{prog.icon}</span>
-              <span className="font-medium text-gray-700">
-                {lang === 'id' ? prog.name_id : prog.name_en}
-              </span>
+        <div className="flex items-center gap-3">
+          {program && (
+            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${program.color} flex items-center justify-center text-2xl shrink-0`}>
+              {program.icon}
             </div>
-          )
-        })()}
+          )}
+          <h1 className="text-2xl font-bold text-gray-900">
+            {program ? (lang === 'id' ? program.name_id : program.name_en) : t('common:nav.curriculum')}
+          </h1>
+        </div>
 
         <div className="mt-4">
           <ProgressBar

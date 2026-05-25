@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  ArrowRight, Zap, CheckCircle2, Clock, CalendarDays, Sparkles, Lock,
+  ArrowRight, CheckCircle2, Clock, CalendarDays, Sparkles, Lock,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -13,7 +13,6 @@ import { ProgressBar } from '../components/ui/ProgressBar'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import type { CohortStatus } from '../hooks/useCohort'
-import type { ReactNode } from 'react'
 
 type Lang = 'en' | 'id'
 
@@ -110,15 +109,6 @@ export default function Dashboard() {
           )}
         </>
       )}
-
-      {/* Shared tool */}
-      <ActionCard
-        icon={<Zap size={22} />}
-        title={t('dashboard.open_playground')}
-        description={t('dashboard.playground_desc')}
-        color="from-violet-600 to-purple-500"
-        onClick={() => navigate('/playground')}
-      />
     </div>
   )
 }
@@ -302,23 +292,5 @@ function AvailableCard({ ap, lang, t, onEnroll }: {
         {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
       </div>
     </div>
-  )
-}
-
-function ActionCard({ icon, title, description, color, onClick }: {
-  icon: ReactNode; title: string; description: string; color: string; onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`bg-gradient-to-r ${color} text-white rounded-2xl p-6 text-left hover:opacity-95 transition-opacity active:scale-[0.98] cursor-pointer w-full`}
-    >
-      <div className="flex items-start justify-between">
-        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">{icon}</div>
-        <ArrowRight size={18} className="opacity-70 mt-1" />
-      </div>
-      <h3 className="mt-4 font-semibold text-base">{title}</h3>
-      <p className="mt-1 text-sm opacity-80">{description}</p>
-    </button>
   )
 }

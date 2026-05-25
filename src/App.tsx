@@ -13,6 +13,7 @@ const Login            = lazy(() => import('./pages/auth/Login'))
 const Register         = lazy(() => import('./pages/auth/Register'))
 const ResetPassword    = lazy(() => import('./pages/auth/ResetPassword'))
 const Dashboard        = lazy(() => import('./pages/Dashboard'))
+const CurriculumIndex  = lazy(() => import('./pages/CurriculumIndex'))
 const CurriculumPage   = lazy(() => import('./pages/CurriculumPage'))
 const SessionPage      = lazy(() => import('./pages/SessionPage'))
 const PlaygroundPage   = lazy(() => import('./pages/PlaygroundPage'))
@@ -103,7 +104,8 @@ function AppRoutes() {
             {/* Learner routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard"    element={<Dashboard />} />
-              <Route path="/curriculum"   element={<CurriculumPage />} />
+              <Route path="/curriculum"   element={<CurriculumIndex />} />
+              <Route path="/curriculum/:programId" element={<CurriculumPage />} />
               <Route path="/session/:id"  element={<SessionPage />} />
               <Route path="/playground"   element={<PlaygroundPage />} />
               {/* Legacy redirect for old /python bookmarks */}

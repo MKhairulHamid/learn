@@ -46,6 +46,9 @@ export default function SessionPage() {
     if (programId) setActiveProgram(programId)
   }, [programId, setActiveProgram])
 
+  // Back/next return to this lesson's program curriculum (orientation has none).
+  const curriculumPath = programId ? `/curriculum/${programId}` : '/curriculum'
+
   // Local draft holds saved edits so the page reflects them without a refetch.
   const [draft, setDraft] = useState<Session | null>(null)
   const [editing, setEditing] = useState(false)
@@ -105,7 +108,7 @@ export default function SessionPage() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
         <p className="text-gray-500">Session not found.</p>
-        <Button className="mt-4" onClick={() => navigate('/curriculum')}>
+        <Button className="mt-4" onClick={() => navigate(curriculumPath)}>
           {t('common.back')}
         </Button>
       </div>
@@ -123,7 +126,7 @@ export default function SessionPage() {
     return (
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
         <button
-          onClick={() => navigate('/curriculum')}
+          onClick={() => navigate(curriculumPath)}
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 mb-6 transition-colors"
         >
           <ArrowLeft size={16} />
@@ -143,7 +146,7 @@ export default function SessionPage() {
                 ? `This lesson unlocks on ${fmtLong(sched.scheduled_date)}. It pairs with the live session held that day.`
                 : 'This lesson opens once your course is underway. For now, start with the orientation lesson.'}
             </p>
-            <Button className="mt-5" onClick={() => navigate('/curriculum')}>
+            <Button className="mt-5" onClick={() => navigate(curriculumPath)}>
               Back to Curriculum
             </Button>
           </div>
@@ -156,7 +159,7 @@ export default function SessionPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
       {/* Back nav */}
       <button
-        onClick={() => navigate('/curriculum')}
+        onClick={() => navigate(curriculumPath)}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 mb-6 transition-colors"
       >
         <ArrowLeft size={16} />
@@ -275,7 +278,7 @@ export default function SessionPage() {
 
       {/* ── Session completion CTA ────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 flex items-center justify-between gap-4 flex-wrap">
-        <Button variant="outline" size="sm" onClick={() => navigate('/curriculum')}>
+        <Button variant="outline" size="sm" onClick={() => navigate(curriculumPath)}>
           <ArrowLeft size={15} />
           {t('common.back')}
         </Button>
@@ -297,7 +300,7 @@ export default function SessionPage() {
               </span>
               <Button
                 variant="secondary"
-                onClick={() => navigate('/curriculum')}
+                onClick={() => navigate(curriculumPath)}
               >
                 Next Session <ChevronRight size={16} />
               </Button>
