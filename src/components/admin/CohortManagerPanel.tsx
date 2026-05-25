@@ -33,7 +33,18 @@ export function CohortManagerPanel() {
 
 function CohortList({ onSelect }: { onSelect: (id: string) => void }) {
   const { cohorts, loading, createCohort, refetch } = useCohortAdmin()
+  const { programs, loading: programsLoading } = usePrograms()
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+
+  // Default to first program once loaded
+  const activeProgramId = selectedProgramId ?? programs[0]?.id ?? null
+
+  const filtered = activeProgramId
+    ? cohorts.filter(c => c.program_id === activeProgramId)
+    : cohorts
+
+  const activeProgram = programs.find(p => p.id === activeProgramId)
 
   return (
     <div className="space-y-5">
@@ -52,15 +63,45 @@ function CohortList({ onSelect }: { onSelect: (id: string) => void }) {
         </button>
       </div>
 
+      {/* Program tabs */}
+      {!programsLoading && programs.length > 1 && (
+        <div className="flex gap-1 border-b border-white/[0.06] overflow-x-auto">
+          {programs.map(p => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedProgramId(p.id)}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
+                activeProgramId === p.id
+                  ? 'border-primary-500 text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <span>{p.icon}</span>
+              {p.name_en}
+              {/* pending badge */}
+              {(() => {
+                const pending = cohorts.filter(c => c.program_id === p.id && c.pendingCount > 0)
+                  .reduce((n, c) => n + c.pendingCount, 0)
+                return pending > 0 ? (
+                  <span className="ml-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-950/60 text-amber-400 border border-amber-900">
+                    {pending}
+                  </span>
+                ) : null
+              })()}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="text-gray-500 text-sm py-12 text-center">Loading cohorts…</div>
-      ) : cohorts.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="text-gray-500 text-sm py-12 text-center border border-dashed border-white/10 rounded-2xl">
-          No cohorts yet. Create the first one to get started.
+          No cohorts yet for {activeProgram?.name_en ?? 'this program'}. Create the first one to get started.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {cohorts.map(c => (
+          {filtered.map(c => (
             <button
               key={c.id}
               onClick={() => onSelect(c.id)}
@@ -72,9 +113,6 @@ function CohortList({ onSelect }: { onSelect: (id: string) => void }) {
                     <GraduationCap size={16} className="text-primary-400" />
                   </div>
                   <div className="min-w-0">
-                    {c.programName && (
-                      <p className="text-[11px] font-medium text-primary-400 mb-0.5 truncate">{c.programName}</p>
-                    )}
                     <p className="text-sm font-semibold text-white truncate">{c.name}</p>
                     <p className="text-xs text-gray-500">
                       {fmt(c.course_start_at)} → {fmt(c.course_close_at)}
@@ -107,6 +145,7 @@ function CohortList({ onSelect }: { onSelect: (id: string) => void }) {
 
       {showForm && (
         <CohortFormModal
+          defaultProgramId={activeProgramId ?? undefined}
           onClose={() => setShowForm(false)}
           onCreate={async draft => {
             const { error } = await createCohort(draft)
@@ -133,12 +172,13 @@ function StatusChip({ on, onLabel, offLabel }: { on: boolean; onLabel: string; o
 
 // ── New-cohort form ─────────────────────────────────────────────────
 
-function CohortFormModal({ onClose, onCreate }: {
+function CohortFormModal({ defaultProgramId, onClose, onCreate }: {
+  defaultProgramId?: string
   onClose: () => void
   onCreate: (draft: CohortDraft) => Promise<string | null>
 }) {
   const { programs } = usePrograms()
-  const [programId, setProgramId] = useState('')
+  const [programId, setProgramId] = useState(defaultProgramId ?? '')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [admissionOpenAt, setAdmissionOpenAt] = useState('')
