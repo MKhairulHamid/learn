@@ -3,8 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Menu, X, Globe, BookOpen, LogOut,
-  LayoutDashboard, Code2, ShieldCheck,
-  User, ChevronDown, Terminal,
+  LayoutDashboard, Gamepad2, ShieldCheck,
+  User, ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../ui/Button'
@@ -77,11 +77,9 @@ export function Navbar() {
               <Link to="/curriculum" className={`text-sm transition-colors ${isActive('/curriculum')}`}>
                 {t('nav.curriculum')}
               </Link>
-              <Link to="/playground" className={`text-sm transition-colors ${isActive('/playground')}`}>
-                SQL
-              </Link>
-              <Link to="/python" className={`text-sm transition-colors ${isActive('/python')}`}>
-                Python
+              <Link to="/playground" className={`text-sm transition-colors flex items-center gap-1 ${isActive('/playground')}`}>
+                <Gamepad2 size={14} />
+                Playground
               </Link>
               {isAdmin && (
                 <Link
@@ -221,8 +219,7 @@ export function Navbar() {
 
               <MobileLink to="/dashboard"  icon={<LayoutDashboard size={16} />} label={t('nav.dashboard')}   onClick={() => setMobileOpen(false)} />
               <MobileLink to="/curriculum" icon={<BookOpen size={16} />}        label={t('nav.curriculum')}  onClick={() => setMobileOpen(false)} />
-              <MobileLink to="/playground" icon={<Code2 size={16} />}           label="SQL Playground"       onClick={() => setMobileOpen(false)} />
-              <MobileLink to="/python"     icon={<Terminal size={16} />}        label="Python Playground"    onClick={() => setMobileOpen(false)} />
+              <MobileLink to="/playground" icon={<Gamepad2 size={16} />}         label="Playground"           onClick={() => setMobileOpen(false)} />
               <MobileLink to="/profile"    icon={<User size={16} />}            label="Profile & Settings"   onClick={() => setMobileOpen(false)} />
 
               {isAdmin && (

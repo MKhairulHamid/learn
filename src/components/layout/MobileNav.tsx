@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { LayoutDashboard, BookOpen, Code2, Terminal, User } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Gamepad2, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 export function MobileNav() {
@@ -13,14 +13,13 @@ export function MobileNav() {
   const tabs = [
     { to: '/dashboard',  icon: LayoutDashboard, label: t('nav.dashboard') },
     { to: '/curriculum', icon: BookOpen,         label: t('nav.curriculum') },
-    { to: '/playground', icon: Code2,            label: 'SQL' },
-    { to: '/python',     icon: Terminal,         label: 'Python' },
+    { to: '/playground', icon: Gamepad2,         label: 'Playground' },
     { to: '/profile',    icon: User,             label: 'Profile' },
   ]
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-pb">
-      <div className="grid grid-cols-5">
+      <div className="grid grid-cols-4">
         {tabs.map(({ to, icon: Icon, label }) => {
           const active = location.pathname.startsWith(to) ||
             (to === '/curriculum' && location.pathname === '/')

@@ -16,7 +16,6 @@ const Dashboard        = lazy(() => import('./pages/Dashboard'))
 const CurriculumPage   = lazy(() => import('./pages/CurriculumPage'))
 const SessionPage      = lazy(() => import('./pages/SessionPage'))
 const PlaygroundPage   = lazy(() => import('./pages/PlaygroundPage'))
-const PythonPlayground = lazy(() => import('./pages/PythonPlaygroundPage'))
 const ExercisePage     = lazy(() => import('./pages/ExercisePage'))
 const AdminDashboard        = lazy(() => import('./pages/admin/AdminDashboard'))
 const UserDetailPage        = lazy(() => import('./pages/admin/UserDetailPage'))
@@ -107,7 +106,8 @@ function AppRoutes() {
               <Route path="/curriculum"   element={<CurriculumPage />} />
               <Route path="/session/:id"  element={<SessionPage />} />
               <Route path="/playground"   element={<PlaygroundPage />} />
-              <Route path="/python"       element={<PythonPlayground />} />
+              {/* Legacy redirect for old /python bookmarks */}
+              <Route path="/python"       element={<Navigate to="/playground" replace />} />
               <Route path="/exercise/:id" element={<ExercisePage />} />
               <Route path="/profile"      element={<ProfilePage />} />
             </Route>
