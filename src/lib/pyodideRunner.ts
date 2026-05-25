@@ -139,3 +139,10 @@ base64.b64encode(_fig_buf.read()).decode('utf-8')
 export function isPyodideReady() {
   return pyodide !== null
 }
+
+export function preloadCSVFiles(csvFiles: Record<string, string>): void {
+  if (!pyodide) return
+  for (const [filename, content] of Object.entries(csvFiles)) {
+    pyodide.FS.writeFile(filename, content, { encoding: 'utf8' })
+  }
+}
