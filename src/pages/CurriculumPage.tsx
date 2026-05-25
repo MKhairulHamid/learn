@@ -38,9 +38,13 @@ export default function CurriculumPage() {
   const cohort = useCohort()
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
-  // Default to the program of the user's cohort; admins/mentors land on the first.
+  // Students are locked to their cohort's program.
+  // Editors (admin/mentor) can switch between all programs.
   const [picked, setPicked] = useState<string | null>(null)
-  const programId = picked ?? cohort.cohort?.program_id ?? programs[0]?.id
+  const studentProgramId = cohort.cohort?.program_id ?? programs[0]?.id
+  const programId = cohort.isEditor
+    ? (picked ?? studentProgramId)
+    : studentProgramId
 
   const { phases, orientation, loading } = usePhases(programId)
   const { isCompleted, loading: progressLoading } = useProgress()
@@ -111,8 +115,8 @@ export default function CurriculumPage() {
           {t('common:landing.curriculum_subtitle')}
         </p>
 
-        {/* Program switcher — appears once more than one program exists */}
-        {programs.length > 1 && (
+        {/* Program switcher — editors (admin/mentor) only */}
+        {cohort.isEditor && programs.length > 1 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {programs.map(p => {
               const active = p.id === programId
@@ -133,6 +137,20 @@ export default function CurriculumPage() {
             })}
           </div>
         )}
+
+        {/* Students: show which program they're enrolled in */}
+        {!cohort.isEditor && cohort.cohort && (() => {
+          const prog = programs.find(p => p.id === cohort.cohort!.program_id)
+          if (!prog) return null
+          return (
+            <div className="mt-3 inline-flex items-center gap-2 text-sm text-gray-500">
+              <span>{prog.icon}</span>
+              <span className="font-medium text-gray-700">
+                {lang === 'id' ? prog.name_id : prog.name_en}
+              </span>
+            </div>
+          )
+        })()}
 
         <div className="mt-4">
           <ProgressBar
