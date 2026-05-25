@@ -1,10 +1,10 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight,
-  Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, Info,
+  ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight, ChevronDown, ChevronUp,
+  Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, Info, ListOrdered,
 } from 'lucide-react'
-import { useSession } from '../hooks/usePhases'
+import { useSession, usePhases } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
 import { useCohort } from '../hooks/useCohort'
 import { Button } from '../components/ui/Button'
@@ -50,9 +50,12 @@ export default function SessionPage() {
   const curriculumPath = programId ? `/curriculum/${programId}` : '/curriculum'
 
   // Local draft holds saved edits so the page reflects them without a refetch.
+  const { phases } = usePhases(programId ?? undefined)
+
   const [draft, setDraft] = useState<Session | null>(null)
   const [editing, setEditing] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const copyLiveLink = (link: string) => {
     navigator.clipboard.writeText(link)
@@ -162,8 +165,14 @@ export default function SessionPage() {
     )
   }
 
+  // Flat list of all sessions across phases for prev/next navigation
+  const allSessions = phases.flatMap(p => p.sessions ?? [])
+  const currentIdx = allSessions.findIndex(s => s.id === id)
+  const prevSession = currentIdx > 0 ? allSessions[currentIdx - 1] : null
+  const nextSession = currentIdx >= 0 && currentIdx < allSessions.length - 1 ? allSessions[currentIdx + 1] : null
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
       {/* Back nav */}
       <button
         onClick={() => navigate(curriculumPath)}
@@ -172,6 +181,52 @@ export default function SessionPage() {
         <ArrowLeft size={16} />
         {t('common.back')} to Curriculum
       </button>
+
+      {/* Mobile sessions toggle */}
+      {phases.length > 0 && (
+        <button
+          onClick={() => setSidebarOpen(o => !o)}
+          className="lg:hidden flex items-center gap-2 w-full mb-4 px-4 py-3 bg-white rounded-xl border border-gray-100 shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          <ListOrdered size={16} className="text-primary-600" />
+          All Sessions
+          <span className="ml-auto text-xs text-gray-400">
+            {allSessions.filter(s => isCompleted(s.id)).length}/{allSessions.length} done
+          </span>
+          {sidebarOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+        </button>
+      )}
+
+      {/* Mobile sidebar (collapsible) */}
+      {sidebarOpen && phases.length > 0 && (
+        <div className="lg:hidden bg-white rounded-xl border border-gray-100 shadow-sm mb-4 overflow-hidden">
+          <SessionSidebar
+            phases={phases}
+            currentSessionId={id}
+            isCompleted={isCompleted}
+            isAccessible={s => cohort.isSessionAccessible(s)}
+            lang={lang}
+            onNavigate={() => setSidebarOpen(false)}
+          />
+        </div>
+      )}
+
+      <div className="flex gap-6 items-start">
+        {/* Desktop sidebar */}
+        {phases.length > 0 && (
+          <aside className="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <SessionSidebar
+              phases={phases}
+              currentSessionId={id}
+              isCompleted={isCompleted}
+              isAccessible={s => cohort.isSessionAccessible(s)}
+              lang={lang}
+            />
+          </aside>
+        )}
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
 
       {/* Session header */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
@@ -352,10 +407,19 @@ export default function SessionPage() {
 
       {/* ── Session completion CTA ────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 flex items-center justify-between gap-4 flex-wrap">
-        <Button variant="outline" size="sm" onClick={() => navigate(curriculumPath)}>
-          <ArrowLeft size={15} />
-          {t('common.back')}
-        </Button>
+        <div className="flex items-center gap-2">
+          {prevSession ? (
+            <Button variant="outline" size="sm" onClick={() => navigate(`/session/${prevSession.id}`)}>
+              <ArrowLeft size={15} />
+              Prev
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => navigate(curriculumPath)}>
+              <ArrowLeft size={15} />
+              {t('common.back')}
+            </Button>
+          )}
+        </div>
 
         <div className="flex items-center gap-3">
           {!done ? (
@@ -372,12 +436,21 @@ export default function SessionPage() {
               <span className="text-sm text-green-600 font-medium flex items-center gap-1">
                 <CheckCircle2 size={16} /> {t('common.completed')}
               </span>
-              <Button
-                variant="secondary"
-                onClick={() => navigate(curriculumPath)}
-              >
-                Next Session <ChevronRight size={16} />
-              </Button>
+              {nextSession ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/session/${nextSession.id}`)}
+                >
+                  Next Session <ChevronRight size={16} />
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(curriculumPath)}
+                >
+                  Back to Curriculum <ChevronRight size={16} />
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -385,6 +458,112 @@ export default function SessionPage() {
 
       {/* Discussion — sits below the completion CTA as a bonus section */}
       {id && <DiscussionPanel sessionId={id} />}
+
+        </div>{/* end main content */}
+      </div>{/* end flex layout */}
+    </div>
+  )
+}
+
+// ── Sidebar component ─────────────────────────────────────────────────────────
+
+interface SessionSidebarProps {
+  phases: import('../types').Phase[]
+  currentSessionId: string | undefined
+  isCompleted: (sessionId: string) => boolean
+  isAccessible: (s: Pick<import('../types').Session, 'id' | 'session_number'>) => boolean
+  lang: string
+  onNavigate?: () => void
+}
+
+function SessionSidebar({ phases, currentSessionId, isCompleted, isAccessible, lang, onNavigate }: SessionSidebarProps) {
+  const navigate = useNavigate()
+  const totalSessions = phases.reduce((n, p) => n + (p.sessions?.length ?? 0), 0)
+  const completedCount = phases.reduce(
+    (n, p) => n + (p.sessions?.filter(s => isCompleted(s.id)).length ?? 0),
+    0,
+  )
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-100">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Sessions</p>
+        <div className="flex items-center gap-2 mt-1">
+          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary-500 rounded-full transition-all"
+              style={{ width: totalSessions > 0 ? `${(completedCount / totalSessions) * 100}%` : '0%' }}
+            />
+          </div>
+          <span className="text-xs text-gray-400 shrink-0">{completedCount}/{totalSessions}</span>
+        </div>
+      </div>
+
+      {/* Phase groups */}
+      <div className="py-2">
+        {phases.map(phase => {
+          const phaseName = lang === 'id' ? phase.name_id : phase.name_en
+          const sessions = phase.sessions ?? []
+          return (
+            <div key={phase.id}>
+              <p className="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                {phaseName}
+              </p>
+              {sessions.map(s => {
+                const isCurrent = s.id === currentSessionId
+                const done = isCompleted(s.id)
+                const accessible = isAccessible(s)
+                const sTitle = lang === 'id' ? s.title_id : s.title_en
+
+                return (
+                  <button
+                    key={s.id}
+                    disabled={!accessible}
+                    onClick={() => {
+                      if (accessible) {
+                        navigate(`/session/${s.id}`)
+                        onNavigate?.()
+                      }
+                    }}
+                    className={[
+                      'w-full flex items-start gap-2.5 px-4 py-2.5 text-left transition-colors',
+                      isCurrent
+                        ? 'bg-primary-50 border-r-2 border-primary-500'
+                        : accessible
+                        ? 'hover:bg-gray-50'
+                        : 'opacity-40 cursor-not-allowed',
+                    ].join(' ')}
+                  >
+                    {/* Status icon */}
+                    <span className="mt-0.5 shrink-0">
+                      {done ? (
+                        <CheckCircle2 size={15} className="text-green-500" />
+                      ) : !accessible ? (
+                        <Lock size={14} className="text-gray-400" />
+                      ) : (
+                        <span className={[
+                          'inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold',
+                          isCurrent ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-500',
+                        ].join(' ')}>
+                          {s.session_number}
+                        </span>
+                      )}
+                    </span>
+                    {/* Title */}
+                    <span className={[
+                      'text-xs leading-snug line-clamp-2',
+                      isCurrent ? 'font-semibold text-primary-700' : done ? 'text-gray-500' : 'text-gray-700',
+                    ].join(' ')}>
+                      {sTitle}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
