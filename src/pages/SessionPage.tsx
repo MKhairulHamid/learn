@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight,
-  Lock, Video, CalendarDays, PlayCircle, Pencil,
+  Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, Info,
 } from 'lucide-react'
 import { useSession } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
@@ -52,6 +52,13 @@ export default function SessionPage() {
   // Local draft holds saved edits so the page reflects them without a refetch.
   const [draft, setDraft] = useState<Session | null>(null)
   const [editing, setEditing] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const copyLiveLink = (link: string) => {
+    navigator.clipboard.writeText(link)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
   useEffect(() => { setDraft(null); setEditing(false) }, [fetched?.id])
   const session = draft ?? fetched
 
@@ -203,46 +210,113 @@ export default function SessionPage() {
         )}
       </div>
 
-      {/* Live session — date + Zoom / recording links */}
-      {sched && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
-                <CalendarDays size={18} className="text-primary-600" />
+      {/* Live session — date + Zoom / recording */}
+      {sched && (() => {
+        const sessionDate = new Date(sched.scheduled_date + 'T00:00:00')
+        const today = new Date(); today.setHours(0, 0, 0, 0)
+        const isPast = sessionDate < today
+
+        // Extract YouTube embed URL from a watch or shortened URL
+        const getYouTubeEmbedUrl = (url: string) => {
+          const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/)
+          return ytMatch ? `https://www.youtube.com/embed/${ytMatch[1]}` : null
+        }
+        const embedUrl = sched.recording_url ? getYouTubeEmbedUrl(sched.recording_url) : null
+
+        return (
+          <>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
+              {/* Date row */}
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
+                    <CalendarDays size={18} className="text-primary-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">Live session</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {fmtLong(sched.scheduled_date)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Join Live + Copy */}
+                {sched.zoom_link && (
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={sched.zoom_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                    >
+                      <Video size={15} /> Join Live
+                    </a>
+                    <button
+                      onClick={() => copyLiveLink(sched.zoom_link!)}
+                      title="Copy live link"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                      {copied ? <Check size={15} className="text-green-500" /> : <Copy size={15} />}
+                      {copied ? 'Copied!' : 'Copy link'}
+                    </button>
+                  </div>
+                )}
               </div>
-              <div>
-                <p className="text-xs text-gray-400">Live session</p>
-                <p className="text-sm font-semibold text-gray-800">
-                  {fmtLong(sched.scheduled_date)}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
+
+              {/* Reminder note */}
               {sched.zoom_link && (
-                <a
-                  href={sched.zoom_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors"
-                >
-                  <Video size={15} /> Join Live
-                </a>
+                <div className="mt-3 flex items-start gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+                  <Info size={13} className="shrink-0 mt-0.5 text-gray-400" />
+                  <span>The live link is also available in your cohort's schedule. Share it only with enrolled learners.</span>
+                </div>
               )}
-              {sched.recording_url && (
-                <a
-                  href={sched.recording_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <PlayCircle size={15} /> Recording
-                </a>
-              )}
+
+              {/* Recording section */}
+              <div className="mt-5 border-t border-gray-100 pt-4">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                  <PlayCircle size={13} /> Session Recording
+                </p>
+                {embedUrl ? (
+                  <div className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingTop: '56.25%' }}>
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={embedUrl}
+                      title="Session recording"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : sched.recording_url ? (
+                  <a
+                    href={sched.recording_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors w-fit"
+                  >
+                    <PlayCircle size={15} /> Watch Recording
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-5">
+                    <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
+                      <PlayCircle size={18} className="text-gray-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">
+                        {isPast ? 'Recording coming soon' : 'Recording not yet available'}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {isPast
+                          ? 'The recording will be posted here shortly after the session.'
+                          : 'After the live session, the recording will appear here.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )
+      })()}
 
       {/* Lesson content */}
       {editing ? (
