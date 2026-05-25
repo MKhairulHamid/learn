@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText } from 'lucide-react'
+import { Play, RotateCcw, ChevronDown, ChevronRight, ChevronLeft, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { runQuery, resetDB } from '../lib/sqlSimulator'
@@ -513,6 +513,7 @@ export default function PlaygroundPage() {
 
   const [pickedProgram, setPickedProgram] = useState<string | null>(null)
   const [pickedPg, setPickedPg] = useState<PlaygroundId | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const showAll = cohort.isEditor || cohort.enrolledProgramIds.length === 0
   const visiblePrograms = programs.filter(p =>
@@ -543,10 +544,21 @@ export default function PlaygroundPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left: program navigation */}
-        <aside className="md:w-56 shrink-0">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">
-            Programs
-          </p>
+        <aside className={`shrink-0 transition-all duration-200 ${sidebarCollapsed ? 'md:w-12' : 'md:w-48'}`}>
+          <div className={`flex items-center mb-2 ${sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-1'}`}>
+            {!sidebarCollapsed && (
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                Programs
+              </p>
+            )}
+            <button
+              onClick={() => setSidebarCollapsed(c => !c)}
+              className="hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-100 transition-colors"
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {sidebarCollapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+            </button>
+          </div>
           <nav className="flex md:flex-col gap-1 overflow-x-auto pb-1 md:pb-0">
             {visiblePrograms.map(p => {
               const active = p.id === programId
@@ -554,14 +566,17 @@ export default function PlaygroundPage() {
                 <button
                   key={p.id}
                   onClick={() => { setPickedProgram(p.id); setPickedPg(null) }}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0 text-left ${
-                    active ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                  title={sidebarCollapsed ? (lang === 'id' ? p.name_id : p.name_en) : undefined}
+                  className={`flex items-center gap-2.5 rounded-xl text-sm font-medium transition-colors shrink-0 text-left ${
+                    sidebarCollapsed ? 'justify-center p-2' : 'px-3 py-2.5'
+                  } ${active ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${p.color} flex items-center justify-center text-base shrink-0`}>
                     {p.icon}
                   </span>
-                  <span className="truncate">{lang === 'id' ? p.name_id : p.name_en}</span>
+                  {!sidebarCollapsed && (
+                    <span className="truncate">{lang === 'id' ? p.name_id : p.name_en}</span>
+                  )}
                 </button>
               )
             })}
