@@ -86,28 +86,24 @@ export default function Dashboard() {
 
       {/* Enrolled program card — students only */}
       {!cohort.isAdmin && enrolledProgram && (
-        <div
-          className={`bg-gradient-to-r ${enrolledProgram.color} rounded-2xl p-5 mb-6 text-white`}
+        <button
           onClick={() => navigate('/curriculum')}
-          role="button"
-          style={{ cursor: 'pointer' }}
+          className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow text-left mb-6"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{enrolledProgram.icon}</span>
-              <div>
-                <p className="text-xs font-medium opacity-75 uppercase tracking-wide">Enrolled Program</p>
-                <h2 className="font-bold text-base leading-snug">
-                  {lang === 'id' ? enrolledProgram.name_id : enrolledProgram.name_en}
-                </h2>
-                {cohort.cohort && (
-                  <p className="text-xs opacity-70 mt-0.5">{cohort.cohort.name}</p>
-                )}
-              </div>
-            </div>
-            <ArrowRight size={18} className="opacity-70 shrink-0" />
+          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${enrolledProgram.color} flex items-center justify-center text-2xl shrink-0`}>
+            {enrolledProgram.icon}
           </div>
-        </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-gray-500">Your Program</div>
+            <div className="font-semibold text-gray-900 text-sm mt-0.5 truncate">
+              {lang === 'id' ? enrolledProgram.name_id : enrolledProgram.name_en}
+            </div>
+            {cohort.cohort && (
+              <div className="text-xs text-gray-400 mt-0.5">{cohort.cohort.name}</div>
+            )}
+          </div>
+          <ArrowRight size={16} className="text-gray-400 shrink-0" />
+        </button>
       )}
 
       {/* Stats */}
