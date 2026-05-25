@@ -260,7 +260,7 @@ export default function Landing() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pt-28 md:pb-32">
           <div className="max-w-3xl mx-auto text-center">
             <Badge variant="primary" size="md">
-              <Zap size={12} className="mr-1" /> LearnSync — Live & Self Learning Platform
+              <Zap size={12} className="mr-1" /> Learning Platform — Live & Self Learning
             </Badge>
             <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1]">
               One platform for{' '}
@@ -356,7 +356,7 @@ export default function Landing() {
               Your complete learning journey in 6 steps
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
-              From scheduling to certification — every part of the learning cycle is managed inside LearnSync.
+              From scheduling to certification — every part of the learning cycle is managed inside Learning Platform.
             </p>
           </div>
 
@@ -390,7 +390,7 @@ export default function Landing() {
               Everything you need, already here
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
-              LearnSync isn't just a video platform. It's a complete learning environment built around live instruction.
+              Learning Platform isn't just a video platform. It's a complete learning environment built around live instruction.
             </p>
           </div>
 
@@ -417,7 +417,7 @@ export default function Landing() {
               Live guidance + always-on access
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
-              Most platforms give you one or the other. LearnSync combines both — scheduled live sessions and on-demand self-study in a single workspace.
+              Most platforms give you one or the other. Learning Platform combines both — scheduled live sessions and on-demand self-study in a single workspace.
             </p>
           </div>
 
@@ -563,7 +563,7 @@ export default function Landing() {
                 <span className="text-primary-600">in one dashboard</span>
               </h2>
               <p className="mt-4 text-gray-500 leading-relaxed">
-                No more switching between email, Zoom, Google Drive, and Notion. LearnSync puts your
+                No more switching between email, Zoom, Google Drive, and Notion. Learning Platform puts your
                 schedule, Zoom links, recordings, materials, exercises, and survey forms in a single
                 interface your cohort shares together.
               </p>
@@ -734,7 +734,7 @@ export default function Landing() {
         </div>
         <div className="relative max-w-2xl mx-auto px-4 text-center">
           <Badge variant="primary" size="md">
-            <Zap size={12} className="mr-1" /> LearnSync
+            <Zap size={12} className="mr-1" /> Learning Platform
           </Badge>
           <h2 className="mt-5 text-3xl sm:text-4xl font-bold leading-tight">
             Ready to learn live<br />

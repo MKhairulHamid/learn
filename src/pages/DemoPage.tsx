@@ -4,15 +4,16 @@ import {
   GraduationCap, Users, Activity, TrendingUp, Radio, Globe, Zap, Database,
   CalendarClock, ArrowRight, MousePointer2, BarChart3, Lock, ChevronDown,
   Video, Layers, Target, Award, ChevronLeft, ChevronRight, Maximize2,
-  Minimize2, Terminal, BarChart2, CalendarDays,
+  Minimize2, Terminal, BarChart2, CalendarDays, Calculator, Mic2,
+  Gamepad2, Star, FileText,
 } from 'lucide-react'
 
 /* ───────────────────────────────────────────────────────────────────────────
    Demo page — NOT linked from navigation. Reachable only via direct URL #/demo.
-   Scroll-through partnership overview for Talentiv.
+   Scroll-through platform overview for Talentiv.
 ─────────────────────────────────────────────────────────────────────────── */
 
-type SceneId = 'curriculum' | 'session' | 'sql' | 'python' | 'progress' | 'admin'
+type SceneId = 'programs' | 'session' | 'sql' | 'python' | 'hr' | 'progress' | 'admin'
 
 interface Slide {
   scene: SceneId
@@ -22,76 +23,80 @@ interface Slide {
 }
 
 const SCENES: { id: SceneId; label: string; url: string }[] = [
-  { id: 'curriculum', label: 'Curriculum',         url: 'datalearn.app/curriculum' },
-  { id: 'session',    label: 'Session View',        url: 'datalearn.app/session/04' },
-  { id: 'sql',        label: 'SQL Exercises',       url: 'datalearn.app/exercise/04-1' },
-  { id: 'python',     label: 'Python Playground',   url: 'datalearn.app/playground' },
-  { id: 'progress',   label: 'Dashboard',           url: 'datalearn.app/dashboard' },
-  { id: 'admin',      label: 'Admin Panel',         url: 'datalearn.app/admin' },
+  { id: 'programs', label: 'Programs',          url: 'learnsync.app/curriculum' },
+  { id: 'session',  label: 'Session View',      url: 'learnsync.app/session/05' },
+  { id: 'sql',      label: 'SQL Playground',    url: 'learnsync.app/playground' },
+  { id: 'python',   label: 'Python Playground', url: 'learnsync.app/playground' },
+  { id: 'hr',       label: 'HR Playground',     url: 'learnsync.app/playground/hr' },
+  { id: 'progress', label: 'Dashboard',         url: 'learnsync.app/dashboard' },
+  { id: 'admin',    label: 'Admin Panel',       url: 'learnsync.app/admin' },
 ]
 
 const SLIDES: Slide[] = [
-  // Curriculum
   {
-    scene: 'curriculum', phase: 'phases',
-    caption: 'Structured curriculum — 4 learning phases, 12 sessions',
-    detail: 'From data fundamentals to Python for analytics. Each phase builds directly on the last, designed to pair with Talentiv\'s live expert sessions.',
+    scene: 'programs', phase: 'cards',
+    caption: 'Two career programs — Data Analyst and HR Fast Track, both BNSP certified',
+    detail: 'Each program runs as a live cohort with structured self-paced materials. Talentiv\'s expert sessions slot directly into each track.',
   },
-  // Session — sidebar nav
+  {
+    scene: 'programs', phase: 'phases',
+    caption: 'Data Analyst track: 12 sessions across 4 phases — Excel → SQL → Visualization → Python',
+    detail: 'Structured learning path with each phase building on the last. Sessions unlock in sync with live class schedule.',
+  },
   {
     scene: 'session', phase: 'sidebar',
-    caption: 'Session view with left-sidebar navigation across all lessons',
-    detail: 'Learners see every session and their progress without leaving the page. The active session is always in context.',
+    caption: 'Session page with left-sidebar navigation across all lessons and phases',
+    detail: 'Learners see every session and their progress without leaving the page. Current session is always in context.',
   },
-  // Session — live card
   {
     scene: 'session', phase: 'live',
-    caption: 'Live session card: scheduled date, Zoom link, and recording',
+    caption: 'Live session card: scheduled date, Zoom link, and embedded recording',
     detail: 'Talentiv\'s expert sessions link directly into the platform. Recordings are embedded immediately after each live class.',
   },
-  // SQL
   {
     scene: 'sql', phase: 'editor',
-    caption: 'In-browser SQL environment — zero installation required',
-    detail: 'Real e-commerce dataset. Learners write and run queries without installing anything — they\'re coding on day one.',
+    caption: 'In-browser SQL playground — real e-commerce dataset, zero installation',
+    detail: 'Learners write and run queries against a real dataset. No local setup, no delays — they\'re coding on day one.',
   },
   {
     scene: 'sql', phase: 'passed',
-    caption: 'Auto-graded: 3 / 3 test cases passed with instant feedback',
-    detail: 'Every exercise validated against deterministic test cases. No manual grading, no waiting — results are immediate.',
+    caption: 'Auto-graded: 3 / 3 test cases passed with deterministic feedback',
+    detail: 'Every exercise validated instantly. No manual grading, no waiting — results are immediate and objective.',
   },
-  // Python
   {
     scene: 'python', phase: 'code',
-    caption: 'Python + pandas + matplotlib — runs entirely in the browser',
-    detail: 'Full scientific Python stack via Pyodide. Learners write real data analysis code — no Jupyter, no setup.',
+    caption: 'Python + pandas + matplotlib — full scientific stack in the browser',
+    detail: 'Powered by Pyodide. Learners write real data analysis code with pre-loaded CSV datasets — no Jupyter needed.',
   },
   {
     scene: 'python', phase: 'result',
-    caption: 'Live chart output and DataFrame results, side by side',
-    detail: 'Visualizations render directly in the platform. Code → output in seconds.',
+    caption: 'Terminal output and live chart rendered side by side',
+    detail: 'Visualizations render directly in the platform. Code → chart in seconds.',
   },
-  // Dashboard
+  {
+    scene: 'hr', phase: 'calculator',
+    caption: 'HR Playground: PPh 21 tax calculator with BPJS breakdown — built for the HR Fast Track',
+    detail: 'Indonesian statutory payroll calculations in the browser. Learners practice real HR computations with 2024 tax brackets.',
+  },
   {
     scene: 'progress', phase: 'programs',
-    caption: 'Learner dashboard — enrolled programs with real-time progress',
-    detail: 'Each learner sees their programs, phase completion, and next session. Clear, motivating, and actionable.',
+    caption: 'Learner dashboard — enrolled programs with phase-by-phase progress',
+    detail: 'Learners see both their programs, completion per phase, next session, and cohort status at a glance.',
   },
   {
     scene: 'progress', phase: 'discuss',
-    caption: 'Per-session discussions with @mentor notifications',
+    caption: 'Per-session Q&A discussions with @mentor notifications',
     detail: 'Questions stay in context. Mentors are pinged instantly. Nothing falls through the cracks.',
   },
-  // Admin
   {
     scene: 'admin', phase: 'stats',
-    caption: 'Admin overview — all learners, completions, live activity feed',
-    detail: 'Real-time view of what\'s happening across every cohort. Who\'s active, who finished, who needs a nudge.',
+    caption: 'Admin overview — multi-program learner activity and completions',
+    detail: 'Real-time view of what\'s happening across every cohort and program. Who\'s active, who finished, who needs a nudge.',
   },
   {
     scene: 'admin', phase: 'cohort',
-    caption: 'Cohort management: schedule, Zoom links, enrollment approvals',
-    detail: 'Create cohorts, set session dates, approve learners — the full back-office in one dashboard.',
+    caption: 'Cohort management: session schedule, Zoom links, enrollment approvals',
+    detail: 'Create cohorts per program, set session dates, approve learners — the full back-office in one dashboard.',
   },
 ]
 
@@ -107,7 +112,7 @@ function ScrollHint() {
 export default function DemoPage() {
   const [slide, setSlide] = useState(0)
   const [fullscreen, setFullscreen] = useState(false)
-  const demoRef = useRef<HTMLDivElement>(null)
+  const _demoRef = useRef<HTMLDivElement>(null)
 
   const current = SLIDES[slide]
   const scene = current.scene
@@ -121,7 +126,6 @@ export default function DemoPage() {
     if (idx >= 0) setSlide(idx)
   }
 
-  // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') goNext()
@@ -174,15 +178,14 @@ export default function DemoPage() {
 
         <div className={`relative bg-gray-50 overflow-hidden select-none ${fullscreen ? 'flex-1' : 'aspect-[16/10] sm:aspect-[16/9]'}`}>
           <div key={`${scene}-${current.phase}`} className="absolute inset-0">
-            {scene === 'curriculum' && <SceneCurriculum phase={current.phase} />}
-            {scene === 'session'    && <SceneSession    phase={current.phase} />}
-            {scene === 'sql'        && <SceneSql        phase={current.phase} />}
-            {scene === 'python'     && <ScenePython     phase={current.phase} />}
-            {scene === 'progress'   && <SceneProgress   phase={current.phase} />}
-            {scene === 'admin'      && <SceneAdmin      phase={current.phase} />}
+            {scene === 'programs' && <ScenePrograms phase={current.phase} />}
+            {scene === 'session'  && <SceneSession  phase={current.phase} />}
+            {scene === 'sql'      && <SceneSql      phase={current.phase} />}
+            {scene === 'python'   && <ScenePython   phase={current.phase} />}
+            {scene === 'hr'       && <SceneHR       phase={current.phase} />}
+            {scene === 'progress' && <SceneProgress phase={current.phase} />}
+            {scene === 'admin'    && <SceneAdmin    phase={current.phase} />}
           </div>
-
-          {/* Slide index badge */}
           <div className="absolute top-3 right-3 bg-black/40 text-white text-[11px] rounded-full px-2.5 py-0.5 z-10">
             {slide + 1} / {SLIDES.length}
           </div>
@@ -200,7 +203,6 @@ export default function DemoPage() {
             <p className="mt-1 text-xs text-gray-400 ml-[23px] leading-relaxed">{current.detail}</p>
           </div>
 
-          {/* Nav buttons + dots */}
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={goPrev}
@@ -209,7 +211,6 @@ export default function DemoPage() {
             >
               <ChevronLeft size={16} />
             </button>
-
             <div className="flex items-center gap-1">
               {SLIDES.map((_, i) => (
                 <button
@@ -221,7 +222,6 @@ export default function DemoPage() {
                 />
               ))}
             </div>
-
             <button
               onClick={goNext}
               disabled={slide === SLIDES.length - 1}
@@ -244,7 +244,7 @@ export default function DemoPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-lg">
             <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-              <BookOpen size={18} className="text-white" />
+              <Zap size={16} className="text-white" />
             </div>
             <span>Learning Platform</span>
           </div>
@@ -257,10 +257,7 @@ export default function DemoPage() {
 
       {/* ── Fullscreen overlay ───────────────────────────────────────────────── */}
       {fullscreen && (
-        <div
-          ref={demoRef}
-          className="fixed inset-0 z-[200] bg-gray-950 flex flex-col"
-        >
+        <div className="fixed inset-0 z-[200] bg-gray-950 flex flex-col">
           <DemoContent />
         </div>
       )}
@@ -269,6 +266,7 @@ export default function DemoPage() {
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-primary-600/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-0 w-[500px] h-[400px] bg-violet-600/8 rounded-full blur-[100px]" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -281,46 +279,30 @@ export default function DemoPage() {
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
-            Live instruction meets{' '}
+            Live expert sessions meet{' '}
             <span className="bg-gradient-to-r from-primary-400 to-cyan-400 bg-clip-text text-transparent">
-              structured learning.
+              a complete learning platform.
             </span>
           </h1>
 
           <p className="mt-7 text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Talentiv delivers world-class expert-led sessions. Learning Platform delivers the
-            curriculum infrastructure, interactive practice, and learner analytics.
-            Together — a complete data education ecosystem.
+            Talentiv delivers expert-led live classes. Learning Platform delivers the structured curriculum,
+            interactive playgrounds, cohort tools, and analytics. Together — an end-to-end professional
+            skills ecosystem across Data and HR.
           </p>
 
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5">
-            <div className="flex items-center gap-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] px-5 py-3.5">
-              <Video size={20} className="text-violet-400 shrink-0" />
-              <div className="text-left">
-                <div className="text-[10px] text-gray-400 uppercase tracking-wider">Talentiv</div>
-                <div className="text-sm font-semibold text-white">Live Expert Classes</div>
+          <div className="mt-12 grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+            {[
+              { icon: '📊', prog: 'Data Analyst', desc: '12 sessions · Excel, SQL, Python, BI', color: 'border-cyan-500/30 bg-cyan-500/5' },
+              { icon: '👥', prog: 'HR Fast Track', desc: '25+ sessions · HR ops, payroll, BPJS', color: 'border-rose-500/30 bg-rose-500/5' },
+              { icon: '🏆', prog: 'BNSP Certified', desc: 'Both programs — nationally recognized', color: 'border-amber-500/30 bg-amber-500/5' },
+            ].map(item => (
+              <div key={item.prog} className={`rounded-xl border ${item.color} px-4 py-3.5`}>
+                <div className="text-xl mb-1.5">{item.icon}</div>
+                <div className="text-sm font-semibold text-white">{item.prog}</div>
+                <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
               </div>
-            </div>
-
-            <div className="text-2xl font-bold text-primary-400">+</div>
-
-            <div className="flex items-center gap-3 rounded-2xl bg-primary-500/10 border border-primary-400/20 px-5 py-3.5">
-              <BookOpen size={20} className="text-primary-400 shrink-0" />
-              <div className="text-left">
-                <div className="text-[10px] text-primary-300 uppercase tracking-wider">Learning Platform</div>
-                <div className="text-sm font-semibold text-white">Learning Platform</div>
-              </div>
-            </div>
-
-            <div className="text-2xl font-bold text-cyan-400">=</div>
-
-            <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary-500/20 to-cyan-500/20 border border-primary-400/30 px-5 py-3.5">
-              <Award size={20} className="text-cyan-400 shrink-0" />
-              <div className="text-left">
-                <div className="text-[10px] text-cyan-300 uppercase tracking-wider">Combined</div>
-                <div className="text-sm font-semibold text-white">Complete Ecosystem</div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -337,7 +319,7 @@ export default function DemoPage() {
               <span className="text-gray-400">Learners need the full stack.</span>
             </h2>
             <p className="mt-5 text-gray-400 text-lg max-w-2xl mx-auto">
-              Expert sessions spark motivation. Turning that into lasting skill requires
+              Expert sessions spark motivation. Turning that into lasting, certified skill requires
               structured practice, repetition, and visibility — between every session.
             </p>
           </div>
@@ -345,15 +327,15 @@ export default function DemoPage() {
           <div className="grid sm:grid-cols-3 gap-6">
             {[
               {
-                icon: <Video size={22} />,
+                icon: <Mic2 size={22} />,
                 color: 'from-violet-600 to-purple-500',
                 label: 'What Talentiv has',
                 title: 'Expert-led live sessions',
                 points: [
                   'Industry practitioners as instructors',
                   'Real-world case studies & live Q&A',
-                  'High engagement, high motivation',
                   'Strong brand & learner community',
+                  'Data, HR, and professional skills focus',
                 ],
               },
               {
@@ -363,7 +345,7 @@ export default function DemoPage() {
                 title: 'Structured continuity',
                 points: [
                   'Guided curriculum to follow daily',
-                  'Hands-on practice with real feedback',
+                  'Hands-on tools to practice real skills',
                   'Progress they can see and measure',
                   'A place to ask questions anytime',
                 ],
@@ -374,10 +356,10 @@ export default function DemoPage() {
                 label: 'What Learning Platform provides',
                 title: 'The platform layer',
                 points: [
-                  '12-session curriculum, 4 learning phases',
-                  'In-browser SQL & Python exercises',
-                  'Auto-graded tests + real-time dashboard',
-                  'Cohort tools integrated with live schedule',
+                  '2 programs · 37+ sessions · 40+ exercises',
+                  'SQL, Python & HR in-browser playgrounds',
+                  'Auto-graded tests + real-time analytics',
+                  'Cohort tools wired to live schedule',
                 ],
               },
             ].map(card => (
@@ -442,7 +424,7 @@ export default function DemoPage() {
             <p className="text-primary-400 text-sm font-semibold uppercase tracking-widest mb-4">Platform Capabilities</p>
             <h2 className="text-3xl sm:text-4xl font-bold">Everything Talentiv needs, already built</h2>
             <p className="mt-3 text-gray-400 text-base max-w-xl mx-auto">
-              Not a vision deck — a working platform learners use every day.
+              Not a vision deck — a working platform with two live programs running today.
             </p>
           </div>
 
@@ -450,28 +432,28 @@ export default function DemoPage() {
             {[
               {
                 icon: <BookOpen size={20} />,
-                title: 'Structured Curriculum',
-                desc: '12 sessions across 4 phases — Foundation, SQL, Visualization, and Python. Each session is modular and pairs naturally with a live class.',
+                title: 'Multi-Program Curriculum',
+                desc: 'Data Analyst (12 sessions, 4 phases) and HR Fast Track (25+ sessions, 3 modules). Each modular and paired with live class schedule.',
               },
               {
-                icon: <Code2 size={20} />,
-                title: 'In-Browser SQL & Python',
-                desc: 'Full SQL and Python environments run directly in the browser. Real datasets, real code, zero friction — learners start coding on day one.',
+                icon: <Gamepad2 size={20} />,
+                title: 'Three In-Browser Playgrounds',
+                desc: 'SQL (e-commerce dataset), Python with pandas & matplotlib, and HR payroll calculator (PPh 21, BPJS). Zero installation for any of them.',
               },
               {
                 icon: <CheckCircle2 size={20} />,
                 title: 'Auto-Graded Exercises',
-                desc: 'Every exercise is tested against deterministic test cases. Instant pass/fail feedback per criterion — no manual grading ever.',
+                desc: 'Every exercise tested against deterministic test cases. Instant pass/fail feedback per criterion — no manual grading ever.',
               },
               {
                 icon: <GraduationCap size={20} />,
                 title: 'Cohort Management',
-                desc: 'Create cohorts with schedules, Zoom links, and session recordings. Approve enrollments and manage access — all in one admin dashboard.',
+                desc: 'Create cohorts per program with schedules, Zoom links, and session recordings. Approve enrollments and manage access — one dashboard.',
               },
               {
                 icon: <BarChart3 size={20} />,
                 title: 'Learner & Admin Analytics',
-                desc: 'Real-time dashboards for both learners (their own progress) and admins (completion rates, active users, hardest exercises).',
+                desc: 'Real-time dashboards for learners (their own progress) and admins (completion rates, active users, hardest exercises per program).',
               },
               {
                 icon: <MessageSquare size={20} />,
@@ -484,14 +466,14 @@ export default function DemoPage() {
                 desc: 'All materials in Bahasa Indonesia and English. Learners toggle language any time — same platform, same progress.',
               },
               {
-                icon: <Radio size={20} />,
-                title: 'Live Activity Feed',
-                desc: 'Admins see real-time events across every cohort: who completed a session, who submitted an exercise, who just joined.',
-              },
-              {
                 icon: <Video size={20} />,
                 title: 'Recording Integration',
-                desc: 'Link Talentiv live session recordings directly into each session page. Learners review expert content right alongside the curriculum.',
+                desc: 'Link Talentiv live session recordings into each session page. Learners review expert content right alongside the curriculum.',
+              },
+              {
+                icon: <Award size={20} />,
+                title: 'BNSP Certification Pathway',
+                desc: 'Both programs are structured to lead to nationally recognized BNSP certification — the professional competency standard in Indonesia.',
               },
             ].map(it => (
               <div key={it.title} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
@@ -518,47 +500,18 @@ export default function DemoPage() {
             </h2>
             <p className="mt-5 text-gray-400 text-base max-w-2xl mx-auto">
               Talentiv's live sessions and Learning Platform's platform become a single, coherent experience
-              for every learner — from onboarding to portfolio-ready.
+              for every learner across Data, HR, or any future career track.
             </p>
           </div>
 
           <div className="relative">
             <div className="hidden sm:block absolute top-10 left-[calc(10%+24px)] right-[calc(10%+24px)] h-0.5 bg-gradient-to-r from-violet-500/30 via-primary-500/50 to-cyan-500/30" />
-
             <div className="grid sm:grid-cols-4 gap-4">
               {[
-                {
-                  step: '01',
-                  color: 'from-violet-600 to-purple-500',
-                  icon: <Users size={18} />,
-                  brand: 'Talentiv',
-                  title: 'Enroll & Onboard',
-                  desc: 'Learner joins a Talentiv cohort. Instantly provisioned on Learning Platform.',
-                },
-                {
-                  step: '02',
-                  color: 'from-primary-600 to-cyan-500',
-                  icon: <BookOpen size={18} />,
-                  brand: 'Learning Platform',
-                  title: 'Self-Paced Prep',
-                  desc: 'Learner works through curriculum and exercises at their own pace.',
-                },
-                {
-                  step: '03',
-                  color: 'from-violet-600 to-purple-500',
-                  icon: <Video size={18} />,
-                  brand: 'Talentiv',
-                  title: 'Live Expert Session',
-                  desc: 'Instructor goes deeper, answers questions, runs live case studies.',
-                },
-                {
-                  step: '04',
-                  color: 'from-primary-600 to-cyan-500',
-                  icon: <TrendingUp size={18} />,
-                  brand: 'Learning Platform',
-                  title: 'Reinforce & Measure',
-                  desc: 'Exercises, recording review, and progress tracked in the dashboard.',
-                },
+                { color: 'from-violet-600 to-purple-500', icon: <Users size={18} />, brand: 'Talentiv', title: 'Enroll & Onboard', desc: 'Learner joins a Talentiv cohort. Instantly provisioned on Learning Platform.' },
+                { color: 'from-primary-600 to-cyan-500',  icon: <BookOpen size={18} />, brand: 'Learning Platform', title: 'Self-Paced Prep', desc: 'Works through curriculum and exercises between live sessions.' },
+                { color: 'from-violet-600 to-purple-500', icon: <Mic2 size={18} />, brand: 'Talentiv', title: 'Live Expert Session', desc: 'Instructor dives deeper, Q&A, real-world case studies.' },
+                { color: 'from-primary-600 to-cyan-500',  icon: <TrendingUp size={18} />, brand: 'Learning Platform', title: 'Reinforce & Certify', desc: 'Exercises, recording review, progress toward BNSP certification.' },
               ].map((item, i) => (
                 <div key={i} className="flex flex-col items-center text-center">
                   <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg shrink-0`}>
@@ -578,11 +531,11 @@ export default function DemoPage() {
             <p className="text-gray-400 text-sm uppercase tracking-widest mb-3">The outcome</p>
             <h3 className="text-2xl sm:text-3xl font-bold">
               Learners who arrive to live sessions <span className="text-primary-400">already prepared</span>,
-              <br className="hidden sm:block" /> and leave with <span className="text-cyan-400">verified, trackable skills</span>.
+              <br className="hidden sm:block" /> and leave with <span className="text-cyan-400">BNSP-certified, trackable skills</span>.
             </h3>
             <p className="mt-4 text-gray-400 max-w-xl mx-auto">
               Higher completion rates. Better learner outcomes. A platform that validates the value
-              of every Talentiv expert session with measurable data.
+              of every Talentiv expert session with measurable data — across any career track.
             </p>
           </div>
         </div>
@@ -599,10 +552,10 @@ export default function DemoPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
             {[
-              { v: '12',   unit: 'sessions',  label: 'Structured sessions across 4 learning phases', icon: <BookOpen size={20} />, c: 'text-primary-400' },
-              { v: '40+',  unit: 'exercises', label: 'In-browser SQL & Python exercises with auto-grading', icon: <Code2 size={20} />, c: 'text-violet-400' },
-              { v: '4',    unit: 'phases',    label: 'Foundation → SQL → Visualization → Python & Portfolio', icon: <Layers size={20} />, c: 'text-cyan-400' },
-              { v: '100%', unit: 'browser',   label: 'No installation. Every learner starts coding on day one.', icon: <Zap size={20} />, c: 'text-yellow-400' },
+              { v: '2',    unit: 'programs',  label: 'Data Analyst + HR Fast Track — both BNSP certified', icon: <Star size={20} />, c: 'text-amber-400' },
+              { v: '37+',  unit: 'sessions',  label: 'Live sessions across both programs with cohort scheduling', icon: <Mic2 size={20} />, c: 'text-violet-400' },
+              { v: '40+',  unit: 'exercises', label: 'In-browser SQL, Python & HR exercises with auto-grading', icon: <Code2 size={20} />, c: 'text-primary-400' },
+              { v: '3',    unit: 'playgrounds', label: 'SQL · Python · HR — all zero-install, all in the browser', icon: <Gamepad2 size={20} />, c: 'text-cyan-400' },
             ].map((s, i) => (
               <div key={i} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 text-center">
                 <div className={`flex items-center justify-center mb-3 ${s.c}`}>{s.icon}</div>
@@ -620,12 +573,12 @@ export default function DemoPage() {
                 icon: <GraduationCap size={22} />,
                 accent: 'from-primary-600 to-cyan-500',
                 points: [
-                  'Access all sessions with bilingual materials (ID/EN)',
-                  'In-browser SQL & Python practice — no setup required',
-                  'Instant auto-graded feedback per test case',
+                  'Enroll in Data Analyst or HR Fast Track (or both)',
+                  'Bilingual materials (ID/EN) for every session',
+                  'In-browser SQL, Python & HR payroll practice',
                   'Left-sidebar navigation across all sessions and phases',
-                  'Session discussions with @mentor notifications',
-                  'Live cohort schedule, Zoom links, and embedded recordings',
+                  'Embedded Zoom links + permanent session recordings',
+                  'Discussion Q&A with @mentor notifications',
                 ],
               },
               {
@@ -633,12 +586,12 @@ export default function DemoPage() {
                 icon: <ShieldCheck size={22} />,
                 accent: 'from-violet-600 to-purple-500',
                 points: [
-                  'Real-time overview: active learners, completions, activity feed',
+                  'Multi-program overview: active learners, completions per track',
+                  'Real-time live activity feed across all cohorts',
                   'Per-learner progress detail and exercise history',
-                  'Exercise analytics: hardest questions, pass rates',
-                  'Create cohorts with schedule, Zoom links, and recordings',
+                  'Create cohorts with schedules, Zoom links, recordings',
                   'Approve/revoke enrollments and manage access periods',
-                  'Foundation to add custom programs as Talentiv scales',
+                  'Built to expand: add new programs as Talentiv scales',
                 ],
               },
             ].map(r => (
@@ -672,20 +625,20 @@ export default function DemoPage() {
           <h2 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight">
             Build the future of<br />
             <span className="bg-gradient-to-r from-primary-400 to-cyan-400 bg-clip-text text-transparent">
-              data education in Indonesia.
+              professional education in Indonesia.
             </span>
           </h2>
           <p className="mt-7 text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Talentiv has the experts, the brand, and the learner community.
-            Learning Platform has the curriculum infrastructure, interactive tooling, and analytics.
+            Learning Platform has the curriculum infrastructure, multi-program playgrounds, and analytics.
             Combining both creates something neither can build alone — fast.
           </p>
 
           <div className="mt-12 grid sm:grid-cols-3 gap-4 text-left">
             {[
-              { icon: <Zap size={18} />, title: 'Production-ready', desc: 'Platform is live and actively used — no prototype, no speculation.' },
-              { icon: <Target size={18} />, title: 'Aligned audience', desc: 'Same learners, same skills — zero audience mismatch.' },
-              { icon: <Award size={18} />, title: 'Immediate value', desc: 'Integrate Talentiv recordings and live sessions on day one.' },
+              { icon: <Zap size={18} />, title: 'Production-ready', desc: 'Two live programs running today — not a prototype or mockup.' },
+              { icon: <Target size={18} />, title: 'Aligned audience', desc: 'Same learners, same career goals — zero audience mismatch.' },
+              { icon: <Award size={18} />, title: 'Day-one integration', desc: 'Talentiv recordings and sessions plug in immediately.' },
             ].map(it => (
               <div key={it.title} className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
                 <div className="flex items-center gap-2 text-primary-400 mb-2">{it.icon}<span className="font-semibold text-white text-sm">{it.title}</span></div>
@@ -707,65 +660,112 @@ export default function DemoPage() {
   )
 }
 
-/* ── Scene: Curriculum overview ───────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENES
+═══════════════════════════════════════════════════════════════════════════ */
 
-const PHASES_DATA = [
-  { icon: '📊', name: 'Data Foundations & Excel', color: 'from-blue-500 to-cyan-500', count: 3, done: true },
-  { icon: '🗄️', name: 'SQL & Database',           color: 'from-violet-500 to-purple-600', count: 3, done: false, active: true },
-  { icon: '📈', name: 'Visualization & BI',       color: 'from-orange-500 to-amber-500', count: 3, done: false },
-  { icon: '🐍', name: 'Python & Portfolio',       color: 'from-emerald-500 to-teal-600', count: 3, done: false },
-]
+/* ── Scene: Programs overview ─────────────────────────────────────────────── */
 
-function SceneCurriculum({ phase: _phase }: { phase: string }) {
+function ScenePrograms({ phase }: { phase: string }) {
+  const showPhases = phase === 'phases'
   return (
-    <div className="absolute inset-0 overflow-hidden p-5 sm:p-7 bg-gray-50">
-      <h2 className="text-lg sm:text-xl font-bold text-gray-900">My Programs</h2>
-      <p className="text-sm text-gray-500 mt-0.5">Data Analyst Track — 12 sessions across 4 phases</p>
+    <div className="absolute inset-0 overflow-hidden p-5 sm:p-6 bg-gray-50">
+      <h2 className="text-base sm:text-lg font-bold text-gray-900">Choose your career path</h2>
+      <p className="text-xs text-gray-500 mt-0.5 mb-4">Two programs — both live + self-paced, both BNSP certified</p>
 
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {PHASES_DATA.map((p, i) => (
-          <div key={i} className={`rounded-2xl border bg-white p-4 shadow-sm ${p.active ? 'border-primary-400 ring-2 ring-primary-200' : 'border-gray-100'}`}>
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-xl`}>
-              {p.icon}
-            </div>
-            <div className="mt-2 flex items-center gap-1">
-              <span className="text-[10px] font-medium text-primary-600 uppercase tracking-wide">Phase {i + 1}</span>
-              {p.done && <CheckCircle2 size={11} className="text-green-500" />}
-              {p.active && <span className="text-[9px] bg-primary-100 text-primary-700 rounded-full px-1.5 font-medium">Active</span>}
-            </div>
-            <div className="text-sm font-semibold text-gray-900 leading-snug">{p.name}</div>
-            <div className="mt-2 h-1.5 rounded-full bg-gray-100 overflow-hidden">
-              <div className={`h-full rounded-full bg-gradient-to-r ${p.color}`}
-                style={{ width: p.done ? '100%' : p.active ? '33%' : '0%' }} />
-            </div>
-            <div className="mt-1 text-[10px] text-gray-400">{p.done ? '3/3' : p.active ? '1/3' : '0/3'} sessions</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Session list preview */}
-      <div className="mt-4 rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
-        <div className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <span className="text-[10px] bg-violet-100 text-violet-700 rounded-full px-2 py-0.5 font-medium">Phase 2</span>
-          SQL & Database
-        </div>
-        <div className="space-y-2">
+      {!showPhases ? (
+        /* Program cards */
+        <div className="grid sm:grid-cols-2 gap-4">
           {[
-            { num: '04', name: 'SELECT & GROUP BY', done: true },
-            { num: '05', name: 'JOINs & Subqueries', done: false, active: true },
-            { num: '06', name: 'Window Functions', done: false, locked: true },
-          ].map((s, i) => (
-            <div key={i} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${s.active ? 'bg-primary-50 border border-primary-200' : 'bg-gray-50'}`}>
-              {s.done ? <CheckCircle2 size={15} className="text-green-500 shrink-0" />
-                : s.locked ? <Lock size={13} className="text-gray-300 shrink-0" />
-                : <div className="w-4 h-4 rounded-full border-2 border-primary-400 shrink-0" />}
-              <span className="text-xs font-medium text-gray-500">Sess. {s.num}</span>
-              <span className={`text-sm ${s.active ? 'font-semibold text-primary-700' : s.done ? 'text-gray-700' : 'text-gray-400'}`}>{s.name}</span>
-              {s.active && <span className="ml-auto text-[10px] bg-primary-500 text-white rounded-full px-1.5 py-0.5">In progress</span>}
+            {
+              icon: '📊', gradient: 'from-primary-600 to-cyan-500', light: 'bg-primary-50', accent: 'text-primary-700', border: 'border-primary-200',
+              name: 'Data Analyst Career Intelligence',
+              tagline: '12-session path — Excel, SQL, Python & BNSP certification',
+              stats: [{ v: '12', l: 'Sessions' }, { v: '40+', l: 'Exercises' }, { v: '4', l: 'Phases' }, { v: 'BNSP', l: 'Certified' }],
+              tools: ['Excel', 'SQL', 'Python', 'Looker Studio'],
+            },
+            {
+              icon: '👥', gradient: 'from-rose-500 to-pink-600', light: 'bg-rose-50', accent: 'text-rose-700', border: 'border-rose-200',
+              name: 'HR Fast Track Bootcamp',
+              tagline: '3-month live bootcamp — HR fundamentals, payroll & BNSP',
+              stats: [{ v: '25+', l: 'Sessions' }, { v: '3', l: 'Modules' }, { v: 'Live', l: 'Online' }, { v: 'BNSP', l: 'Certified' }],
+              tools: ['Mekari Talenta', 'HRIS', 'PPh 21', 'BPJS'],
+            },
+          ].map(p => (
+            <div key={p.name} className={`rounded-2xl border ${p.border} overflow-hidden shadow-sm`}>
+              <div className={`bg-gradient-to-r ${p.gradient} p-4 text-white`}>
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-3xl">{p.icon}</span>
+                  <span className="text-[10px] bg-white/20 rounded-full px-2 py-0.5">BNSP Certified</span>
+                </div>
+                <div className="text-sm font-bold leading-snug">{p.name}</div>
+                <p className="text-[11px] opacity-80 mt-1">{p.tagline}</p>
+                <div className="mt-3 grid grid-cols-4 gap-1.5">
+                  {p.stats.map(s => (
+                    <div key={s.l} className="bg-white/15 rounded-lg p-1.5 text-center">
+                      <div className="text-sm font-bold">{s.v}</div>
+                      <div className="text-[9px] opacity-70">{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className={`${p.light} p-3`}>
+                <div className="flex flex-wrap gap-1">
+                  {p.tools.map(t => (
+                    <span key={t} className={`text-[10px] px-2 py-0.5 rounded-full border ${p.border} ${p.accent} font-medium bg-white`}>{t}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
-      </div>
+      ) : (
+        /* Data Analyst phases */
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl">📊</span>
+            <span className="text-sm font-bold text-gray-900">Data Analyst Career Intelligence</span>
+            <span className="text-[10px] bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 font-medium">Active program</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            {[
+              { icon: '📊', name: 'Data Foundations & Excel', color: 'from-blue-500 to-cyan-500', status: 'done' },
+              { icon: '🗄️', name: 'SQL & Database', color: 'from-violet-500 to-purple-600', status: 'active' },
+              { icon: '📈', name: 'Visualization & BI', color: 'from-orange-500 to-amber-500', status: 'locked' },
+              { icon: '🐍', name: 'Python & Portfolio', color: 'from-emerald-500 to-teal-600', status: 'locked' },
+            ].map((p, i) => (
+              <div key={i} className={`rounded-xl border bg-white p-3 shadow-sm ${p.status === 'active' ? 'border-primary-400 ring-2 ring-primary-200' : 'border-gray-100'}`}>
+                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${p.color} flex items-center justify-center text-lg mb-2`}>{p.icon}</div>
+                <div className="text-[9px] font-medium text-gray-400 uppercase">Phase {i + 1}</div>
+                <div className="text-xs font-semibold text-gray-900 leading-snug">{p.name}</div>
+                <div className="mt-2 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div className={`h-full rounded-full bg-gradient-to-r ${p.color}`}
+                    style={{ width: p.status === 'done' ? '100%' : p.status === 'active' ? '33%' : '0%' }} />
+                </div>
+                <div className="mt-1 text-[9px] text-gray-400">
+                  {p.status === 'done' ? '3/3 ✓' : p.status === 'active' ? '1/3' : 'Locked'}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-3">
+            <div className="text-xs font-semibold text-gray-700 mb-2">Phase 2 sessions</div>
+            {[
+              { num: '04', name: 'SELECT & GROUP BY', done: true },
+              { num: '05', name: 'JOINs & Subqueries', active: true },
+              { num: '06', name: 'Window Functions', locked: true },
+            ].map((s, i) => (
+              <div key={i} className={`flex items-center gap-2 rounded-lg px-2.5 py-2 mb-1 ${s.active ? 'bg-primary-50' : ''}`}>
+                {s.done ? <CheckCircle2 size={13} className="text-green-500 shrink-0" />
+                  : s.locked ? <Lock size={11} className="text-gray-300 shrink-0" />
+                  : <div className="w-3 h-3 rounded-full border-2 border-primary-400 shrink-0" />}
+                <span className="text-[10px] text-gray-400">Sess. {s.num}</span>
+                <span className={`text-xs ${s.active ? 'font-semibold text-primary-700' : s.done ? 'text-gray-700' : 'text-gray-400'}`}>{s.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -794,7 +794,7 @@ function SceneSession({ phase }: { phase: string }) {
               { num: '06', name: 'Window Functions',   done: false, active: false, locked: true  },
             ]},
             { phase: 'Phase 3', sessions: [
-              { num: '07', name: 'Intro to BI',        done: false, active: false, locked: true  },
+              { num: '07', name: 'Intro to BI Tools',  done: false, active: false, locked: true  },
             ]},
           ].map((group, gi) => (
             <div key={gi} className="mb-2">
@@ -814,11 +814,10 @@ function SceneSession({ phase }: { phase: string }) {
 
       {/* Main content */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5">
-        {/* Session header */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-3">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] bg-primary-100 text-primary-700 rounded-full px-2 py-0.5 font-semibold">Session 05</span>
-            <span className="text-[10px] bg-gray-100 text-gray-600 rounded-full px-2 py-0.5">45 min</span>
+            <span className="text-[10px] bg-gray-100 text-gray-600 rounded-full px-2 py-0.5">45 min · Lesson + exercises</span>
           </div>
           <h2 className="text-base sm:text-lg font-bold text-gray-900">JOINs & Subqueries</h2>
           <div className="mt-2.5 p-3 bg-primary-50 rounded-lg border border-primary-100">
@@ -828,41 +827,38 @@ function SceneSession({ phase }: { phase: string }) {
         </div>
 
         {showLive ? (
-          /* Live session card */
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-3">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
                 <CalendarDays size={15} className="text-primary-600" />
               </div>
               <div>
-                <p className="text-[10px] text-gray-400">Live session with expert</p>
+                <p className="text-[10px] text-gray-400">Live session — expert instructor</p>
                 <p className="text-xs font-semibold text-gray-800">Saturday, 14 June 2026</p>
               </div>
               <div className="ml-auto">
                 <span className="text-[10px] bg-primary-500 text-white rounded-full px-2.5 py-1 font-medium">Join Zoom</span>
               </div>
             </div>
-            {/* Recording */}
             <div className="rounded-lg bg-gray-900 aspect-video flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950 opacity-80" />
               <div className="relative flex flex-col items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
                   <Play size={18} className="text-white ml-0.5" />
                 </div>
-                <span className="text-[10px] text-gray-300">Recording available</span>
+                <span className="text-[10px] text-gray-300">Recording available · rewatch anytime</span>
               </div>
             </div>
           </div>
         ) : (
-          /* Content preview */
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-3">
             <p className="text-xs text-gray-700 leading-relaxed mb-3">
-              A <code className="bg-gray-100 text-primary-700 px-1 rounded text-[10px]">JOIN</code> allows you to combine rows from two or more tables based on a related column. The most common type is the <code className="bg-gray-100 text-primary-700 px-1 rounded text-[10px]">INNER JOIN</code>, which returns rows with matching values in both tables.
+              A <code className="bg-gray-100 text-primary-700 px-1 rounded text-[10px]">JOIN</code> combines rows from two or more tables based on a related column.
             </p>
             <div className="bg-[#0d1117] rounded-lg p-3 font-mono text-[10px] leading-relaxed">
               <span className="text-sky-400">SELECT</span> <span className="text-gray-200">c.name, o.total_amount</span><br />
               <span className="text-sky-400">FROM</span> <span className="text-gray-200">customers c</span><br />
-              <span className="text-sky-400">INNER JOIN</span> <span className="text-gray-200">orders o</span> <span className="text-sky-400">ON</span> <span className="text-gray-200">o.customer_id = c.id</span><br />
+              <span className="text-sky-400">INNER JOIN</span> <span className="text-gray-200">orders o </span><span className="text-sky-400">ON</span><span className="text-gray-200"> o.customer_id = c.id</span><br />
               <span className="text-sky-400">WHERE</span> <span className="text-gray-200">o.status = </span><span className="text-amber-300">'completed'</span><span className="text-gray-200">;</span>
             </div>
             <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-green-500 text-white text-[11px] font-medium px-3 py-1.5">
@@ -875,7 +871,7 @@ function SceneSession({ phase }: { phase: string }) {
   )
 }
 
-/* ── Scene: SQL exercise ──────────────────────────────────────────────────── */
+/* ── Scene: SQL playground ────────────────────────────────────────────────── */
 
 const FULL_QUERY = `SELECT category,
        COUNT(*)             AS orders,
@@ -897,13 +893,12 @@ function SceneSql({ phase }: { phase: string }) {
     <div className="absolute inset-0 flex flex-col bg-white">
       <div className="flex items-center justify-between px-4 h-11 border-b border-gray-200 bg-gray-50 shrink-0">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-          <Database size={15} className="text-primary-600" /> Exercise 04-1 · Aggregation
+          <Database size={15} className="text-primary-600" /> SQL Playground · Data Analyst Track
         </div>
         <button className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 text-white text-xs font-medium px-3 py-1.5">
           <Play size={13} /> Run
         </button>
       </div>
-
       <div className="flex-1 grid sm:grid-cols-2 min-h-0">
         <div className="bg-[#0d1117] p-4 font-mono text-[12px] leading-relaxed overflow-hidden">
           <pre className="text-gray-200 whitespace-pre-wrap">
@@ -914,7 +909,6 @@ function SceneSql({ phase }: { phase: string }) {
             )}
           </pre>
         </div>
-
         <div className="bg-white border-t sm:border-t-0 sm:border-l border-gray-200 p-3 overflow-auto">
           {showResult ? (
             <>
@@ -943,9 +937,9 @@ function SceneSql({ phase }: { phase: string }) {
                   <CheckCircle2 size={15} /> 3 / 3 tests passed
                 </div>
                 <ul className="mt-1.5 space-y-1 text-[11px] text-green-700/90">
-                  <li className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Correct columns (category, orders, avg_value)</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Descending order by order count</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Average rounded to 2 decimal places</li>
+                  <li className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Correct columns returned</li>
+                  <li className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Descending order by count</li>
+                  <li className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Average rounded to 2 decimals</li>
                 </ul>
               </div>
             </>
@@ -991,7 +985,7 @@ function ScenePython({ phase }: { phase: string }) {
     <div className="absolute inset-0 flex flex-col bg-white">
       <div className="flex items-center justify-between px-4 h-11 border-b border-gray-200 bg-gray-50 shrink-0">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-          <Terminal size={15} className="text-violet-600" /> Python Playground
+          <Terminal size={15} className="text-violet-600" /> Python Playground · Data Analyst Track
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-gray-400 border border-gray-200 rounded px-2 py-0.5">transactions.csv</span>
@@ -1000,9 +994,7 @@ function ScenePython({ phase }: { phase: string }) {
           </button>
         </div>
       </div>
-
       <div className="flex-1 grid sm:grid-cols-2 min-h-0">
-        {/* Editor */}
         <div className="bg-[#0d1117] p-4 font-mono text-[11px] leading-relaxed overflow-y-auto">
           <pre className="whitespace-pre-wrap">
             {PYTHON_CODE.split(/\b(import|from|as|def|return|for|in|if|print|plt|pd|fig|ax)\b/).map((part, i) =>
@@ -1014,12 +1006,9 @@ function ScenePython({ phase }: { phase: string }) {
             )}
           </pre>
         </div>
-
-        {/* Output */}
         <div className="bg-white border-t sm:border-t-0 sm:border-l border-gray-200 overflow-auto">
           {showResult ? (
             <div className="p-3 space-y-3">
-              {/* Terminal output */}
               <div className="bg-gray-950 rounded-lg p-3 font-mono text-[11px] text-green-400 leading-relaxed">
                 <div className="text-gray-500 mb-1">$ python script.py</div>
                 <div>Transactions: 2 400 rows</div>
@@ -1029,26 +1018,23 @@ function ScenePython({ phase }: { phase: string }) {
                 <div className="text-green-300">  Home & Living  Rp  318 750 000</div>
                 <div className="text-green-300">  Books          Rp   97 200 000</div>
               </div>
-              {/* Mock chart */}
               <div className="rounded-lg border border-gray-100 p-3">
                 <p className="text-[10px] font-medium text-gray-500 mb-2">Revenue by Category · 2024</p>
-                <div className="space-y-1.5">
-                  {[
-                    { label: 'Electronics', pct: 100, color: 'bg-cyan-500', val: '842M' },
-                    { label: 'Fashion', pct: 63, color: 'bg-indigo-500', val: '534M' },
-                    { label: 'Home & Living', pct: 38, color: 'bg-emerald-500', val: '319M' },
-                    { label: 'Books', pct: 12, color: 'bg-amber-500', val: '97M' },
-                  ].map(b => (
-                    <div key={b.label} className="flex items-center gap-2">
-                      <span className="text-[9px] text-gray-500 w-20 shrink-0 truncate">{b.label}</span>
-                      <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                        <div className={`h-full ${b.color} rounded`} style={{ width: `${b.pct}%` }} />
-                      </div>
-                      <span className="text-[9px] text-gray-500 w-8 text-right shrink-0">{b.val}</span>
+                {[
+                  { label: 'Electronics', pct: 100, color: 'bg-cyan-500', val: '842M' },
+                  { label: 'Fashion', pct: 63, color: 'bg-indigo-500', val: '534M' },
+                  { label: 'Home & Living', pct: 38, color: 'bg-emerald-500', val: '319M' },
+                  { label: 'Books', pct: 12, color: 'bg-amber-500', val: '97M' },
+                ].map(b => (
+                  <div key={b.label} className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[9px] text-gray-500 w-20 shrink-0 truncate">{b.label}</span>
+                    <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
+                      <div className={`h-full ${b.color} rounded`} style={{ width: `${b.pct}%` }} />
                     </div>
-                  ))}
-                </div>
-                <p className="text-[9px] text-gray-400 mt-2">Revenue in IDR millions</p>
+                    <span className="text-[9px] text-gray-500 w-8 text-right shrink-0">{b.val}</span>
+                  </div>
+                ))}
+                <p className="text-[9px] text-gray-400 mt-1">Revenue in IDR millions</p>
               </div>
             </div>
           ) : (
@@ -1057,6 +1043,89 @@ function ScenePython({ phase }: { phase: string }) {
               <span>Run code to see output & charts</span>
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Scene: HR Playground ────────────────────────────────────────────────── */
+
+function SceneHR({ phase: _phase }: { phase: string }) {
+  // Mock calculated values for a Rp 10,000,000 gross salary, TK/0, has NPWP
+  const gross = 10_000_000
+  const bpjsKes  = Math.min(gross, 12_000_000) * 0.01     // employee 1%
+  const bpjsJkk  = gross * 0.0024
+  const bpjsJht  = gross * 0.02
+  const bpjsJp   = Math.min(gross, 9_559_600) * 0.01
+  const totalDed = bpjsKes + bpjsJkk + bpjsJht + bpjsJp
+  const annualPkp = (gross - totalDed) * 12 - 54_000_000
+  const pph21Monthly = Math.max(0, annualPkp * 0.05) / 12
+  const netSalary = gross - totalDed - pph21Monthly
+
+  const fmt = (n: number) => 'Rp ' + Math.round(n).toLocaleString('id-ID')
+
+  return (
+    <div className="absolute inset-0 flex flex-col bg-white overflow-hidden">
+      <div className="flex items-center gap-2 px-4 h-11 border-b border-gray-200 bg-gray-50 shrink-0">
+        <Calculator size={15} className="text-rose-600" />
+        <span className="text-sm font-medium text-gray-700">HR Playground · PPh 21 & BPJS Calculator</span>
+        <span className="ml-auto text-[10px] bg-rose-100 text-rose-700 rounded-full px-2 py-0.5 font-medium">HR Fast Track</span>
+      </div>
+
+      <div className="flex-1 grid sm:grid-cols-2 min-h-0 overflow-hidden">
+        {/* Inputs */}
+        <div className="p-4 border-r border-gray-100 overflow-y-auto">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Employee Details</p>
+          <div className="space-y-3">
+            {[
+              { label: 'Gross Monthly Salary', value: 'Rp 10,000,000', type: 'currency' },
+              { label: 'PTKP Status', value: 'TK/0 (Single, no dependants)', type: 'select' },
+              { label: 'NPWP', value: 'Has NPWP', type: 'select' },
+              { label: 'Bonus (monthly)', value: 'Rp 0', type: 'currency' },
+            ].map(f => (
+              <div key={f.label}>
+                <label className="text-[10px] font-medium text-gray-500 block mb-1">{f.label}</label>
+                <div className={`rounded-lg border px-3 py-2 text-xs font-medium ${f.type === 'currency' ? 'bg-gray-50 text-gray-700 border-gray-200' : 'bg-primary-50 text-primary-700 border-primary-200'}`}>
+                  {f.value}
+                </div>
+              </div>
+            ))}
+            <button className="w-full mt-1 rounded-lg bg-rose-600 text-white text-xs font-medium py-2.5">
+              Calculate
+            </button>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="p-4 overflow-y-auto bg-gray-50">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Breakdown</p>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center py-1.5 border-b border-gray-200">
+              <span className="text-xs text-gray-600">Gross Salary</span>
+              <span className="text-xs font-semibold text-gray-900">{fmt(gross)}</span>
+            </div>
+            {[
+              { label: 'BPJS Kesehatan (1%)', val: -bpjsKes, color: 'text-rose-600' },
+              { label: 'BPJS JKK (0.24%)', val: -bpjsJkk, color: 'text-rose-600' },
+              { label: 'BPJS JHT (2%)', val: -bpjsJht, color: 'text-rose-600' },
+              { label: 'BPJS JP (1%)', val: -bpjsJp, color: 'text-rose-600' },
+              { label: 'PPh 21 (monthly est.)', val: -pph21Monthly, color: 'text-orange-600' },
+            ].map(row => (
+              <div key={row.label} className="flex justify-between items-center py-1">
+                <span className="text-[11px] text-gray-500">{row.label}</span>
+                <span className={`text-[11px] font-medium ${row.color}`}>−{fmt(Math.abs(row.val))}</span>
+              </div>
+            ))}
+            <div className="flex justify-between items-center py-2 border-t-2 border-gray-900 mt-2">
+              <span className="text-sm font-bold text-gray-900">Net Take-Home</span>
+              <span className="text-sm font-bold text-green-600">{fmt(netSalary)}</span>
+            </div>
+          </div>
+          <div className="mt-3 rounded-lg bg-rose-50 border border-rose-100 p-2.5 text-[10px] text-rose-700">
+            <FileText size={11} className="inline mr-1" />
+            Based on 2024 Indonesian tax brackets & BPJS regulations. PTKP TK/0 = Rp 54,000,000/year.
+          </div>
         </div>
       </div>
     </div>
@@ -1084,11 +1153,9 @@ function SceneProgress({ phase }: { phase: string }) {
             <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] text-white flex items-center justify-center font-bold">2</span>
           </div>
         </div>
-
         <div className="flex items-center gap-2 rounded-xl bg-primary-50 border border-primary-200 px-3 py-2 text-xs text-primary-800 mb-4">
           <Bell size={13} /> <span><b>@Mentor</b> replied to your question about JOINs</span>
         </div>
-
         <div className="space-y-3">
           <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-3.5">
             <div className="flex items-center gap-2">
@@ -1108,7 +1175,7 @@ function SceneProgress({ phase }: { phase: string }) {
               <span className="text-[10px] bg-primary-100 text-primary-700 rounded-full px-1.5 py-0.5 font-medium">Mentor</span>
             </div>
             <p className="mt-2 text-sm text-gray-700">
-              Use <code className="bg-gray-100 text-primary-700 px-1 rounded">LEFT JOIN</code> when you want all rows from the left table even if there's no match. <code className="bg-gray-100 text-primary-700 px-1 rounded">INNER JOIN</code> only returns matched rows 👍
+              Use <code className="bg-gray-100 text-primary-700 px-1 rounded">LEFT JOIN</code> when you want all rows from the left table even with no match. <code className="bg-gray-100 text-primary-700 px-1 rounded">INNER JOIN</code> only returns matched rows 👍
             </p>
           </div>
         </div>
@@ -1116,13 +1183,12 @@ function SceneProgress({ phase }: { phase: string }) {
     )
   }
 
-  // programs dashboard
   return (
-    <div className="absolute inset-0 overflow-hidden p-5 sm:p-7 bg-gray-50">
+    <div className="absolute inset-0 overflow-hidden p-5 sm:p-6 bg-gray-50">
       <p className="text-sm text-gray-500">Good morning,</p>
-      <h2 className="text-xl font-bold text-gray-900">Hi, Sari 👋</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Hi, Sari 👋</h2>
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 mb-4">
         {[
           { icon: <BookOpen size={15} className="text-primary-600" />, v: '7', t: '12', l: 'Sessions done', bg: 'bg-primary-50' },
           { icon: <Code2 size={15} className="text-violet-600" />, v: '23', t: '40+', l: 'Exercises passed', bg: 'bg-violet-50' },
@@ -1138,12 +1204,12 @@ function SceneProgress({ phase }: { phase: string }) {
         ))}
       </div>
 
-      {/* Program card */}
-      <div className="mt-4 rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
+      {/* Data Analyst program card */}
+      <div className="rounded-2xl border border-primary-200 bg-white shadow-sm p-4 mb-3">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-xl shrink-0">📊</div>
           <div className="flex-1">
-            <div className="text-sm font-bold text-gray-900">Data Analyst Track</div>
+            <div className="text-sm font-bold text-gray-900">Data Analyst Career Intelligence</div>
             <div className="text-[11px] text-gray-500">Batch 1 · 2026 — Active cohort</div>
           </div>
           <span className="text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-full px-2.5 py-1">58%</span>
@@ -1175,7 +1241,6 @@ function SceneProgress({ phase }: { phase: string }) {
 
 function SceneAdmin({ phase }: { phase: string }) {
   const showCohort = phase === 'cohort'
-
   return (
     <div className="absolute inset-0 bg-[#0a0e1a] overflow-hidden">
       <div className="border-b border-white/[0.06] bg-[#0d1221]/80 px-5">
@@ -1184,6 +1249,10 @@ function SceneAdmin({ phase }: { phase: string }) {
             <ShieldCheck size={12} className="text-primary-400" />
           </div>
           <span className="text-sm font-semibold text-white">Admin Dashboard</span>
+          <div className="ml-3 flex gap-1.5">
+            <span className="text-[10px] bg-primary-500/10 border border-primary-500/20 text-primary-300 rounded-full px-2 py-0.5">Data Analyst</span>
+            <span className="text-[10px] bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-full px-2 py-0.5">HR Fast Track</span>
+          </div>
         </div>
         <div className="flex gap-1 -mb-px text-xs">
           <span className={`flex items-center gap-1.5 px-3 py-2 border-b-2 ${!showCohort ? 'border-primary-500 text-primary-400' : 'border-transparent text-gray-500'}`}>
@@ -1198,12 +1267,12 @@ function SceneAdmin({ phase }: { phase: string }) {
       <div className="p-5">
         {!showCohort ? (
           <>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-3 mb-4">
               {[
-                { l: 'Total Learners', v: '128', icon: <Users size={14} />, c: 'text-sky-400' },
-                { l: 'Active Today',   v: '34',  icon: <Activity size={14} />, c: 'text-green-400' },
-                { l: 'Sessions Done',  v: '892', icon: <BookOpen size={14} />, c: 'text-violet-400' },
-                { l: 'Avg Completion', v: '71%', icon: <TrendingUp size={14} />, c: 'text-yellow-400' },
+                { l: 'Total Learners', v: '164', icon: <Users size={14} />, c: 'text-sky-400' },
+                { l: 'Active Today',   v: '51',  icon: <Activity size={14} />, c: 'text-green-400' },
+                { l: 'Sessions Done',  v: '1.2k', icon: <BookOpen size={14} />, c: 'text-violet-400' },
+                { l: 'Avg Completion', v: '68%', icon: <TrendingUp size={14} />, c: 'text-yellow-400' },
               ].map((s, i) => (
                 <div key={i} className="rounded-xl bg-[#111827] border border-white/[0.06] p-3">
                   <div className={`flex items-center gap-1.5 ${s.c} text-[11px]`}>{s.icon}<span className="text-gray-400">{s.l}</span></div>
@@ -1211,21 +1280,23 @@ function SceneAdmin({ phase }: { phase: string }) {
                 </div>
               ))}
             </div>
-            <div className="mt-4 rounded-2xl bg-[#111827] border border-white/[0.06] p-4">
+            <div className="rounded-2xl bg-[#111827] border border-white/[0.06] p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Radio size={13} className="text-green-400 animate-pulse" />
-                <span className="text-sm font-semibold text-gray-200">Live Activity</span>
+                <span className="text-sm font-semibold text-gray-200">Live Activity — All Programs</span>
               </div>
               <div className="space-y-2 text-xs">
                 {[
-                  ['Sari', 'completed Session 06 — Window Functions', 'bg-green-400'],
-                  ['Andi', 'submitted exercise 05-2 (JOINs)', 'bg-primary-400'],
-                  ['Rina', 'logged in — started Session 04', 'bg-gray-500'],
-                  ['Budi', 'passed exercise 04-1 with 3/3 tests', 'bg-violet-400'],
+                  ['Sari', 'completed Session 06 — SQL Window Functions', 'Data Analyst', 'bg-green-400'],
+                  ['Budi', 'passed HR exercise: PPh 21 calculation', 'HR Fast Track', 'bg-rose-400'],
+                  ['Andi', 'submitted SQL exercise 05-2', 'Data Analyst', 'bg-primary-400'],
+                  ['Rina', 'joined platform — started orientation', 'HR Fast Track', 'bg-gray-500'],
                 ].map((a, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-400">
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a[2]}`} />
-                    <b className="text-gray-200">{a[0]}</b> {a[1]}
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a[3]}`} />
+                    <b className="text-gray-200">{a[0]}</b>
+                    <span className="flex-1 truncate">{a[1]}</span>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full shrink-0 ${a[2] === 'Data Analyst' ? 'bg-primary-900 text-primary-400' : 'bg-rose-900 text-rose-400'}`}>{a[2]}</span>
                   </div>
                 ))}
               </div>
@@ -1233,31 +1304,29 @@ function SceneAdmin({ phase }: { phase: string }) {
           </>
         ) : (
           <>
-            <div className="rounded-2xl bg-[#111827] border border-white/[0.06] p-4 mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-white">Data Analyst · Batch 1 · 2026</div>
-                  <div className="text-[11px] text-gray-500">Starts Jun 1, 2026 · 12 sessions scheduled</div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {[
+                { name: 'Data Analyst · Batch 1', start: 'Jun 1, 2026', sessions: 12, active: 128, color: 'border-primary-500/30 bg-primary-500/5 text-primary-300' },
+                { name: 'HR Fast Track · Batch 1', start: 'Jun 15, 2026', sessions: 25, active: 36, color: 'border-rose-500/30 bg-rose-500/5 text-rose-300' },
+              ].map(c => (
+                <div key={c.name} className={`rounded-xl bg-[#111827] border ${c.color.split(' ')[0]} p-3`}>
+                  <div className={`text-xs font-semibold mb-1 ${c.color.split(' ')[2]}`}>{c.name}</div>
+                  <div className="text-[10px] text-gray-400">Starts {c.start}</div>
+                  <div className="mt-2 flex gap-3 text-[10px]">
+                    <span className="text-gray-300"><b className="text-white">{c.sessions}</b> sessions</span>
+                    <span className="text-gray-300"><b className="text-white">{c.active}</b> enrolled</span>
+                  </div>
                 </div>
-                <span className="flex items-center gap-1.5 text-[11px] text-primary-300 bg-primary-500/10 border border-primary-500/20 rounded-full px-2.5 py-1">
-                  <CalendarClock size={12} /> Active
-                </span>
-              </div>
-              {/* Next session */}
-              <div className="mt-3 flex items-center gap-2 text-xs text-gray-400 bg-white/[0.03] rounded-lg px-3 py-2">
-                <Video size={12} className="text-primary-400 shrink-0" />
-                <span>Next live session: <b className="text-gray-200">Session 05 — Sat 14 Jun · zoom.us/j/xxx</b></span>
-              </div>
+              ))}
             </div>
-
             <div className="rounded-2xl bg-[#111827] border border-white/[0.06] p-4">
-              <div className="text-sm font-semibold text-gray-200 mb-3">Enrollments</div>
+              <div className="text-sm font-semibold text-gray-200 mb-3">Recent enrollments</div>
               <div className="space-y-2">
                 {[
-                  ['Sari Putri', 'active', '7/12'],
-                  ['Andi Wijaya', 'active', '5/12'],
-                  ['Rina Lestari', 'active', '4/12'],
-                  ['Budi Santoso', 'pending', '—'],
+                  ['Sari Putri', 'Data Analyst', 'active', '7/12'],
+                  ['Budi Santoso', 'HR Fast Track', 'active', '3/25'],
+                  ['Rina Lestari', 'Data Analyst', 'active', '4/12'],
+                  ['Ahmad Fauzi', 'HR Fast Track', 'pending', '—'],
                 ].map((u, i) => (
                   <div key={i} className="flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.05] px-3 py-2">
                     <div className="flex items-center gap-2">
@@ -1266,14 +1335,15 @@ function SceneAdmin({ phase }: { phase: string }) {
                       </div>
                       <div>
                         <span className="text-xs text-gray-200 block">{u[0]}</span>
-                        <span className="text-[10px] text-gray-500">{u[2]} sessions</span>
+                        <span className={`text-[9px] ${u[1] === 'Data Analyst' ? 'text-primary-400' : 'text-rose-400'}`}>{u[1]}</span>
                       </div>
                     </div>
-                    {u[1] === 'pending' ? (
-                      <span className="text-[11px] font-medium text-white bg-primary-600 rounded-md px-2.5 py-1">Approve</span>
-                    ) : (
-                      <span className="text-[11px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-2.5 py-0.5">Active</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-gray-500">{u[3]}</span>
+                      {u[2] === 'pending'
+                        ? <span className="text-[11px] font-medium text-white bg-primary-600 rounded-md px-2.5 py-1">Approve</span>
+                        : <span className="text-[11px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-full px-2.5 py-0.5">Active</span>}
+                    </div>
                   </div>
                 ))}
               </div>
