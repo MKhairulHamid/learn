@@ -151,13 +151,13 @@ const CURRENT_FEATURES = [
   {
     icon: BookOpen,
     title: 'Structured Materials',
-    desc: 'Bilingual (EN/ID) written content for every session — readable anytime, downloadable, searchable.',
+    desc: 'Bilingual (EN/ID) written content for every session — readable anytime, searchable.',
     gradient: 'from-orange-500 to-amber-500',
   },
   {
     icon: Gamepad2,
-    title: 'Interactive Playground',
-    desc: 'Practice SQL, Python, and HR tools directly in the browser. No setup, real outputs, instant feedback.',
+    title: 'SQL, Python & HR Playground',
+    desc: 'Three separate in-browser sandboxes: run SQL queries, write Python with Pandas, or calculate PPh 21 & BPJS.',
     gradient: 'from-emerald-500 to-teal-600',
   },
   {
@@ -167,9 +167,21 @@ const CURRENT_FEATURES = [
     gradient: 'from-cyan-500 to-blue-500',
   },
   {
+    icon: MessageSquare,
+    title: 'Discussion & Q&A',
+    desc: 'Per-session threaded discussions with @mention support, voting, replies, and instant notifications.',
+    gradient: 'from-fuchsia-500 to-violet-600',
+  },
+  {
+    icon: BarChart3,
+    title: 'Progress Tracking',
+    desc: 'Visual progress bars, session completion status, and exercise scores — see your growth at a glance.',
+    gradient: 'from-blue-500 to-indigo-600',
+  },
+  {
     icon: ClipboardList,
     title: 'Post-Session Surveys',
-    desc: 'Structured feedback forms after each session. Track your learning progress and rate your experience.',
+    desc: 'Structured feedback forms after each session. Rate your experience and help improve the program.',
     gradient: 'from-rose-500 to-pink-600',
   },
   {
@@ -191,11 +203,6 @@ const FUTURE_FEATURES = [
     icon: Sparkles,
     title: 'AI Learning Assistant',
     desc: 'Ask questions about any session content, get personalized explanations, and generate practice questions on demand.',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Community & Discussion',
-    desc: 'Cohort chat rooms, peer-to-peer Q&A threads, and mentor office hours — all inside the platform.',
   },
   {
     icon: BarChart3,
