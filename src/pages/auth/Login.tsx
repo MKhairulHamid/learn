@@ -79,7 +79,7 @@ export default function Login() {
         <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
           <BookOpen size={20} className="text-white" />
         </div>
-        DataLearn
+        Learning Platform
       </Link>
     </div>
   )

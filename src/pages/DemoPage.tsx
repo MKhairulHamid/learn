@@ -246,7 +246,7 @@ export default function DemoPage() {
             <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
               <BookOpen size={18} className="text-white" />
             </div>
-            <span>DataLearn</span>
+            <span>Learning Platform</span>
           </div>
           <span className="text-xs text-gray-500 tracking-wider uppercase hidden sm:block">
             Platform Overview · Talentiv
@@ -277,7 +277,7 @@ export default function DemoPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-400" />
             </span>
-            DataLearn × Talentiv — Platform Overview
+            Learning Platform × Talentiv — Platform Overview
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
@@ -288,7 +288,7 @@ export default function DemoPage() {
           </h1>
 
           <p className="mt-7 text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Talentiv delivers world-class expert-led sessions. DataLearn delivers the
+            Talentiv delivers world-class expert-led sessions. Learning Platform delivers the
             curriculum infrastructure, interactive practice, and learner analytics.
             Together — a complete data education ecosystem.
           </p>
@@ -307,7 +307,7 @@ export default function DemoPage() {
             <div className="flex items-center gap-3 rounded-2xl bg-primary-500/10 border border-primary-400/20 px-5 py-3.5">
               <BookOpen size={20} className="text-primary-400 shrink-0" />
               <div className="text-left">
-                <div className="text-[10px] text-primary-300 uppercase tracking-wider">DataLearn</div>
+                <div className="text-[10px] text-primary-300 uppercase tracking-wider">Learning Platform</div>
                 <div className="text-sm font-semibold text-white">Learning Platform</div>
               </div>
             </div>
@@ -371,7 +371,7 @@ export default function DemoPage() {
               {
                 icon: <Layers size={22} />,
                 color: 'from-primary-600 to-cyan-500',
-                label: 'What DataLearn provides',
+                label: 'What Learning Platform provides',
                 title: 'The platform layer',
                 points: [
                   '12-session curriculum, 4 learning phases',
@@ -400,7 +400,7 @@ export default function DemoPage() {
           </div>
 
           <p className="text-center text-gray-400 mt-10 text-base">
-            DataLearn is not a replacement for live sessions —
+            Learning Platform is not a replacement for live sessions —
             it's the <span className="text-white font-semibold">infrastructure that makes them 10× more effective.</span>
           </p>
         </div>
@@ -517,7 +517,7 @@ export default function DemoPage() {
               <span className="text-gray-400">Seamlessly connected.</span>
             </h2>
             <p className="mt-5 text-gray-400 text-base max-w-2xl mx-auto">
-              Talentiv's live sessions and DataLearn's platform become a single, coherent experience
+              Talentiv's live sessions and Learning Platform's platform become a single, coherent experience
               for every learner — from onboarding to portfolio-ready.
             </p>
           </div>
@@ -533,13 +533,13 @@ export default function DemoPage() {
                   icon: <Users size={18} />,
                   brand: 'Talentiv',
                   title: 'Enroll & Onboard',
-                  desc: 'Learner joins a Talentiv cohort. Instantly provisioned on DataLearn.',
+                  desc: 'Learner joins a Talentiv cohort. Instantly provisioned on Learning Platform.',
                 },
                 {
                   step: '02',
                   color: 'from-primary-600 to-cyan-500',
                   icon: <BookOpen size={18} />,
-                  brand: 'DataLearn',
+                  brand: 'Learning Platform',
                   title: 'Self-Paced Prep',
                   desc: 'Learner works through curriculum and exercises at their own pace.',
                 },
@@ -555,7 +555,7 @@ export default function DemoPage() {
                   step: '04',
                   color: 'from-primary-600 to-cyan-500',
                   icon: <TrendingUp size={18} />,
-                  brand: 'DataLearn',
+                  brand: 'Learning Platform',
                   title: 'Reinforce & Measure',
                   desc: 'Exercises, recording review, and progress tracked in the dashboard.',
                 },
@@ -677,7 +677,7 @@ export default function DemoPage() {
           </h2>
           <p className="mt-7 text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Talentiv has the experts, the brand, and the learner community.
-            DataLearn has the curriculum infrastructure, interactive tooling, and analytics.
+            Learning Platform has the curriculum infrastructure, interactive tooling, and analytics.
             Combining both creates something neither can build alone — fast.
           </p>
 
@@ -701,7 +701,7 @@ export default function DemoPage() {
       </section>
 
       <footer className="border-t border-white/[0.06] py-8 text-center text-xs text-gray-600">
-        DataLearn — Platform overview for Talentiv. Not linked from public navigation.
+        Learning Platform — Platform overview for Talentiv. Not linked from public navigation.
       </footer>
     </div>
   )

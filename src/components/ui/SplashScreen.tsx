@@ -8,7 +8,7 @@ export function SplashScreen() {
         <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-900/40">
           <BookOpen size={24} className="text-white" />
         </div>
-        <span className="text-2xl font-bold text-white tracking-tight">DataLearn</span>
+        <span className="text-2xl font-bold text-white tracking-tight">Learning Platform</span>
       </div>
 
       {/* Indeterminate progress bar */}

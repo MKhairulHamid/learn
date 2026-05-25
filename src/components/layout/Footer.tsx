@@ -12,7 +12,7 @@ export function Footer() {
             <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
               <BookOpen size={15} className="text-white" />
             </div>
-            DataLearn
+            Learning Platform
           </div>
           <p className="text-sm text-center">{t('landing.footer_copyright')}</p>
         </div>

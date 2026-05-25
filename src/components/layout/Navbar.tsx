@@ -65,7 +65,7 @@ export function Navbar() {
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
               <BookOpen size={18} className="text-white" />
             </div>
-            <span>DataLearn</span>
+            <span>Learning Platform</span>
           </Link>
 
           {/* Desktop nav links */}

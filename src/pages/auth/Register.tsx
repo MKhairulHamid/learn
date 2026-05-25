@@ -90,7 +90,7 @@ export default function Register() {
             <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
               <BookOpen size={20} className="text-white" />
             </div>
-            DataLearn
+            Learning Platform
           </Link>
           <h1 className="mt-6 text-2xl font-bold text-gray-900">{t('auth.register_title')}</h1>
           <p className="mt-2 text-gray-500 text-sm">{t('auth.register_subtitle')}</p>
