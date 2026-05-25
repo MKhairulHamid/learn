@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRight, Play, CheckCircle2,
-  BookOpen, Gamepad2, Video, Award, Users, Zap, UserCheck,
-  Database, BarChart3, FileSpreadsheet, Brain,
+  BookOpen, Gamepad2, Video, Award, Users,
 } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -31,10 +30,10 @@ const PROGRAMS = [
       { value: 'BNSP', label: 'Certified' },
     ],
     modules: [
-      { icon: Brain,           label: 'Data Foundations & Excel' },
-      { icon: Database,        label: 'SQL for Business Analysis' },
-      { icon: BarChart3,       label: 'Visualization & Storytelling' },
-      { icon: FileSpreadsheet, label: 'Python + Final Project' },
+      { label: 'Data Foundations & Excel' },
+      { label: 'SQL for Business Analysis' },
+      { label: 'Visualization & Storytelling' },
+      { label: 'Python + Final Project' },
     ],
     tools: ['Excel', 'SQL', 'Python', 'Looker Studio', 'Power BI', 'Google Sheets'],
   },
@@ -57,9 +56,9 @@ const PROGRAMS = [
       { value: 'BNSP', label: 'Certified' },
     ],
     modules: [
-      { icon: Zap,       label: 'Bootcamp Fast Track' },
-      { icon: Award,     label: 'Certification (BNSP)' },
-      { icon: UserCheck, label: 'Career Preparation' },
+      { label: 'Bootcamp Fast Track' },
+      { label: 'Certification (BNSP)' },
+      { label: 'Career Preparation' },
     ],
     tools: ['Excel', 'Looker Studio', 'Mekari Talenta', 'HRIS', 'PPh 21', 'BPJS'],
   },
@@ -226,7 +225,7 @@ export default function Landing() {
                 <div className={`bg-gradient-to-r ${p.gradient} p-6 text-white`}>
                   <div className="flex items-start justify-between">
                     <div className="text-4xl">{p.icon}</div>
-                    <Badge variant="primary" size="sm" className="bg-white/20 border-white/30 text-white">
+                    <Badge variant="gray" size="sm">
                       {p.badge}
                     </Badge>
                   </div>
@@ -249,7 +248,7 @@ export default function Landing() {
                   <div className="mb-4">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Modules</p>
                     <div className="space-y-2">
-                      {p.modules.map(({ icon: Icon, label }) => (
+                      {p.modules.map(({ label }) => (
                         <div key={label} className="flex items-center gap-2 text-sm text-gray-700">
                           <CheckCircle2 size={15} className={p.accentText} />
                           {label}
@@ -284,7 +283,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge variant="primary" size="md" className="mb-4">The Hybrid Advantage</Badge>
+              <Badge variant="primary" size="md">The Hybrid Advantage</Badge>
               <h2 className="text-3xl font-bold text-gray-900 leading-snug">
                 Live instruction meets<br />
                 <span className="text-primary-600">always-on platform</span>

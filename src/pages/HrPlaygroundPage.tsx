@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { Calculator, Info, RefreshCw } from 'lucide-react'
-import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 
 // ── Indonesia Statutory Constants (2024) ─────────────────────────────

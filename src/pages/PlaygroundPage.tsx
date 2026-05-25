@@ -72,7 +72,7 @@ function SqlPlayground() {
           Available Tables
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {DATASET_INFO.map(t => (
+          {DATASET_INFO.tables.map(t => (
             <button
               key={t.name}
               onClick={() => setOpenTable(openTable === t.name ? null : t.name)}
@@ -87,11 +87,10 @@ function SqlPlayground() {
               <div className="text-xs text-gray-400 mt-0.5">{t.rowCount} rows</div>
               {openTable === t.name && (
                 <div className="mt-2 pt-2 border-t border-gray-100 space-y-1">
-                  {t.columns.map(c => (
-                    <div key={c.name} className="flex items-center gap-1.5">
+                  {t.columns.map(col => (
+                    <div key={col} className="flex items-center gap-1.5">
                       <Circle size={5} className="text-gray-300 fill-current shrink-0" />
-                      <span className="font-mono text-xs text-gray-600">{c.name}</span>
-                      <span className="text-xs text-gray-400">{c.type}</span>
+                      <span className="font-mono text-xs text-gray-600">{col}</span>
                     </div>
                   ))}
                 </div>
@@ -125,7 +124,7 @@ function SqlPlayground() {
             </button>
           </div>
         </div>
-        <SqlEditor value={query} onChange={setQuery} height={220} />
+        <SqlEditor value={query} onChange={setQuery} height="220px" />
       </div>
 
       {/* Results */}
