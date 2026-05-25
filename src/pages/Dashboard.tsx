@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { BookOpen, Code2, TrendingUp, Clock, ArrowRight, Zap, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useProgress } from '../hooks/useProgress'
-import { usePhases } from '../hooks/usePhases'
+import { usePhases, usePrograms } from '../hooks/usePhases'
 import { useCohort } from '../hooks/useCohort'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Button } from '../components/ui/Button'
@@ -23,8 +23,10 @@ export default function Dashboard() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
   const { completedCount, isCompleted, progress } = useProgress()
-  const { phases } = usePhases()
   const cohort = useCohort()
+  const { programs } = usePrograms()
+  const programId = cohort.cohort?.program_id ?? programs[0]?.id
+  const { phases } = usePhases(programId)
   const lang = i18n.language === 'id' ? 'id' : 'en'
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Learner'

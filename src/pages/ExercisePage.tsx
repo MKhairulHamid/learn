@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeft, Play, Send, BookOpen, CheckCircle2, ChevronRight, Zap, Flame, Skull, RotateCcw } from 'lucide-react'
+import { ArrowLeft, Play, Send, BookOpen, CheckCircle2, ChevronRight, Zap, Flame, Skull, RotateCcw, Pencil } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { TestResultPanel } from '../components/exercises/TestResultPanel'
 import { HintSystem } from '../components/exercises/HintSystem'
 import { MatchingExercise } from '../components/exercises/MatchingExercise'
+import { ExerciseEditor } from '../components/exercises/ExerciseEditor'
 import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
@@ -14,7 +15,7 @@ import { runQuery } from '../lib/sqlSimulator'
 import { evaluateExercise } from '../lib/evaluator'
 import { supabase } from '../lib/supabase'
 import type { QueryResult } from '../lib/sqlSimulator'
-import type { TestResult } from '../types'
+import type { TestResult, Exercise } from '../types'
 
 export default function ExercisePage() {
   const { id } = useParams<{ id: string }>()
@@ -23,10 +24,15 @@ export default function ExercisePage() {
   const { profile } = useAuth()
   const lang = (localStorage.getItem('i18nextLng') ?? 'en') as 'en' | 'id'
 
-  const { cohortId, status } = useCohort()
+  const { cohortId, status, isEditor } = useCohort()
   const activeCohortId = status === 'active' ? cohortId : null
 
-  const { exercise, loading, error } = useExercise(id)
+  const { exercise: fetchedExercise, loading, error } = useExercise(id)
+  // Local draft reflects mentor/admin edits without a refetch.
+  const [exDraft, setExDraft] = useState<Exercise | null>(null)
+  const [editing, setEditing] = useState(false)
+  useEffect(() => { setExDraft(null); setEditing(false) }, [id])
+  const exercise = exDraft ?? fetchedExercise
   const { exercises: sessionExercises } = useExercises(exercise?.session_id)
   const { submissions, saveSubmission } = useSubmissions(id, profile?.id, activeCohortId)
   const { markComplete } = useProgress()
@@ -177,10 +183,37 @@ export default function ExercisePage() {
               </span>
             </>
           )}
+
+          {/* Editor: edit this exercise */}
+          {isEditor && !editing && (
+            <button
+              onClick={() => setEditing(true)}
+              className="cursor-pointer ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 hover:bg-primary-100 transition-colors"
+            >
+              <Pencil size={11} /> Edit exercise
+            </button>
+          )}
         </div>
 
         {/* Title */}
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-snug tracking-tight">{title}</h1>
+      </div>
+    )
+  }
+
+  // ── Editor mode (mentors/admins) ──────────────────────────────
+  if (editing && isEditor) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ExerciseHeader onBack={() => {
+          const sid = location.state?.fromSessionId ?? exercise.session_id
+          navigate(sid ? `/session/${sid}` : '/curriculum', { state: { scrollTo: 'exercises' } })
+        }} />
+        <ExerciseEditor
+          exercise={exercise}
+          onSaved={updated => { setExDraft(updated); setEditing(false) }}
+          onCancel={() => setEditing(false)}
+        />
       </div>
     )
   }

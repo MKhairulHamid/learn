@@ -1,6 +1,10 @@
 export type Language = 'en' | 'id'
 
-export type UserRole = 'student' | 'admin'
+export type UserRole = 'student' | 'admin' | 'mentor'
+
+// Editors (admins + mentors) can edit lesson content and exercises.
+export const canEditContent = (role: UserRole | null | undefined): boolean =>
+  role === 'admin' || role === 'mentor'
 
 export interface Profile {
   id: string
@@ -12,8 +16,23 @@ export interface Profile {
   created_at: string
 }
 
+export interface Program {
+  id: string
+  slug: string
+  name_id: string
+  name_en: string
+  description_id: string
+  description_en: string
+  icon: string
+  color: string
+  is_published: boolean
+  order_num: number
+  created_at: string
+}
+
 export interface Phase {
   id: string
+  program_id: string
   phase_number: number
   name_id: string
   name_en: string
@@ -114,6 +133,7 @@ export type EnrollmentStatus = 'pending' | 'active' | 'rejected' | 'removed'
 
 export interface Cohort {
   id: string
+  program_id: string
   name: string
   description: string
   admission_open_at: string

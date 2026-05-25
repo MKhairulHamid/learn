@@ -29,6 +29,7 @@ export interface EnrollmentWithProfile extends CohortEnrollment {
 
 // New-cohort form payload.
 export interface CohortDraft {
+  program_id: string
   name: string
   description: string
   admission_open_at: string

@@ -5,7 +5,7 @@ import {
   CheckCircle2, Clock, ChevronDown, ChevronUp, Lock, PlayCircle,
   CalendarDays, Sparkles,
 } from 'lucide-react'
-import { usePhases } from '../hooks/usePhases'
+import { usePhases, usePrograms } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
 import { useCohort } from '../hooks/useCohort'
 import { ProgressBar } from '../components/ui/ProgressBar'
@@ -34,11 +34,23 @@ const fmtShort = (d: string) =>
 export default function CurriculumPage() {
   const { t, i18n } = useTranslation(['common', 'curriculum'])
   const navigate = useNavigate()
-  const { phases, orientation, loading } = usePhases()
-  const { isCompleted, completedCount, loading: progressLoading } = useProgress()
+  const { programs, loading: programsLoading } = usePrograms()
   const cohort = useCohort()
-  const [expandedPhase, setExpandedPhase] = useState<number>(1)
   const lang = i18n.language === 'id' ? 'id' : 'en'
+
+  // Default to the program of the user's cohort; admins/mentors land on the first.
+  const [picked, setPicked] = useState<string | null>(null)
+  const programId = picked ?? cohort.cohort?.program_id ?? programs[0]?.id
+
+  const { phases, orientation, loading } = usePhases(programId)
+  const { isCompleted, loading: progressLoading } = useProgress()
+  const [expandedPhase, setExpandedPhase] = useState<number>(1)
+
+  // Per-program progress (sessions vary across programs).
+  const totalSessions = phases.reduce((n, p) => n + (p.sessions?.length ?? 0), 0)
+  const programCompleted = phases.reduce(
+    (n, p) => n + (p.sessions?.filter(s => isCompleted(s.id)).length ?? 0), 0,
+  )
 
   const phaseName = (p: { name_id: string; name_en: string }) =>
     lang === 'id' ? p.name_id : p.name_en
@@ -47,7 +59,7 @@ export default function CurriculumPage() {
   const sessionTitle = (s: { title_id: string; title_en: string }) =>
     lang === 'id' ? s.title_id : s.title_en
 
-  if (loading || progressLoading || cohort.loading) {
+  if (loading || progressLoading || cohort.loading || programsLoading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
@@ -98,8 +110,36 @@ export default function CurriculumPage() {
         <p className="mt-1 text-gray-500 text-sm">
           {t('common:landing.curriculum_subtitle')}
         </p>
+
+        {/* Program switcher — appears once more than one program exists */}
+        {programs.length > 1 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {programs.map(p => {
+              const active = p.id === programId
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => { setPicked(p.id); setExpandedPhase(1) }}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium border transition-colors ${
+                    active
+                      ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
+                      : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300'
+                  }`}
+                >
+                  <span>{p.icon}</span>
+                  {lang === 'id' ? p.name_id : p.name_en}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         <div className="mt-4">
-          <ProgressBar value={completedCount} max={12} label={`${completedCount}/12 sessions completed`} />
+          <ProgressBar
+            value={programCompleted}
+            max={totalSessions || 1}
+            label={`${programCompleted}/${totalSessions} sessions completed`}
+          />
         </div>
       </div>
 

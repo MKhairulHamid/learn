@@ -23,6 +23,7 @@ const todayStr = () => new Date().toLocaleDateString('en-CA')
 interface CohortContextValue {
   loading: boolean
   isAdmin: boolean
+  isEditor: boolean
   enrollment: EnrollmentWithCohort | null
   cohort: Cohort | null
   cohortId: string | null
@@ -49,6 +50,8 @@ const CohortContext = createContext<CohortContextValue | null>(null)
 export function CohortProvider({ children }: { children: ReactNode }) {
   const { user, profile } = useAuth()
   const isAdmin = profile?.role === 'admin'
+  // Mentors and admins bypass cohort gating so they can review/edit any lesson.
+  const isEditor = profile?.role === 'admin' || profile?.role === 'mentor'
 
   const [enrollment, setEnrollment] = useState<EnrollmentWithCohort | null>(null)
   const [schedule, setSchedule] = useState<CohortLessonSchedule[]>([])
@@ -70,7 +73,7 @@ export function CohortProvider({ children }: { children: ReactNode }) {
     // cohort that currently has admission open (pending admin approval).
     // Skipped for admins, and for anyone who already has any enrollment
     // record (rejected/removed users do not get re-applied).
-    if (rows.length === 0 && !isAdmin) {
+    if (rows.length === 0 && !isEditor) {
       const { data: open } = await supabase
         .from('cohorts')
         .select('id')
@@ -110,7 +113,7 @@ export function CohortProvider({ children }: { children: ReactNode }) {
       .eq('cohort_id', current.cohort_id)
     setSchedule((sched as CohortLessonSchedule[] | null) ?? [])
     setLoading(false)
-  }, [user, isAdmin])
+  }, [user, isEditor])
 
   useEffect(() => { fetchCohort() }, [fetchCohort])
 
@@ -135,7 +138,7 @@ export function CohortProvider({ children }: { children: ReactNode }) {
 
   const isSessionAccessible = useCallback(
     (session: Pick<Session, 'id' | 'session_number'>): boolean => {
-      if (isAdmin) return true
+      if (isEditor) return true
       // Lesson 0 — orientation, open to pending + active members.
       if (session.session_number === '00') {
         return status === 'pending' || status === 'active'
@@ -148,12 +151,13 @@ export function CohortProvider({ children }: { children: ReactNode }) {
       if (sched.unlock_override === false) return false // admin force-locked
       return sched.scheduled_date <= todayStr()        // auto: unlocked once the date arrives
     },
-    [isAdmin, status, getScheduleFor],
+    [isEditor, status, getScheduleFor],
   )
 
   const value: CohortContextValue = {
     loading,
     isAdmin,
+    isEditor,
     enrollment,
     cohort,
     cohortId: cohort?.id ?? null,

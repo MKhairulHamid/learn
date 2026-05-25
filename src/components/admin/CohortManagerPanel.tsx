@@ -8,6 +8,7 @@ import {
   useCohortAdmin, useCohortDetail, useAllProfiles,
 } from '../../hooks/useCohortAdmin'
 import type { CohortDraft } from '../../hooks/useCohortAdmin'
+import { usePrograms } from '../../hooks/usePhases'
 import type { CohortLessonSchedule } from '../../types'
 
 // ── Date helpers ────────────────────────────────────────────────────
@@ -133,6 +134,8 @@ function CohortFormModal({ onClose, onCreate }: {
   onClose: () => void
   onCreate: (draft: CohortDraft) => Promise<string | null>
 }) {
+  const { programs } = usePrograms()
+  const [programId, setProgramId] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [admissionOpenAt, setAdmissionOpenAt] = useState('')
@@ -143,8 +146,15 @@ function CohortFormModal({ onClose, onCreate }: {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
+  // Default the program select to the first available program.
+  const resolvedProgramId = programId || programs[0]?.id || ''
+
   async function submit() {
     setError(null)
+    if (!resolvedProgramId) {
+      setError('Select a program.')
+      return
+    }
     if (!name.trim() || !admissionOpenAt || !courseStartAt || !courseCloseAt) {
       setError('Fill in the name and all three dates.')
       return
@@ -159,6 +169,7 @@ function CohortFormModal({ onClose, onCreate }: {
     }
     setSaving(true)
     const err = await onCreate({
+      program_id: resolvedProgramId,
       name: name.trim(),
       description: description.trim(),
       admission_open_at: dateToIso(admissionOpenAt),
@@ -183,6 +194,17 @@ function CohortFormModal({ onClose, onCreate }: {
         )}
 
         <div className="space-y-3">
+          <Field label="Program">
+            <select
+              value={resolvedProgramId}
+              onChange={e => setProgramId(e.target.value)}
+              className={inputCls}
+            >
+              {programs.map(p => (
+                <option key={p.id} value={p.id}>{p.name_en}</option>
+              ))}
+            </select>
+          </Field>
           <Field label="Cohort name">
             <input
               value={name} onChange={e => setName(e.target.value)}
