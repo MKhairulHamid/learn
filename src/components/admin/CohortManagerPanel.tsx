@@ -445,10 +445,12 @@ function ScheduleEditor({ d }: { d: DetailHook }) {
     setBusy(false)
   }
 
+  const hasSchedule = d.schedule.length > 0
+
   return (
     <div className="space-y-4">
-      {/* Bulk generator */}
-      <div className="bg-[#111827] border border-white/[0.06] rounded-2xl p-4">
+      {/* Bulk generator — only shown when no schedule exists yet */}
+      {!hasSchedule && <div className="bg-[#111827] border border-white/[0.06] rounded-2xl p-4">
         <p className="text-xs font-semibold text-gray-300 mb-2">Quick-fill schedule</p>
         <p className="text-[11px] text-gray-500 mb-3">
           Sets Lesson 0 on the first date, then spaces every lesson by the chosen
@@ -474,7 +476,7 @@ function ScheduleEditor({ d }: { d: DetailHook }) {
             Generate
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* Per-lesson rows */}
       <div className="bg-[#111827] border border-white/[0.06] rounded-2xl divide-y divide-white/[0.04]">
