@@ -49,8 +49,10 @@ export default function CurriculumIndex() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('nav.curriculum')}</h1>
-        <p className="mt-1 text-gray-500 text-sm">{t('landing.curriculum_subtitle')}</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.pick_program_title')}</h1>
+        <p className="mt-1 text-gray-500 text-sm">
+          {isEditor ? t('dashboard.pick_program_subtitle_editor') : t('dashboard.pick_program_subtitle')}
+        </p>
       </div>
 
       {isEditor ? (

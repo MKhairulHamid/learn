@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Columns3, Code2, Terminal, Calculator } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
@@ -228,57 +229,117 @@ function PythonPlayground() {
 
 // ── Main PlaygroundPage ───────────────────────────────────────────────
 
-type Tab = 'sql' | 'python' | 'hr-salary'
+type PlaygroundId = 'sql' | 'python' | 'hr-salary'
+
+interface PgTab {
+  id: PlaygroundId
+  label: string
+  icon: typeof Code2
+  activeColor: string
+}
+
+// Which playgrounds belong to each program, keyed by program slug.
+const PROGRAM_PLAYGROUNDS: Record<string, PgTab[]> = {
+  'data-analyst': [
+    { id: 'sql',    label: 'SQL',    icon: Code2,    activeColor: 'text-primary-600 border-primary-600' },
+    { id: 'python', label: 'Python', icon: Terminal, activeColor: 'text-violet-600 border-violet-600' },
+  ],
+  'hr-fast-track': [
+    { id: 'hr-salary', label: 'Net Salary Calc', icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
+  ],
+}
 
 export default function PlaygroundPage() {
+  const { i18n } = useTranslation('common')
   const cohort = useCohort()
-  const { programs } = usePrograms()
+  const { programs, loading: programsLoading } = usePrograms()
+  const lang = i18n.language === 'id' ? 'id' : 'en'
 
-  // Determine which program the user is in
-  const userProgramId = cohort.cohort?.program_id
-  const userProgram = programs.find(p => p.id === userProgramId)
-  const isHrUser = userProgram?.slug === 'hr-fast-track'
+  const [pickedProgram, setPickedProgram] = useState<string | null>(null)
+  const [pickedPg, setPickedPg] = useState<PlaygroundId | null>(null)
 
-  // Admins and unenrolled users see all tabs
-  const showAll = cohort.isAdmin || !cohort.cohort
+  // Editors and unenrolled learners can explore every program's playground;
+  // enrolled students see the programs they belong to. Only programs that
+  // actually have a playground appear.
+  const showAll = cohort.isEditor || cohort.enrolledProgramIds.length === 0
+  const visiblePrograms = programs.filter(p =>
+    PROGRAM_PLAYGROUNDS[p.slug] && (showAll || cohort.enrolledProgramIds.includes(p.id)),
+  )
 
-  // Default tab per program
-  const defaultTab: Tab = isHrUser ? 'hr-salary' : 'sql'
-  const [tab, setTab] = useState<Tab>(defaultTab)
+  // Resolve the selected program (user's own first, else the first available).
+  const defaultProgramId =
+    (cohort.cohort && visiblePrograms.some(p => p.id === cohort.cohort!.program_id))
+      ? cohort.cohort.program_id
+      : visiblePrograms[0]?.id
+  const programId = (pickedProgram && visiblePrograms.some(p => p.id === pickedProgram))
+    ? pickedProgram
+    : defaultProgramId
+  const selectedProgram = visiblePrograms.find(p => p.id === programId)
 
-  const tabs: { id: Tab; label: string; icon: typeof Code2; activeColor: string }[] = [
-    ...((!isHrUser || showAll) ? [
-      { id: 'sql' as Tab,    label: 'SQL',             icon: Code2,       activeColor: 'text-primary-600 border-primary-600' },
-      { id: 'python' as Tab, label: 'Python',          icon: Terminal,    activeColor: 'text-violet-600 border-violet-600' },
-    ] : []),
-    ...(isHrUser || showAll ? [
-      { id: 'hr-salary' as Tab, label: 'Net Salary Calc', icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
-    ] : []),
-  ]
+  const pgTabs = selectedProgram ? PROGRAM_PLAYGROUNDS[selectedProgram.slug] ?? [] : []
+  const pgId = (pickedPg && pgTabs.some(t => t.id === pickedPg)) ? pickedPg : pgTabs[0]?.id
+
+  if (programsLoading || cohort.loading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-6 border-b border-gray-200">
-        {tabs.map(({ id, label, icon: Icon, activeColor }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              tab === id
-                ? activeColor
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <Icon size={15} />
-            {label}
-          </button>
-        ))}
-      </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left: program navigation */}
+        <aside className="md:w-56 shrink-0">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">
+            Programs
+          </p>
+          <nav className="flex md:flex-col gap-1 overflow-x-auto pb-1 md:pb-0">
+            {visiblePrograms.map(p => {
+              const active = p.id === programId
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => { setPickedProgram(p.id); setPickedPg(null) }}
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0 text-left ${
+                    active ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${p.color} flex items-center justify-center text-base shrink-0`}>
+                    {p.icon}
+                  </span>
+                  <span className="truncate">{lang === 'id' ? p.name_id : p.name_en}</span>
+                </button>
+              )
+            })}
+          </nav>
+        </aside>
 
-      {tab === 'sql'        && <SqlPlayground />}
-      {tab === 'python'     && <PythonPlayground />}
-      {tab === 'hr-salary'  && <HrPlaygroundPage />}
+        {/* Right: playground sub-nav + content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
+            {pgTabs.map(({ id, label, icon: Icon, activeColor }) => (
+              <button
+                key={id}
+                onClick={() => setPickedPg(id)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors shrink-0 ${
+                  pgId === id
+                    ? activeColor
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Icon size={15} />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {pgId === 'sql'       && <SqlPlayground />}
+          {pgId === 'python'    && <PythonPlayground />}
+          {pgId === 'hr-salary' && <HrPlaygroundPage />}
+        </div>
+      </div>
     </div>
   )
 }
