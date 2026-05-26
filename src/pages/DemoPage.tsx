@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   BookOpen, Code2, Play, CheckCircle2, MessageSquare, Bell, ShieldCheck,
   GraduationCap, Users, Activity, TrendingUp, Radio, Globe, Zap, Database,
-  CalendarClock, ArrowRight, MousePointer2, BarChart3, Lock, ChevronDown,
+  ArrowRight, MousePointer2, BarChart3, Lock, ChevronDown,
   Video, Layers, Target, Award, ChevronLeft, ChevronRight, Maximize2,
   Minimize2, Terminal, BarChart2, CalendarDays, Calculator, Mic2,
   Gamepad2, Star, FileText,
@@ -112,7 +112,6 @@ function ScrollHint() {
 export default function DemoPage() {
   const [slide, setSlide] = useState(0)
   const [fullscreen, setFullscreen] = useState(false)
-  const _demoRef = useRef<HTMLDivElement>(null)
 
   const current = SLIDES[slide]
   const scene = current.scene
