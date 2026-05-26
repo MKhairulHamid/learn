@@ -155,7 +155,7 @@ export interface CohortLessonSchedule {
   zoom_link: string | null
   recording_url: string | null
   unlock_override: boolean | null  // null = auto by date; true = force open; false = force locked
-  feedback_open: boolean
+  feedback_open: boolean | null  // null = auto (open if date passed); false = admin closed; true = force open
   notes: string | null
   created_at: string
 }

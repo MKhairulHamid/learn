@@ -215,8 +215,10 @@ export function useCohortDetail(cohortId: string | null) {
   const toggleFeedbackOpen = useCallback(async (sessionId: string, open: boolean) => {
     const existing = schedule.find(s => s.session_id === sessionId)
     if (!existing) return { error: 'No schedule row for this session' }
+    // open=true  → null (auto: open when date has passed)
+    // open=false → false (admin explicitly closed)
     const { error } = await supabase.from('cohort_lesson_schedule')
-      .update({ feedback_open: open }).eq('id', existing.id)
+      .update({ feedback_open: open ? null : false }).eq('id', existing.id)
     if (!error) await refetch()
     return { error: error?.message ?? null }
   }, [schedule, refetch])

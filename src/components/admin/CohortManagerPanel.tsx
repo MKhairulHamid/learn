@@ -10,6 +10,7 @@ import {
 import type { CohortDraft } from '../../hooks/useCohortAdmin'
 import { usePrograms } from '../../hooks/usePhases'
 import type { CohortLessonSchedule } from '../../types'
+import { resolveFeedbackOpen } from '../../hooks/useFeedback'
 
 // ── Date helpers ────────────────────────────────────────────────────
 
@@ -545,22 +546,30 @@ function ScheduleRow({ number, title, row, onSave, onRemove, onToggleFeedback }:
         ) : (
           <span className="text-xs text-gray-600">Not scheduled</span>
         )}
-        {row && (
-          <button
-            onClick={() => onToggleFeedback(!row.feedback_open)}
-            title={row.feedback_open ? 'Close feedback form' : 'Open feedback form for students'}
-            className={`cursor-pointer flex items-center gap-1 text-xs font-medium transition-colors ${
-              row.feedback_open
-                ? 'text-green-400 hover:text-green-300'
-                : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            {row.feedback_open
-              ? <><MessageSquarePlus size={13} /> Feedback open</>
-              : <><MessageSquare size={13} /> Open feedback</>
-            }
-          </button>
-        )}
+        {row && (() => {
+          const isOpen = resolveFeedbackOpen(row.feedback_open, row.scheduled_date)
+          const adminClosed = row.feedback_open === false
+          return (
+            <button
+              onClick={() => onToggleFeedback(adminClosed)}
+              title={adminClosed ? 'Reopen feedback for students' : 'Close feedback form'}
+              className={`cursor-pointer flex items-center gap-1 text-xs font-medium transition-colors ${
+                isOpen
+                  ? 'text-green-400 hover:text-green-300'
+                  : adminClosed
+                  ? 'text-red-400 hover:text-red-300'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              {isOpen
+                ? <><MessageSquarePlus size={13} /> Feedback open</>
+                : adminClosed
+                ? <><MessageSquare size={13} /> Feedback closed</>
+                : <><MessageSquare size={13} /> Feedback pending</>
+              }
+            </button>
+          )
+        })()}
         <button onClick={() => setOpen(o => !o)}
           className="cursor-pointer text-xs font-medium text-primary-400 hover:text-primary-300">
           {open ? 'Close' : row ? 'Edit' : 'Schedule'}

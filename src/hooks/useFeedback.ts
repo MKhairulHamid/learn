@@ -31,7 +31,7 @@ export function useFeedback(sessionId: string | undefined, cohortId: string | nu
 
     const [{ data: sched }, { data: sub }] = await Promise.all([
       supabase.from('cohort_lesson_schedule')
-        .select('feedback_open')
+        .select('feedback_open, scheduled_date')
         .eq('cohort_id', cohortId)
         .eq('session_id', sessionId)
         .maybeSingle(),
@@ -43,7 +43,8 @@ export function useFeedback(sessionId: string | undefined, cohortId: string | nu
         .maybeSingle(),
     ])
 
-    setFeedbackOpen((sched as { feedback_open: boolean } | null)?.feedback_open ?? false)
+    const s = sched as { feedback_open: boolean | null; scheduled_date: string } | null
+    setFeedbackOpen(resolveFeedbackOpen(s?.feedback_open, s?.scheduled_date))
     setSubmission(sub as SessionFeedback | null)
     setLoading(false)
   }, [sessionId, cohortId, user])
@@ -161,13 +162,16 @@ export function usePendingFeedback(cohortId: string | null) {
     let cancelled = false
 
     async function load() {
+      // Fetch all schedule rows — auto-open is date-based so we can't filter in SQL alone
       const { data: openSchedules } = await supabase
         .from('cohort_lesson_schedule')
-        .select('session_id')
+        .select('session_id, feedback_open, scheduled_date')
         .eq('cohort_id', cohortId)
-        .eq('feedback_open', true)
+        .neq('feedback_open', false)  // exclude rows admin explicitly closed
 
-      const openIds = ((openSchedules ?? []) as { session_id: string }[]).map(r => r.session_id)
+      const openIds = ((openSchedules ?? []) as { session_id: string; feedback_open: boolean | null; scheduled_date: string }[])
+        .filter(r => resolveFeedbackOpen(r.feedback_open, r.scheduled_date))
+        .map(r => r.session_id)
       if (openIds.length === 0) {
         if (!cancelled) { setPendingSessionIds(new Set()); setPendingSessions([]); setLoading(false) }
         return
@@ -204,6 +208,18 @@ export function usePendingFeedback(cohortId: string | null) {
   }, [cohortId, user])
 
   return { pendingSessionIds, pendingSessions, loading }
+}
+
+// null = auto (open if date passed); false = closed by admin; true = force open
+export function resolveFeedbackOpen(
+  feedbackOpen: boolean | null | undefined,
+  scheduledDate: string | null | undefined,
+): boolean {
+  if (feedbackOpen === true) return true
+  if (feedbackOpen === false) return false
+  // null / undefined → auto: open once the session date has passed
+  if (!scheduledDate) return false
+  return new Date(scheduledDate + 'T00:00:00') < new Date()
 }
 
 function avg(rows: SessionFeedback[], key: keyof SessionFeedback): number {
