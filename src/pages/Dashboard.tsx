@@ -9,6 +9,7 @@ import {
   useDashboardPrograms, type EnrolledProgram, type AvailableProgram,
 } from '../hooks/useDashboardPrograms'
 import { usePendingFeedback } from '../hooks/useFeedback'
+import { useFeedbackModal } from '../context/FeedbackModalContext'
 import { LESSON_ZERO_ID } from '../lib/constants'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Button } from '../components/ui/Button'
@@ -168,7 +169,7 @@ function EnrolledCard({ ep, lang, t, onNavigate }: {
       </div>
 
       {/* Pending feedback prompt */}
-      <PendingFeedbackPrompt cohortId={cohort.id} lang={lang} onNavigate={onNavigate} />
+      <PendingFeedbackPrompt cohortId={cohort.id} lang={lang} />
 
       {/* Update — next lesson or status hint */}
       <div className="mt-4">
@@ -210,10 +211,11 @@ function EnrolledCard({ ep, lang, t, onNavigate }: {
   )
 }
 
-function PendingFeedbackPrompt({ cohortId, lang, onNavigate }: {
-  cohortId: string; lang: Lang; onNavigate: (to: string) => void
+function PendingFeedbackPrompt({ cohortId, lang }: {
+  cohortId: string; lang: Lang
 }) {
   const { pendingSessions, loading } = usePendingFeedback(cohortId)
+  const { openFeedback } = useFeedbackModal()
   if (loading || pendingSessions.length === 0) return null
 
   const first = pendingSessions[0]
@@ -221,7 +223,11 @@ function PendingFeedbackPrompt({ cohortId, lang, onNavigate }: {
 
   return (
     <button
-      onClick={() => onNavigate(`/session/${first.id}`)}
+      onClick={() => openFeedback({
+        sessionId: first.id,
+        cohortId,
+        sessionTitle: lang === 'id' ? first.title_id : first.title_en,
+      })}
       className="w-full flex items-center gap-3 mt-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200 px-4 py-3 text-left"
     >
       <MessageSquarePlus size={16} className="text-amber-600 shrink-0" />

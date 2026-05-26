@@ -12,6 +12,8 @@ export interface FeedbackPanelProps {
   submitFeedback: (d: FeedbackDraft) => Promise<{ error: string | null }>
 }
 
+// Thin wrapper — now just used on the session page as a fallback inline view.
+// The primary UX is the modal (FeedbackModal) opened from multiple places.
 export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, error, submitFeedback }: FeedbackPanelProps) {
   if (loading) return null
   if (!feedbackOpen) return null
@@ -24,21 +26,14 @@ export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, e
           Session Feedback
         </h2>
       </div>
-
-      {submission ? (
-        <SubmittedState />
-      ) : (
-        <FeedbackForm
-          submitting={submitting}
-          error={error}
-          onSubmit={submitFeedback}
-        />
+      {submission ? <SubmittedState /> : (
+        <FeedbackForm submitting={submitting} error={error} onSubmit={submitFeedback} />
       )}
     </div>
   )
 }
 
-function SubmittedState() {
+export function SubmittedState() {
   return (
     <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex items-center gap-4">
       <CheckCircle2 size={32} className="text-green-500 shrink-0" />
@@ -52,12 +47,13 @@ function SubmittedState() {
   )
 }
 
-// ── Star rating input ──────────────────────────────────────────────────
+// ── Star rating ────────────────────────────────────────────────────────
 
-function StarRating({ value, onChange, label }: {
+export function StarRating({ value, onChange, label, size = 22 }: {
   value: number
   onChange: (v: number) => void
   label: string
+  size?: number
 }) {
   const [hovered, setHovered] = useState(0)
   const display = hovered || value
@@ -76,7 +72,7 @@ function StarRating({ value, onChange, label }: {
             className="p-0.5 transition-transform hover:scale-110"
           >
             <Star
-              size={22}
+              size={size}
               className={n <= display ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}
             />
           </button>
@@ -89,9 +85,9 @@ function StarRating({ value, onChange, label }: {
   )
 }
 
-const STAR_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Excellent']
+export const STAR_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Excellent']
 
-// ── Form ───────────────────────────────────────────────────────────────
+// ── Shared form ────────────────────────────────────────────────────────
 
 const EMPTY: FeedbackDraft = {
   rating_materials: 0,
@@ -105,7 +101,7 @@ const EMPTY: FeedbackDraft = {
   comment_other: '',
 }
 
-function FeedbackForm({ submitting, error, onSubmit }: {
+export function FeedbackForm({ submitting, error, onSubmit }: {
   submitting: boolean
   error: string | null
   onSubmit: (d: FeedbackDraft) => Promise<{ error: string | null }>
@@ -146,109 +142,73 @@ function FeedbackForm({ submitting, error, onSubmit }: {
     'placeholder:text-gray-400 focus:outline-none focus:border-primary-400 resize-none'
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <form onSubmit={handleSubmit} className="overflow-hidden">
       {/* Section 1: Materials */}
-      <div className="p-5 border-b border-gray-50">
+      <div className="pb-5 mb-5 border-b border-gray-100">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
           Session Materials
         </p>
         <div className="space-y-4">
-          <StarRating
-            label="How would you rate the quality of the session content?"
-            value={draft.rating_materials}
-            onChange={v => setRating('rating_materials', v)}
-          />
-          <StarRating
-            label="How useful were the exercises and activities?"
-            value={draft.rating_exercises}
-            onChange={v => setRating('rating_exercises', v)}
-          />
+          <StarRating label="How would you rate the quality of the session content?"
+            value={draft.rating_materials} onChange={v => setRating('rating_materials', v)} />
+          <StarRating label="How useful were the exercises and activities?"
+            value={draft.rating_exercises} onChange={v => setRating('rating_exercises', v)} />
         </div>
       </div>
 
       {/* Section 2: Mentor */}
-      <div className="p-5 border-b border-gray-50">
+      <div className="pb-5 mb-5 border-b border-gray-100">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
           Mentor
         </p>
         <div className="space-y-4">
-          <StarRating
-            label="How clearly did the mentor explain the concepts?"
-            value={draft.rating_mentor_clarity}
-            onChange={v => setRating('rating_mentor_clarity', v)}
-          />
-          <StarRating
-            label="How well did the mentor manage the class and pacing?"
-            value={draft.rating_mentor_management}
-            onChange={v => setRating('rating_mentor_management', v)}
-          />
-          <StarRating
-            label="How responsive was the mentor to questions?"
-            value={draft.rating_mentor_engagement}
-            onChange={v => setRating('rating_mentor_engagement', v)}
-          />
+          <StarRating label="How clearly did the mentor explain the concepts?"
+            value={draft.rating_mentor_clarity} onChange={v => setRating('rating_mentor_clarity', v)} />
+          <StarRating label="How well did the mentor manage the class and pacing?"
+            value={draft.rating_mentor_management} onChange={v => setRating('rating_mentor_management', v)} />
+          <StarRating label="How responsive was the mentor to questions?"
+            value={draft.rating_mentor_engagement} onChange={v => setRating('rating_mentor_engagement', v)} />
         </div>
       </div>
 
       {/* Section 3: Overall */}
-      <div className="p-5">
+      <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
           Overall
         </p>
         <div className="space-y-4">
-          <StarRating
-            label="Overall, how satisfied are you with this session?"
-            value={draft.rating_overall}
-            onChange={v => setRating('rating_overall', v)}
-          />
-
+          <StarRating label="Overall, how satisfied are you with this session?"
+            value={draft.rating_overall} onChange={v => setRating('rating_overall', v)} />
           <div>
             <label className="text-xs text-gray-600 mb-1.5 block">
               What was the most valuable part of this session? <span className="text-red-400">*</span>
             </label>
-            <textarea
-              rows={2}
-              value={draft.comment_highlight}
+            <textarea rows={2} value={draft.comment_highlight}
               onChange={e => setText('comment_highlight', e.target.value)}
               placeholder="What stood out to you? What will you apply?"
-              className={inputCls}
-            />
+              className={inputCls} />
           </div>
-
           <div>
-            <label className="text-xs text-gray-600 mb-1.5 block">
-              What could be improved?
-            </label>
-            <textarea
-              rows={2}
-              value={draft.comment_improve}
+            <label className="text-xs text-gray-600 mb-1.5 block">What could be improved?</label>
+            <textarea rows={2} value={draft.comment_improve}
               onChange={e => setText('comment_improve', e.target.value)}
               placeholder="Pace, content depth, exercises, delivery…"
-              className={inputCls}
-            />
+              className={inputCls} />
           </div>
-
           <div>
-            <label className="text-xs text-gray-600 mb-1.5 block">
-              Any other comments?
-            </label>
-            <textarea
-              rows={2}
-              value={draft.comment_other}
+            <label className="text-xs text-gray-600 mb-1.5 block">Any other comments?</label>
+            <textarea rows={2} value={draft.comment_other}
               onChange={e => setText('comment_other', e.target.value)}
               placeholder="Anything else you'd like to share…"
-              className={inputCls}
-            />
+              className={inputCls} />
           </div>
         </div>
 
         {(validationError || error) && (
-          <p className="mt-3 text-xs text-red-500">
-            {validationError ?? error}
-          </p>
+          <p className="mt-3 text-xs text-red-500">{validationError ?? error}</p>
         )}
 
-        <div className="mt-4 flex justify-end">
+        <div className="mt-5 flex justify-end">
           <button
             type="submit"
             disabled={submitting}

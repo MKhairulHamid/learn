@@ -17,8 +17,8 @@ import type { Session } from '../types'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
 import { SessionExercises } from '../components/exercises/SessionExercises'
 import { DiscussionPanel } from '../components/discussion/DiscussionPanel'
-import { FeedbackPanel } from '../components/feedback/FeedbackPanel'
 import { useFeedback } from '../hooks/useFeedback'
+import { useFeedbackModal } from '../context/FeedbackModalContext'
 import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
@@ -36,7 +36,6 @@ export default function SessionPage() {
   const location = useLocation()
   const { user } = useAuth()
   const exercisesRef = useRef<HTMLDivElement>(null)
-  const feedbackRef = useRef<HTMLDivElement>(null)
   const { session: fetched, programId, loading } = useSession(id)
   const { isCompleted, markComplete } = useProgress()
   const cohort = useCohort()
@@ -71,6 +70,7 @@ export default function SessionPage() {
 
   const done = id ? isCompleted(id) : false
   const feedback = useFeedback(id, cohort.cohortId)
+  const { openFeedback } = useFeedbackModal()
   // Block completion when the feedback window is open and the student hasn't submitted yet.
   const feedbackRequired = feedback.feedbackOpen && !feedback.submission
   const title = session ? (lang === 'id' ? session.title_id : session.title_en) : ''
@@ -412,22 +412,8 @@ export default function SessionPage() {
         {id && <SessionExercises sessionId={id} lang={lang} />}
       </div>
 
-      {/* Feedback form — above the completion CTA so students see it before the button */}
-      {id && (
-        <div ref={feedbackRef}>
-          <FeedbackPanel
-            feedbackOpen={feedback.feedbackOpen}
-            submission={feedback.submission}
-            loading={feedback.loading}
-            submitting={feedback.submitting}
-            error={feedback.error}
-            submitFeedback={feedback.submitFeedback}
-          />
-        </div>
-      )}
-
       {/* ── Session completion CTA ────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 mt-6 flex items-center justify-between gap-4 flex-wrap">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {prevSession ? (
             <Button variant="outline" size="sm" onClick={() => navigate(`/session/${prevSession.id}`)}>
@@ -446,11 +432,16 @@ export default function SessionPage() {
           {!done ? (
             feedbackRequired ? (
               <button
-                onClick={() => feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-sm text-amber-800 transition-colors cursor-pointer"
+                onClick={() => id && cohort.cohortId && openFeedback({
+                  sessionId: id,
+                  cohortId: cohort.cohortId!,
+                  sessionTitle: title,
+                  onSubmitted: feedback.refetch,
+                })}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-sm font-medium text-amber-800 transition-colors cursor-pointer"
               >
                 <MessageSquarePlus size={16} className="shrink-0 text-amber-600" />
-                Fill in the session feedback first ↑
+                Give session feedback to complete
               </button>
             ) : (
               <Button

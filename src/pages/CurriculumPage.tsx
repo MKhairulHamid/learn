@@ -9,6 +9,7 @@ import { usePhases, usePrograms } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
 import { useCohort } from '../hooks/useCohort'
 import { usePendingFeedback } from '../hooks/useFeedback'
+import { useFeedbackModal } from '../context/FeedbackModalContext'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Badge } from '../components/ui/Badge'
 import { CohortNotice } from '../components/cohort/CohortNotice'
@@ -52,6 +53,7 @@ export default function CurriculumPage() {
   const { phases, orientation, loading } = usePhases(programId)
   const { isCompleted, loading: progressLoading } = useProgress()
   const { pendingSessionIds } = usePendingFeedback(cohort.cohortId)
+  const { openFeedback } = useFeedbackModal()
   const [expandedPhase, setExpandedPhase] = useState<number>(1)
 
   // Per-program progress (sessions vary across programs).
@@ -275,9 +277,20 @@ export default function CurriculumPage() {
                               {done ? t('common:common.completed') : session.unit_skkni}
                             </Badge>
                             {pendingSessionIds.has(session.id) && (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  cohort.cohortId && openFeedback({
+                                    sessionId: session.id,
+                                    cohortId: cohort.cohortId,
+                                    sessionTitle: sessionTitle(session),
+                                  })
+                                }}
+                                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+                              >
                                 <MessageSquarePlus size={11} /> Feedback needed
-                              </span>
+                              </button>
                             )}
                           </div>
                           <p className="mt-0.5 text-sm font-medium text-gray-800 line-clamp-2">

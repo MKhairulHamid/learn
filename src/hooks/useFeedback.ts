@@ -67,7 +67,7 @@ export function useFeedback(sessionId: string | undefined, cohortId: string | nu
     return { error: null }
   }, [sessionId, cohortId, user, refetch])
 
-  return { feedbackOpen, submission, loading, submitting, error, submitFeedback }
+  return { feedbackOpen, submission, loading, submitting, error, submitFeedback, refetch }
 }
 
 // ── Admin: all submissions for a given cohort (+ optional session filter) ──

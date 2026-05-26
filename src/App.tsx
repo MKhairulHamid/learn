@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from 'react'
 import { HashRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CohortProvider } from './hooks/useCohort'
+import { FeedbackModalProvider } from './context/FeedbackModalContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { MobileNav } from './components/layout/MobileNav'
@@ -143,7 +144,9 @@ export default function App() {
   return (
     <AuthProvider>
       <CohortProvider>
-        <AppRoutes />
+        <FeedbackModalProvider>
+          <AppRoutes />
+        </FeedbackModalProvider>
       </CohortProvider>
     </AuthProvider>
   )
