@@ -541,7 +541,7 @@ export default function PlaygroundPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left: program navigation */}
         <aside className={`shrink-0 transition-all duration-200 ${sidebarCollapsed ? 'md:w-12' : 'md:w-48'}`}>
@@ -575,7 +575,7 @@ export default function PlaygroundPage() {
                     {p.icon}
                   </span>
                   {!sidebarCollapsed && (
-                    <span className="truncate">{lang === 'id' ? p.name_id : p.name_en}</span>
+                    <span className="break-words min-w-0">{lang === 'id' ? p.name_id : p.name_en}</span>
                   )}
                 </button>
               )
