@@ -155,8 +155,26 @@ export interface CohortLessonSchedule {
   zoom_link: string | null
   recording_url: string | null
   unlock_override: boolean | null  // null = auto by date; true = force open; false = force locked
+  feedback_open: boolean
   notes: string | null
   created_at: string
+}
+
+export interface SessionFeedback {
+  id: string
+  cohort_id: string
+  session_id: string
+  user_id: string
+  rating_materials: number
+  rating_exercises: number
+  rating_mentor_clarity: number
+  rating_mentor_management: number
+  rating_mentor_engagement: number
+  rating_overall: number
+  comment_highlight: string
+  comment_improve: string
+  comment_other: string
+  submitted_at: string
 }
 
 export interface CohortEnrollment {

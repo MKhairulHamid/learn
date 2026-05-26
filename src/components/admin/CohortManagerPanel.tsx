@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   GraduationCap, Plus, ChevronRight, ArrowLeft, Users, Clock,
   CheckCircle2, XCircle, UserX, CalendarDays, Trash2, Eye, EyeOff,
-  DoorOpen, DoorClosed, Loader2, UserPlus,
+  DoorOpen, DoorClosed, Loader2, UserPlus, MessageSquarePlus, MessageSquare,
 } from 'lucide-react'
 import {
   useCohortAdmin, useCohortDetail, useAllProfiles,
@@ -490,20 +490,22 @@ function ScheduleEditor({ d }: { d: DetailHook }) {
             title={s.title_en}
             row={row}
             onSave={fields => d.saveScheduleRow(s.id, fields)}
-            onRemove={() => d.removeScheduleRow(s.id)} />
+            onRemove={() => d.removeScheduleRow(s.id)}
+            onToggleFeedback={open => d.toggleFeedbackOpen(s.id, open)} />
         })}
       </div>
     </div>
   )
 }
 
-function ScheduleRow({ number, title, row, onSave, onRemove }: {
+function ScheduleRow({ number, title, row, onSave, onRemove, onToggleFeedback }: {
   number: string
   title: string
   row: CohortLessonSchedule | undefined
   onSave: (f: Partial<Pick<CohortLessonSchedule,
     'scheduled_date' | 'zoom_link' | 'recording_url' | 'unlock_override' | 'notes'>>) => Promise<{ error: string | null }>
   onRemove: () => void
+  onToggleFeedback: (open: boolean) => Promise<{ error: string | null }>
 }) {
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(row?.scheduled_date ?? '')
@@ -542,6 +544,22 @@ function ScheduleRow({ number, title, row, onSave, onRemove }: {
           </span>
         ) : (
           <span className="text-xs text-gray-600">Not scheduled</span>
+        )}
+        {row && (
+          <button
+            onClick={() => onToggleFeedback(!row.feedback_open)}
+            title={row.feedback_open ? 'Close feedback form' : 'Open feedback form for students'}
+            className={`cursor-pointer flex items-center gap-1 text-xs font-medium transition-colors ${
+              row.feedback_open
+                ? 'text-green-400 hover:text-green-300'
+                : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            {row.feedback_open
+              ? <><MessageSquarePlus size={13} /> Feedback open</>
+              : <><MessageSquare size={13} /> Open feedback</>
+            }
+          </button>
         )}
         <button onClick={() => setOpen(o => !o)}
           className="cursor-pointer text-xs font-medium text-primary-400 hover:text-primary-300">

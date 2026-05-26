@@ -212,6 +212,15 @@ export function useCohortDetail(cohortId: string | null) {
     return { error: error?.message ?? null }
   }, [cohortId, schedule, refetch])
 
+  const toggleFeedbackOpen = useCallback(async (sessionId: string, open: boolean) => {
+    const existing = schedule.find(s => s.session_id === sessionId)
+    if (!existing) return { error: 'No schedule row for this session' }
+    const { error } = await supabase.from('cohort_lesson_schedule')
+      .update({ feedback_open: open }).eq('id', existing.id)
+    if (!error) await refetch()
+    return { error: error?.message ?? null }
+  }, [schedule, refetch])
+
   const removeScheduleRow = useCallback(async (sessionId: string) => {
     const existing = schedule.find(s => s.session_id === sessionId)
     if (!existing) return { error: null }
@@ -296,7 +305,7 @@ export function useCohortDetail(cohortId: string | null) {
   return {
     cohort, programName, sessions, schedule, enrollments, loading, refetch,
     updateCohort, setAdmissionOpen,
-    saveScheduleRow, removeScheduleRow, generateSchedule,
+    saveScheduleRow, removeScheduleRow, toggleFeedbackOpen, generateSchedule,
     approveEnrollment, setEnrollmentStatus, removeEnrollment, addUser,
   }
 }

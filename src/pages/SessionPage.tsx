@@ -16,6 +16,7 @@ import type { Session } from '../types'
 import { SessionPlayground } from '../components/exercises/SessionPlayground'
 import { SessionExercises } from '../components/exercises/SessionExercises'
 import { DiscussionPanel } from '../components/discussion/DiscussionPanel'
+import { FeedbackPanel } from '../components/feedback/FeedbackPanel'
 import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
@@ -455,6 +456,9 @@ export default function SessionPage() {
           )}
         </div>
       </div>
+
+      {/* Feedback — only visible when admin has opened the window */}
+      {id && <FeedbackPanel sessionId={id} />}
 
       {/* Discussion — sits below the completion CTA as a bonus section */}
       {id && <DiscussionPanel sessionId={id} />}
