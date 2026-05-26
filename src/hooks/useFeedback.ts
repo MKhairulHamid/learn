@@ -162,12 +162,14 @@ export function usePendingFeedback(cohortId: string | null) {
     let cancelled = false
 
     async function load() {
-      // Fetch all schedule rows — auto-open is date-based so we can't filter in SQL alone
+      // Fetch past + force-open schedules. NULL = auto (open if date passed),
+      // true = force open — both must be included. Use .or() because neq(false)
+      // would silently drop NULLs in SQL (NULL != false → NULL, not TRUE).
       const { data: openSchedules } = await supabase
         .from('cohort_lesson_schedule')
         .select('session_id, feedback_open, scheduled_date')
         .eq('cohort_id', cohortId)
-        .neq('feedback_open', false)  // exclude rows admin explicitly closed
+        .or('feedback_open.is.null,feedback_open.eq.true')
 
       const openIds = ((openSchedules ?? []) as { session_id: string; feedback_open: boolean | null; scheduled_date: string }[])
         .filter(r => resolveFeedbackOpen(r.feedback_open, r.scheduled_date))
