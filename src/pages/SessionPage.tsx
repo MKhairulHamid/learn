@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight, ChevronDown, ChevronUp,
-  Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, Info, ListOrdered,
+  Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, ListOrdered,
   MessageSquarePlus,
 } from 'lucide-react'
 import { useSession, usePhases } from '../hooks/usePhases'
