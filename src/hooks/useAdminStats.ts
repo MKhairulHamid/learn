@@ -38,15 +38,18 @@ export function useAdminStats() {
 
       const [
         { count: totalUsers },
-        { count: activeToday },
         { count: totalSessions },
+        { data: loginRows },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('user_activity_logs').select('user_id', { count: 'exact', head: true })
-          .gte('created_at', today),
         supabase.from('user_progress').select('*', { count: 'exact', head: true })
           .eq('completed', true),
+        supabase.from('user_activity_logs').select('user_id')
+          .eq('action_type', 'login')
+          .gte('created_at', today),
       ])
+
+      const activeToday = new Set(loginRows?.map(r => r.user_id)).size
 
       // avg completion: completed sessions / (total users * 12 sessions)
       const maxPossible = (totalUsers ?? 0) * 12
@@ -56,7 +59,7 @@ export function useAdminStats() {
 
       setStats({
         totalUsers: totalUsers ?? 0,
-        activeToday: activeToday ?? 0,
+        activeToday,
         totalSessions: totalSessions ?? 0,
         avgCompletionRate,
       })

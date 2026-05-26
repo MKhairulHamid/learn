@@ -84,9 +84,9 @@ export default function AdminDashboard() {
                 color="blue"
               />
               <StatsCard
-                label="Active Today"
+                label="Logged In Today"
                 value={statsLoading ? '—' : stats?.activeToday ?? 0}
-                sub="unique sessions"
+                sub="unique users"
                 icon={<Activity size={16} />}
                 color="green"
               />
