@@ -218,27 +218,39 @@ function PendingFeedbackPrompt({ cohortId, lang }: {
   const { openFeedback } = useFeedbackModal()
   if (loading || pendingSessions.length === 0) return null
 
-  const first = pendingSessions[0]
   const count = pendingSessions.length
 
   return (
-    <button
-      onClick={() => openFeedback({
-        sessionId: first.id,
-        cohortId,
-        sessionTitle: lang === 'id' ? first.title_id : first.title_en,
-      })}
-      className="w-full flex items-center gap-3 mt-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200 px-4 py-3 text-left"
-    >
-      <MessageSquarePlus size={16} className="text-amber-600 shrink-0" />
-      <span className="flex-1 text-sm text-amber-800">
-        {count === 1
-          ? <>Rate the live session: <span className="font-medium">{lang === 'id' ? first.title_id : first.title_en}</span></>
-          : <><span className="font-medium">{count} live sessions</span> awaiting your feedback</>
-        }
-      </span>
-      <ArrowRight size={14} className="text-amber-600 shrink-0" />
-    </button>
+    <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-amber-200">
+        <MessageSquarePlus size={14} className="text-amber-600 shrink-0" />
+        <span className="text-xs font-semibold text-amber-800">
+          {count === 1 ? 'Live session awaiting your feedback' : `${count} live sessions awaiting your feedback`}
+        </span>
+      </div>
+      {/* One row per pending session */}
+      <div className="divide-y divide-amber-100">
+        {pendingSessions.map(session => (
+          <button
+            key={session.id}
+            onClick={() => openFeedback({
+              sessionId: session.id,
+              cohortId,
+              sessionTitle: lang === 'id' ? session.title_id : session.title_en,
+            })}
+            className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-amber-100 transition-colors text-left"
+          >
+            <span className="flex-1 text-sm text-amber-900 font-medium truncate">
+              {lang === 'id' ? session.title_id : session.title_en}
+            </span>
+            <span className="text-xs text-amber-600 font-medium shrink-0 flex items-center gap-1">
+              Rate <ArrowRight size={12} />
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 
