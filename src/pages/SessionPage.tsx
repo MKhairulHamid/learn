@@ -36,6 +36,7 @@ export default function SessionPage() {
   const location = useLocation()
   const { user } = useAuth()
   const exercisesRef = useRef<HTMLDivElement>(null)
+  const feedbackRef = useRef<HTMLDivElement>(null)
   const { session: fetched, programId, loading } = useSession(id)
   const { isCompleted, markComplete } = useProgress()
   const cohort = useCohort()
@@ -411,8 +412,22 @@ export default function SessionPage() {
         {id && <SessionExercises sessionId={id} lang={lang} />}
       </div>
 
+      {/* Feedback form — above the completion CTA so students see it before the button */}
+      {id && (
+        <div ref={feedbackRef}>
+          <FeedbackPanel
+            feedbackOpen={feedback.feedbackOpen}
+            submission={feedback.submission}
+            loading={feedback.loading}
+            submitting={feedback.submitting}
+            error={feedback.error}
+            submitFeedback={feedback.submitFeedback}
+          />
+        </div>
+      )}
+
       {/* ── Session completion CTA ────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 flex items-center justify-between gap-4 flex-wrap">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 mt-6 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {prevSession ? (
             <Button variant="outline" size="sm" onClick={() => navigate(`/session/${prevSession.id}`)}>
@@ -430,10 +445,13 @@ export default function SessionPage() {
         <div className="flex items-center gap-3">
           {!done ? (
             feedbackRequired ? (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+              <button
+                onClick={() => feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-sm text-amber-800 transition-colors cursor-pointer"
+              >
                 <MessageSquarePlus size={16} className="shrink-0 text-amber-600" />
-                Fill in the feedback form below to complete this session
-              </div>
+                Fill in the session feedback first ↑
+              </button>
             ) : (
               <Button
                 size="lg"
@@ -468,18 +486,6 @@ export default function SessionPage() {
           )}
         </div>
       </div>
-
-      {/* Feedback — only visible when admin has opened the window */}
-      {id && (
-        <FeedbackPanel
-          feedbackOpen={feedback.feedbackOpen}
-          submission={feedback.submission}
-          loading={feedback.loading}
-          submitting={feedback.submitting}
-          error={feedback.error}
-          submitFeedback={feedback.submitFeedback}
-        />
-      )}
 
       {/* Discussion — sits below the completion CTA as a bonus section */}
       {id && <DiscussionPanel sessionId={id} />}
