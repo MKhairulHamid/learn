@@ -53,14 +53,39 @@ export function useDashboardPrograms() {
     if (!user) { setPrograms([]); setEnrolled([]); setAvailable([]); setLoading(false); return }
     setLoading(true)
 
-    const [{ data: progData }, { data: enrData }, { data: openData }] = await Promise.all([
+    const [
+      { data: progData, error: progErr },
+      { data: rawEnrData, error: enrErr },
+      { data: openData },
+    ] = await Promise.all([
       supabase.from('programs').select('*').eq('is_published', true).order('order_num'),
-      supabase.from('cohort_enrollments').select('*, cohort:cohorts(*)').eq('user_id', user.id),
+      // Fetch enrollments without the cohort join — the cohorts RLS (is_published = true)
+      // would silently null-out the join for unpublished cohorts, hiding real enrollments.
+      supabase.from('cohort_enrollments').select('*').eq('user_id', user.id),
       supabase.from('cohorts').select('*').eq('is_published', true).eq('admission_open', true),
     ])
 
+    if (progErr) console.error('[useDashboardPrograms] programs query failed:', progErr)
+    if (enrErr) console.error('[useDashboardPrograms] enrollments query failed:', enrErr)
+
+    const rawEnrollments = (rawEnrData as CohortEnrollment[] | null) ?? []
+
+    // Fetch cohorts for those enrollments separately — bypass the is_published RLS gate
+    // by querying with the exact IDs the user is enrolled in.
+    const rawCohortIds = [...new Set(rawEnrollments.map(e => e.cohort_id))]
+    const { data: cohortData, error: cohortErr } = rawCohortIds.length > 0
+      ? await supabase.from('cohorts').select('*').in('id', rawCohortIds)
+      : { data: [] as Cohort[], error: null }
+    if (cohortErr) console.error('[useDashboardPrograms] cohorts query failed:', cohortErr)
+
+    const cohortById = new Map<string, Cohort>(
+      ((cohortData as Cohort[] | null) ?? []).map(c => [c.id, c]),
+    )
+    const enrollments: EnrollmentWithCohort[] = rawEnrollments
+      .map(e => ({ ...e, cohort: cohortById.get(e.cohort_id)! }))
+      .filter(e => !!e.cohort)
+
     const allPrograms = (progData as Program[] | null) ?? []
-    const enrollments = (enrData as EnrollmentWithCohort[] | null) ?? []
     const openCohorts = (openData as Cohort[] | null) ?? []
     setPrograms(allPrograms)
 

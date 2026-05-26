@@ -57,10 +57,24 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Editors browse every program; students see their enrolled programs. */}
-      {isEditor ? (
+      {/* Enrolled programs — shown for everyone, including editors */}
+      {enrolled.length > 0 && (
         <section className="mb-8">
           <h2 className="text-base font-semibold text-gray-800 mb-4">{t('dashboard.my_programs')}</h2>
+          <div className="space-y-5">
+            {enrolled.map(ep => (
+              <EnrolledCard key={ep.program.id} ep={ep} lang={lang} t={t} onNavigate={navigate} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Editors get quick-access buttons for all programs they can manage */}
+      {isEditor && available.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-base font-semibold text-gray-800 mb-4">
+            {enrolled.length > 0 ? t('dashboard.explore_programs') : t('dashboard.my_programs')}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {available.map(ap => (
               <button
@@ -80,35 +94,28 @@ export default function Dashboard() {
             ))}
           </div>
         </section>
-      ) : (
-        <>
-          <section className="mb-8">
-            <h2 className="text-base font-semibold text-gray-800 mb-4">{t('dashboard.my_programs')}</h2>
-            {enrolled.length > 0 ? (
-              <div className="space-y-5">
-                {enrolled.map(ep => (
-                  <EnrolledCard key={ep.program.id} ep={ep} lang={lang} t={t} onNavigate={navigate} />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center text-gray-400">
-                <Sparkles size={32} className="mx-auto mb-2 opacity-40" />
-                <p className="text-sm">{t('dashboard.not_enrolled_yet')}</p>
-              </div>
-            )}
-          </section>
+      )}
 
-          {available.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-base font-semibold text-gray-800 mb-4">{t('dashboard.explore_programs')}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {available.map(ap => (
-                  <AvailableCard key={ap.program.id} ap={ap} lang={lang} t={t} onEnroll={enroll} />
-                ))}
-              </div>
-            </section>
-          )}
-        </>
+      {/* Students: empty state + available programs to enroll in */}
+      {!isEditor && enrolled.length === 0 && (
+        <section className="mb-8">
+          <h2 className="text-base font-semibold text-gray-800 mb-4">{t('dashboard.my_programs')}</h2>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center text-gray-400">
+            <Sparkles size={32} className="mx-auto mb-2 opacity-40" />
+            <p className="text-sm">{t('dashboard.not_enrolled_yet')}</p>
+          </div>
+        </section>
+      )}
+
+      {!isEditor && available.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-base font-semibold text-gray-800 mb-4">{t('dashboard.explore_programs')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {available.map(ap => (
+              <AvailableCard key={ap.program.id} ap={ap} lang={lang} t={t} onEnroll={enroll} />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   )
