@@ -23,7 +23,7 @@ export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, e
       <div className="flex items-center gap-2 mb-3">
         <MessageSquarePlus size={16} className="text-primary-600" />
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          Session Feedback
+          Live Session Feedback
         </h2>
       </div>
       {submission ? <SubmittedState /> : (
@@ -38,9 +38,9 @@ export function SubmittedState() {
     <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex items-center gap-4">
       <CheckCircle2 size={32} className="text-green-500 shrink-0" />
       <div>
-        <p className="text-sm font-semibold text-green-800">Thanks for your feedback!</p>
+        <p className="text-sm font-semibold text-green-800">Thanks for your live session feedback!</p>
         <p className="text-xs text-green-600 mt-0.5">
-          Your response has been recorded. It helps us improve future sessions.
+          Your response has been recorded and will help us improve future live sessions.
         </p>
       </div>
     </div>
@@ -143,60 +143,63 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
 
   return (
     <form onSubmit={handleSubmit} className="overflow-hidden">
-      {/* Section 1: Materials */}
+      {/* Section 1: Live Session Materials */}
       <div className="pb-5 mb-5 border-b border-gray-100">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
-          Session Materials
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+          Live Session Materials
         </p>
+        <p className="text-[11px] text-gray-400 mb-4">Rate the content covered during the live session</p>
         <div className="space-y-4">
-          <StarRating label="How would you rate the quality of the session content?"
+          <StarRating label="How would you rate the quality of the live session content?"
             value={draft.rating_materials} onChange={v => setRating('rating_materials', v)} />
-          <StarRating label="How useful were the exercises and activities?"
+          <StarRating label="How useful were the in-session activities and discussions?"
             value={draft.rating_exercises} onChange={v => setRating('rating_exercises', v)} />
         </div>
       </div>
 
       {/* Section 2: Mentor */}
       <div className="pb-5 mb-5 border-b border-gray-100">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
-          Mentor
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+          Mentor / Instructor
         </p>
+        <p className="text-[11px] text-gray-400 mb-4">Rate how the mentor conducted the live session</p>
         <div className="space-y-4">
-          <StarRating label="How clearly did the mentor explain the concepts?"
+          <StarRating label="How clearly did the mentor explain the concepts during the live session?"
             value={draft.rating_mentor_clarity} onChange={v => setRating('rating_mentor_clarity', v)} />
-          <StarRating label="How well did the mentor manage the class and pacing?"
+          <StarRating label="How well did the mentor manage the class flow and timing?"
             value={draft.rating_mentor_management} onChange={v => setRating('rating_mentor_management', v)} />
-          <StarRating label="How responsive was the mentor to questions?"
+          <StarRating label="How responsive was the mentor to questions during the session?"
             value={draft.rating_mentor_engagement} onChange={v => setRating('rating_mentor_engagement', v)} />
         </div>
       </div>
 
       {/* Section 3: Overall */}
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
-          Overall
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+          Overall Live Session
         </p>
+        <p className="text-[11px] text-gray-400 mb-4">Your overall impression of this live session</p>
         <div className="space-y-4">
-          <StarRating label="Overall, how satisfied are you with this session?"
+          <StarRating label="Overall, how satisfied are you with this live session?"
             value={draft.rating_overall} onChange={v => setRating('rating_overall', v)} />
           <div>
             <label className="text-xs text-gray-600 mb-1.5 block">
-              What was the most valuable part of this session? <span className="text-red-400">*</span>
+              What was the most valuable part of this live session? <span className="text-red-400">*</span>
             </label>
             <textarea rows={2} value={draft.comment_highlight}
               onChange={e => setText('comment_highlight', e.target.value)}
-              placeholder="What stood out to you? What will you apply?"
+              placeholder="What stood out during the live session? What will you apply?"
               className={inputCls} />
           </div>
           <div>
-            <label className="text-xs text-gray-600 mb-1.5 block">What could be improved?</label>
+            <label className="text-xs text-gray-600 mb-1.5 block">What could be improved in future live sessions?</label>
             <textarea rows={2} value={draft.comment_improve}
               onChange={e => setText('comment_improve', e.target.value)}
-              placeholder="Pace, content depth, exercises, delivery…"
+              placeholder="Pace, depth of discussion, class interaction, delivery…"
               className={inputCls} />
           </div>
           <div>
-            <label className="text-xs text-gray-600 mb-1.5 block">Any other comments?</label>
+            <label className="text-xs text-gray-600 mb-1.5 block">Any other comments for the mentor or organiser?</label>
             <textarea rows={2} value={draft.comment_other}
               onChange={e => setText('comment_other', e.target.value)}
               placeholder="Anything else you'd like to share…"

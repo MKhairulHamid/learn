@@ -289,7 +289,7 @@ export default function CurriculumPage() {
                                 }}
                                 className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
                               >
-                                <MessageSquarePlus size={11} /> Feedback needed
+                                <MessageSquarePlus size={11} /> Rate live session
                               </button>
                             )}
                           </div>

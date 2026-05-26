@@ -441,7 +441,7 @@ export default function SessionPage() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-sm font-medium text-amber-800 transition-colors cursor-pointer"
               >
                 <MessageSquarePlus size={16} className="shrink-0 text-amber-600" />
-                Give session feedback to complete
+                Rate the live session to complete
               </button>
             ) : (
               <Button

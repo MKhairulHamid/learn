@@ -51,7 +51,7 @@ export function FeedbackModal({ sessionId, cohortId, sessionTitle, onClose, onSu
               <MessageSquarePlus size={16} className="text-primary-600" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-gray-900">Session Feedback</h2>
+              <h2 className="text-sm font-semibold text-gray-900">Live Session Feedback</h2>
               {sessionTitle && (
                 <p className="text-xs text-gray-500 truncate max-w-[280px]">{sessionTitle}</p>
               )}

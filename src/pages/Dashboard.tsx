@@ -233,8 +233,8 @@ function PendingFeedbackPrompt({ cohortId, lang }: {
       <MessageSquarePlus size={16} className="text-amber-600 shrink-0" />
       <span className="flex-1 text-sm text-amber-800">
         {count === 1
-          ? <>Feedback needed: <span className="font-medium">{lang === 'id' ? first.title_id : first.title_en}</span></>
-          : <><span className="font-medium">{count} sessions</span> awaiting your feedback</>
+          ? <>Rate the live session: <span className="font-medium">{lang === 'id' ? first.title_id : first.title_en}</span></>
+          : <><span className="font-medium">{count} live sessions</span> awaiting your feedback</>
         }
       </span>
       <ArrowRight size={14} className="text-amber-600 shrink-0" />
