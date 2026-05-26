@@ -157,6 +157,7 @@ export function usePendingFeedback(cohortId: string | null) {
 
   useEffect(() => {
     if (!cohortId || !user) { setLoading(false); return }
+    const userId = user.id
     let cancelled = false
 
     async function load() {
@@ -176,7 +177,7 @@ export function usePendingFeedback(cohortId: string | null) {
         .from('session_feedback')
         .select('session_id')
         .eq('cohort_id', cohortId)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .in('session_id', openIds)
 
       const submittedIds = new Set(((submitted ?? []) as { session_id: string }[]).map(r => r.session_id))
