@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight, ChevronDown, ChevronUp,
   Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, Info, ListOrdered,
+  MessageSquarePlus,
 } from 'lucide-react'
 import { useSession, usePhases } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
@@ -17,6 +18,7 @@ import { SessionPlayground } from '../components/exercises/SessionPlayground'
 import { SessionExercises } from '../components/exercises/SessionExercises'
 import { DiscussionPanel } from '../components/discussion/DiscussionPanel'
 import { FeedbackPanel } from '../components/feedback/FeedbackPanel'
+import { useFeedback } from '../hooks/useFeedback'
 import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
@@ -67,6 +69,9 @@ export default function SessionPage() {
   const session = draft ?? fetched
 
   const done = id ? isCompleted(id) : false
+  const feedback = useFeedback(id, cohort.cohortId)
+  // Block completion when the feedback window is open and the student hasn't submitted yet.
+  const feedbackRequired = feedback.feedbackOpen && !feedback.submission
   const title = session ? (lang === 'id' ? session.title_id : session.title_en) : ''
   const content = session ? (lang === 'id' ? session.content_id : session.content_en) : ''
 
@@ -424,14 +429,21 @@ export default function SessionPage() {
 
         <div className="flex items-center gap-3">
           {!done ? (
-            <Button
-              size="lg"
-              onClick={() => id && markComplete(id)}
-              className="gap-2"
-            >
-              <CheckCircle2 size={18} />
-              {t('common.complete')}
-            </Button>
+            feedbackRequired ? (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+                <MessageSquarePlus size={16} className="shrink-0 text-amber-600" />
+                Fill in the feedback form below to complete this session
+              </div>
+            ) : (
+              <Button
+                size="lg"
+                onClick={() => id && markComplete(id)}
+                className="gap-2"
+              >
+                <CheckCircle2 size={18} />
+                {t('common.complete')}
+              </Button>
+            )
           ) : (
             <div className="flex items-center gap-3">
               <span className="text-sm text-green-600 font-medium flex items-center gap-1">
@@ -458,7 +470,16 @@ export default function SessionPage() {
       </div>
 
       {/* Feedback — only visible when admin has opened the window */}
-      {id && <FeedbackPanel sessionId={id} />}
+      {id && (
+        <FeedbackPanel
+          feedbackOpen={feedback.feedbackOpen}
+          submission={feedback.submission}
+          loading={feedback.loading}
+          submitting={feedback.submitting}
+          error={feedback.error}
+          submitFeedback={feedback.submitFeedback}
+        />
+      )}
 
       {/* Discussion — sits below the completion CTA as a bonus section */}
       {id && <DiscussionPanel sessionId={id} />}

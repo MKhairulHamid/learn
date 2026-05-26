@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { Star, CheckCircle2, MessageSquarePlus, Loader2 } from 'lucide-react'
-import { useFeedback, type FeedbackDraft } from '../../hooks/useFeedback'
-import { useCohort } from '../../hooks/useCohort'
+import type { FeedbackDraft } from '../../hooks/useFeedback'
+import type { SessionFeedback } from '../../types'
 
-interface Props {
-  sessionId: string
+export interface FeedbackPanelProps {
+  feedbackOpen: boolean
+  submission: SessionFeedback | null
+  loading: boolean
+  submitting: boolean
+  error: string | null
+  submitFeedback: (d: FeedbackDraft) => Promise<{ error: string | null }>
 }
 
-export function FeedbackPanel({ sessionId }: Props) {
-  const { cohortId } = useCohort()
-  const { feedbackOpen, submission, loading, submitting, error, submitFeedback } = useFeedback(sessionId, cohortId)
-
+export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, error, submitFeedback }: FeedbackPanelProps) {
   if (loading) return null
   if (!feedbackOpen) return null
 
