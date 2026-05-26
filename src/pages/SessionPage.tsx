@@ -289,55 +289,48 @@ export default function SessionPage() {
           <>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
               {/* Date row */}
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
-                    <CalendarDays size={18} className="text-primary-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Live session</p>
-                    <p className="text-sm font-semibold text-gray-800">
-                      {fmtLong(sched.scheduled_date)}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
+                  <CalendarDays size={18} className="text-primary-600" />
                 </div>
-
-                {/* Join Live + Copy */}
-                {sched.zoom_link && (
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={sched.zoom_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors"
-                    >
-                      <Video size={15} /> Join Live
-                    </a>
-                    <button
-                      onClick={() => copyLiveLink(sched.zoom_link!)}
-                      title="Copy live link"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                    >
-                      {copied ? <Check size={15} className="text-green-500" /> : <Copy size={15} />}
-                      {copied ? 'Copied!' : 'Copy link'}
-                    </button>
-                  </div>
-                )}
+                <div>
+                  <p className="text-xs text-gray-400">Live session</p>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {fmtLong(sched.scheduled_date)}
+                  </p>
+                </div>
               </div>
-
-              {/* Reminder note */}
-              {sched.zoom_link && (
-                <div className="mt-3 flex items-start gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                  <Info size={13} className="shrink-0 mt-0.5 text-gray-400" />
-                  <span>The live link is also available in your cohort's schedule. Share it only with enrolled learners.</span>
-                </div>
-              )}
 
               {/* Recording section */}
               <div className="mt-5 border-t border-gray-100 pt-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                  <PlayCircle size={13} /> Session Recording
-                </p>
+                {/* Header row — label left, feedback button right */}
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                    <PlayCircle size={13} /> Session Recording
+                  </p>
+                  {/* Feedback button anchored to top-right of this section */}
+                  {isPast && !feedback.loading && (
+                    feedback.submission ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 border border-green-100 rounded-full px-2.5 py-1 shrink-0">
+                        <CheckCircle2 size={12} /> Rated
+                      </span>
+                    ) : feedback.feedbackOpen ? (
+                      <button
+                        onClick={() => id && cohort.cohortId && openFeedback({
+                          sessionId: id,
+                          cohortId: cohort.cohortId!,
+                          sessionTitle: title,
+                          onSubmitted: feedback.refetch,
+                        })}
+                        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-colors shrink-0"
+                      >
+                        <MessageSquarePlus size={13} />
+                        Rate this session
+                      </button>
+                    ) : null
+                  )}
+                </div>
+
                 {embedUrl ? (
                   <div className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingTop: '56.25%' }}>
                     <iframe
@@ -358,53 +351,45 @@ export default function SessionPage() {
                     <PlayCircle size={15} /> Watch Recording
                   </a>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-5">
-                    <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
-                      <PlayCircle size={18} className="text-gray-400" />
+                  <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
+                        <PlayCircle size={18} className="text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          {isPast ? 'Recording coming soon' : 'Recording not yet available'}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {isPast
+                            ? 'The recording will be posted here shortly after the session.'
+                            : 'After the live session, the recording will appear here.'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">
-                        {isPast ? 'Recording coming soon' : 'Recording not yet available'}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {isPast
-                          ? 'The recording will be posted here shortly after the session.'
-                          : 'After the live session, the recording will appear here.'}
-                      </p>
-                    </div>
+                    {/* Upcoming session — Join / Copy link (link comes from DB) */}
+                    {!isPast && sched.zoom_link && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 flex items-center gap-2 flex-wrap">
+                        <a
+                          href={sched.zoom_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                        >
+                          <Video size={15} /> Join Live Session
+                        </a>
+                        <button
+                          onClick={() => copyLiveLink(sched.zoom_link!)}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-white transition-colors"
+                        >
+                          {copied ? <Check size={15} className="text-green-500" /> : <Copy size={15} />}
+                          {copied ? 'Copied!' : 'Copy link'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-
-              {/* Live session feedback — shown after the session date */}
-              {isPast && !feedback.loading && (
-                <div className="mt-5 border-t border-gray-100 pt-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                    <MessageSquarePlus size={13} /> Live Session Feedback
-                  </p>
-                  {feedback.submission ? (
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <CheckCircle2 size={16} className="shrink-0" />
-                      You've rated this live session — thank you!
-                    </div>
-                  ) : feedback.feedbackOpen ? (
-                    <button
-                      onClick={() => id && cohort.cohortId && openFeedback({
-                        sessionId: id,
-                        cohortId: cohort.cohortId!,
-                        sessionTitle: title,
-                        onSubmitted: feedback.refetch,
-                      })}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-50 hover:bg-primary-100 border border-primary-200 text-sm font-medium text-primary-700 transition-colors"
-                    >
-                      <MessageSquarePlus size={15} />
-                      Rate this live session
-                    </button>
-                  ) : (
-                    <p className="text-xs text-gray-400">Feedback for this session is currently closed.</p>
-                  )}
-                </div>
-              )}
             </div>
           </>
         )
