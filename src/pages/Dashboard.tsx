@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  ArrowRight, CheckCircle2, Clock, CalendarDays, Sparkles, Lock,
+  ArrowRight, CheckCircle2, Clock, CalendarDays, Sparkles, Lock, MessageSquarePlus,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import {
   useDashboardPrograms, type EnrolledProgram, type AvailableProgram,
 } from '../hooks/useDashboardPrograms'
+import { usePendingFeedback } from '../hooks/useFeedback'
 import { LESSON_ZERO_ID } from '../lib/constants'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Button } from '../components/ui/Button'
@@ -166,6 +167,9 @@ function EnrolledCard({ ep, lang, t, onNavigate }: {
         <ProgressBar value={completedCount} max={totalSessions || 1} label={progressLabel} />
       </div>
 
+      {/* Pending feedback prompt */}
+      <PendingFeedbackPrompt cohortId={cohort.id} lang={lang} onNavigate={onNavigate} />
+
       {/* Update — next lesson or status hint */}
       <div className="mt-4">
         {nextSession ? (
@@ -203,6 +207,32 @@ function EnrolledCard({ ep, lang, t, onNavigate }: {
         </div>
       )}
     </div>
+  )
+}
+
+function PendingFeedbackPrompt({ cohortId, lang, onNavigate }: {
+  cohortId: string; lang: Lang; onNavigate: (to: string) => void
+}) {
+  const { pendingSessions, loading } = usePendingFeedback(cohortId)
+  if (loading || pendingSessions.length === 0) return null
+
+  const first = pendingSessions[0]
+  const count = pendingSessions.length
+
+  return (
+    <button
+      onClick={() => onNavigate(`/session/${first.id}`)}
+      className="w-full flex items-center gap-3 mt-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200 px-4 py-3 text-left"
+    >
+      <MessageSquarePlus size={16} className="text-amber-600 shrink-0" />
+      <span className="flex-1 text-sm text-amber-800">
+        {count === 1
+          ? <>Feedback needed: <span className="font-medium">{lang === 'id' ? first.title_id : first.title_en}</span></>
+          : <><span className="font-medium">{count} sessions</span> awaiting your feedback</>
+        }
+      </span>
+      <ArrowRight size={14} className="text-amber-600 shrink-0" />
+    </button>
   )
 }
 

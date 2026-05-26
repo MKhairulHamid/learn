@@ -3,11 +3,12 @@ import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle2, Clock, ChevronDown, ChevronUp, Lock, PlayCircle,
-  CalendarDays, Sparkles, ArrowLeft,
+  CalendarDays, Sparkles, ArrowLeft, MessageSquarePlus,
 } from 'lucide-react'
 import { usePhases, usePrograms } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
 import { useCohort } from '../hooks/useCohort'
+import { usePendingFeedback } from '../hooks/useFeedback'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { Badge } from '../components/ui/Badge'
 import { CohortNotice } from '../components/cohort/CohortNotice'
@@ -50,6 +51,7 @@ export default function CurriculumPage() {
 
   const { phases, orientation, loading } = usePhases(programId)
   const { isCompleted, loading: progressLoading } = useProgress()
+  const { pendingSessionIds } = usePendingFeedback(cohort.cohortId)
   const [expandedPhase, setExpandedPhase] = useState<number>(1)
 
   // Per-program progress (sessions vary across programs).
@@ -272,6 +274,11 @@ export default function CurriculumPage() {
                             <Badge variant={done ? 'success' : 'gray'} size="sm">
                               {done ? t('common:common.completed') : session.unit_skkni}
                             </Badge>
+                            {pendingSessionIds.has(session.id) && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                <MessageSquarePlus size={11} /> Feedback needed
+                              </span>
+                            )}
                           </div>
                           <p className="mt-0.5 text-sm font-medium text-gray-800 line-clamp-2">
                             {sessionTitle(session)}

@@ -141,6 +141,70 @@ export function useFeedbackAdmin(cohortId: string | null, sessionId?: string | n
   return { rows, stats, loading, refetch }
 }
 
+// ── Student: sessions with open feedback window not yet submitted ───
+
+export interface PendingFeedbackSession {
+  id: string
+  title_en: string
+  title_id: string
+}
+
+export function usePendingFeedback(cohortId: string | null) {
+  const { user } = useAuth()
+  const [pendingSessionIds, setPendingSessionIds] = useState<Set<string>>(new Set())
+  const [pendingSessions, setPendingSessions] = useState<PendingFeedbackSession[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!cohortId || !user) { setLoading(false); return }
+    let cancelled = false
+
+    async function load() {
+      const { data: openSchedules } = await supabase
+        .from('cohort_lesson_schedule')
+        .select('session_id')
+        .eq('cohort_id', cohortId)
+        .eq('feedback_open', true)
+
+      const openIds = ((openSchedules ?? []) as { session_id: string }[]).map(r => r.session_id)
+      if (openIds.length === 0) {
+        if (!cancelled) { setPendingSessionIds(new Set()); setPendingSessions([]); setLoading(false) }
+        return
+      }
+
+      const { data: submitted } = await supabase
+        .from('session_feedback')
+        .select('session_id')
+        .eq('cohort_id', cohortId)
+        .eq('user_id', user.id)
+        .in('session_id', openIds)
+
+      const submittedIds = new Set(((submitted ?? []) as { session_id: string }[]).map(r => r.session_id))
+      const pendingIds = openIds.filter(id => !submittedIds.has(id))
+
+      let sessions: PendingFeedbackSession[] = []
+      if (pendingIds.length > 0) {
+        const { data } = await supabase
+          .from('sessions')
+          .select('id, title_en, title_id')
+          .in('id', pendingIds)
+        sessions = (data as PendingFeedbackSession[] | null) ?? []
+      }
+
+      if (!cancelled) {
+        setPendingSessionIds(new Set(pendingIds))
+        setPendingSessions(sessions)
+        setLoading(false)
+      }
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [cohortId, user])
+
+  return { pendingSessionIds, pendingSessions, loading }
+}
+
 function avg(rows: SessionFeedback[], key: keyof SessionFeedback): number {
   const vals = rows.map(r => r[key] as number).filter(v => typeof v === 'number')
   return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : 0
