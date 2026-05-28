@@ -237,5 +237,20 @@
     "removed_body": "Kamu telah dikeluarkan dari cohort-mu. Hubungi admin untuk informasi lebih lanjut.",
     "none_title": "Kamu belum terdaftar di cohort",
     "none_body": "Materi terbuka setelah kamu terdaftar di cohort. Pendaftaran dibuka pada periode tertentu — pantau terus untuk intake berikutnya."
+  },
+  "report": {
+    "button": "Laporkan masalah",
+    "modal_title": "Laporkan Masalah Konten",
+    "reason_label": "Apa masalahnya?",
+    "reason_incorrect": "Konten tidak benar atau menyesatkan",
+    "reason_outdated": "Informasi sudah usang",
+    "reason_broken_exercise": "Latihan rusak atau tidak berfungsi",
+    "reason_missing": "Konten tidak lengkap atau hilang",
+    "reason_other": "Lainnya",
+    "details_label": "Detail tambahan (opsional)",
+    "details_placeholder": "Jelaskan masalahnya, bagian mana yang terpengaruh, atau hal lain yang membantu kami memperbaikinya…",
+    "submit": "Kirim Laporan",
+    "submitted_title": "Laporan terkirim — terima kasih!",
+    "submitted_desc": "Kami telah menerima laporanmu dan akan segera meninjaunya. Masukanmu membantu kami menjaga akurasi konten."
   }
 }

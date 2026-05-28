@@ -237,5 +237,20 @@
     "removed_body": "You have been removed from your cohort. Contact an admin for details.",
     "none_title": "You're not enrolled in a cohort yet",
     "none_body": "Lessons open once you're enrolled in a cohort. Enrollment is available during an admission period — check back when the next intake opens."
+  },
+  "report": {
+    "button": "Report an issue",
+    "modal_title": "Report Content Issue",
+    "reason_label": "What's the issue?",
+    "reason_incorrect": "Incorrect or misleading content",
+    "reason_outdated": "Outdated information",
+    "reason_broken_exercise": "Exercise is broken or not working",
+    "reason_missing": "Content is missing or incomplete",
+    "reason_other": "Other",
+    "details_label": "Additional details (optional)",
+    "details_placeholder": "Describe what's wrong, which section is affected, or anything else that would help us fix it…",
+    "submit": "Submit Report",
+    "submitted_title": "Report submitted — thank you!",
+    "submitted_desc": "We've received your report and will review it. Your feedback helps us keep the content accurate."
   }
 }

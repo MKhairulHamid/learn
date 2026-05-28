@@ -1,19 +1,22 @@
 import { useState } from 'react'
-import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap, MessageSquarePlus } from 'lucide-react'
+import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap, MessageSquarePlus, Flag } from 'lucide-react'
 import { StatsCard } from '../../components/admin/StatsCard'
 import { ActivityFeed } from '../../components/admin/ActivityFeed'
 import { UserTable } from '../../components/admin/UserTable'
 import { ExerciseAnalyticsPanel } from '../../components/admin/ExerciseAnalyticsPanel'
 import { CohortManagerPanel } from '../../components/admin/CohortManagerPanel'
 import { FeedbackAnalyticsPanel } from '../../components/admin/FeedbackAnalyticsPanel'
+import { ContentReportsPanel } from '../../components/admin/ContentReportsPanel'
 import { useAdminStats, useActivityFeed, useUserList } from '../../hooks/useAdminStats'
+import { useContentReportsAdmin } from '../../hooks/useContentReport'
 
-type Tab = 'overview' | 'cohorts' | 'analytics' | 'feedback'
+type Tab = 'overview' | 'cohorts' | 'analytics' | 'feedback' | 'reports'
 
 export default function AdminDashboard() {
   const { stats, loading: statsLoading } = useAdminStats()
   const { feed, loading: feedLoading } = useActivityFeed()
   const { users, loading: usersLoading } = useUserList()
+  const { openCount } = useContentReportsAdmin()
   const [activeTab, setActiveTab] = useState<Tab>('overview')
 
   return (
@@ -77,6 +80,22 @@ export default function AdminDashboard() {
             >
               <MessageSquarePlus size={14} />
               Feedback
+            </button>
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'reports'
+                  ? 'border-primary-500 text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <Flag size={14} />
+              Reports
+              {openCount > 0 && (
+                <span className="ml-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                  {openCount > 9 ? '9+' : openCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -150,6 +169,10 @@ export default function AdminDashboard() {
 
         {activeTab === 'feedback' && (
           <FeedbackAnalyticsPanel />
+        )}
+
+        {activeTab === 'reports' && (
+          <ContentReportsPanel />
         )}
 
       </div>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight, ChevronDown, ChevronUp,
   Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, ListOrdered,
-  MessageSquarePlus,
+  MessageSquarePlus, Flag,
 } from 'lucide-react'
 import { useSession, usePhases } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
@@ -22,6 +22,7 @@ import { useFeedbackModal } from '../context/FeedbackModalContext'
 import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
+import { ReportContentModal } from '../components/feedback/ReportContentModal'
 
 // Long date label for a live session day, e.g. "Saturday, 14 June 2026"
 const fmtLong = (d: string, locale: string) =>
@@ -59,6 +60,7 @@ export default function SessionPage() {
   const [editing, setEditing] = useState(false)
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const copyLiveLink = (link: string) => {
     navigator.clipboard.writeText(link)
@@ -485,8 +487,28 @@ export default function SessionPage() {
         </div>
       </div>
 
+      {/* Report content — subtle link between CTA and discussion */}
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => setReportOpen(true)}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500 transition-colors"
+        >
+          <Flag size={12} />
+          {t('report.button')}
+        </button>
+      </div>
+
       {/* Discussion — sits below the completion CTA as a bonus section */}
       {id && <DiscussionPanel sessionId={id} />}
+
+      {/* Report modal */}
+      {reportOpen && id && (
+        <ReportContentModal
+          sessionId={id}
+          sessionTitle={title}
+          onClose={() => setReportOpen(false)}
+        />
+      )}
 
         </div>{/* end main content */}
       </div>{/* end flex layout */}
