@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap, MessageSquarePlus, Flag } from 'lucide-react'
+import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap, MessageSquarePlus, Flag, UserCog } from 'lucide-react'
 import { StatsCard } from '../../components/admin/StatsCard'
 import { ActivityFeed } from '../../components/admin/ActivityFeed'
 import { UserTable } from '../../components/admin/UserTable'
@@ -7,10 +7,11 @@ import { ExerciseAnalyticsPanel } from '../../components/admin/ExerciseAnalytics
 import { CohortManagerPanel } from '../../components/admin/CohortManagerPanel'
 import { FeedbackAnalyticsPanel } from '../../components/admin/FeedbackAnalyticsPanel'
 import { ContentReportsPanel } from '../../components/admin/ContentReportsPanel'
+import { ProgramManagerAdminPanel } from '../../components/admin/ProgramManagerAdminPanel'
 import { useAdminStats, useActivityFeed, useUserList } from '../../hooks/useAdminStats'
 import { useContentReportsAdmin } from '../../hooks/useContentReport'
 
-type Tab = 'overview' | 'cohorts' | 'analytics' | 'feedback' | 'reports'
+type Tab = 'overview' | 'cohorts' | 'analytics' | 'feedback' | 'reports' | 'program-managers'
 
 export default function AdminDashboard() {
   const { stats, loading: statsLoading } = useAdminStats()
@@ -97,6 +98,17 @@ export default function AdminDashboard() {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('program-managers')}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'program-managers'
+                  ? 'border-primary-500 text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <UserCog size={14} />
+              Program Managers
+            </button>
           </div>
         </div>
       </div>
@@ -173,6 +185,10 @@ export default function AdminDashboard() {
 
         {activeTab === 'reports' && (
           <ContentReportsPanel />
+        )}
+
+        {activeTab === 'program-managers' && (
+          <ProgramManagerAdminPanel />
         )}
 
       </div>
