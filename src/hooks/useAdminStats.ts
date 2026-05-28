@@ -131,13 +131,24 @@ export function useActivityFeed() {
   const [loading, setLoading] = useState(true)
 
   const fetchFeed = useCallback(async () => {
-    const { data } = await supabase
+    const { data: logs } = await supabase
       .from('user_activity_logs')
-      .select('*, profiles(full_name, username)')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(50)
 
-    setFeed((data ?? []) as ActivityEntry[])
+    const rows = (logs ?? []) as Omit<ActivityEntry, 'profiles'>[]
+    const userIds = [...new Set(rows.map(r => r.user_id))]
+    const { data: profileData } = userIds.length > 0
+      ? await supabase.from('profiles').select('id, full_name, username').in('id', userIds)
+      : { data: [] }
+
+    const profileById = new Map(
+      ((profileData ?? []) as { id: string; full_name: string | null; username: string | null }[])
+        .map(p => [p.id, p])
+    )
+
+    setFeed(rows.map(r => ({ ...r, profiles: profileById.get(r.user_id) ?? undefined })))
     setLoading(false)
   }, [])
 

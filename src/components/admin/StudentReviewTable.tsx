@@ -14,12 +14,6 @@ type SortDir = 'asc' | 'desc'
 type StatusFilter = 'all' | 'pending' | 'pass' | 'fail'
 type ScoreFilter = 'all' | 'below60' | '60to79' | 'above80'
 
-function scoreColor(score: number) {
-  if (score >= 80) return 'text-green-400'
-  if (score >= 60) return 'text-yellow-400'
-  return 'text-red-400'
-}
-
 function scoreBg(score: number) {
   if (score >= 80) return 'bg-green-500/10 text-green-400'
   if (score >= 60) return 'bg-yellow-500/10 text-yellow-400'
