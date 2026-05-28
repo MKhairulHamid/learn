@@ -155,6 +155,9 @@ export function usePendingFeedback(cohortId: string | null) {
   const [pendingSessionIds, setPendingSessionIds] = useState<Set<string>>(new Set())
   const [pendingSessions, setPendingSessions] = useState<PendingFeedbackSession[]>([])
   const [loading, setLoading] = useState(true)
+  const [tick, setTick] = useState(0)
+
+  const refetch = useCallback(() => setTick(t => t + 1), [])
 
   useEffect(() => {
     if (!cohortId || !user) { setLoading(false); return }
@@ -207,9 +210,9 @@ export function usePendingFeedback(cohortId: string | null) {
 
     load()
     return () => { cancelled = true }
-  }, [cohortId, user])
+  }, [cohortId, user, tick])
 
-  return { pendingSessionIds, pendingSessions, loading }
+  return { pendingSessionIds, pendingSessions, loading, refetch }
 }
 
 // null = auto (open if date passed); false = closed by admin; true = force open

@@ -242,15 +242,30 @@ export function usePMStudents(programId: string | undefined) {
     const cohortIds = Object.keys(cohortNames)
     if (cohortIds.length === 0) { setEnrollments([]); setLoading(false); return }
 
-    const { data } = await supabase
+    // No FK from cohort_enrollments → profiles (user_id points at auth.users),
+    // so profiles can't be embedded — fetch and join them separately.
+    const { data: enrollmentData } = await supabase
       .from('cohort_enrollments')
-      .select('*, profile:profiles(id, full_name, username)')
+      .select('*')
       .in('cohort_id', cohortIds)
       .order('applied_at', { ascending: false })
 
-    const rows = ((data as (CohortEnrollment & {
-      profile: { id: string; full_name: string | null; username: string | null } | null
-    })[]) ?? []).map(r => ({ ...r, cohortName: cohortNames[r.cohort_id] ?? '' }))
+    const rawEnrollments = (enrollmentData as CohortEnrollment[] | null) ?? []
+    const userIds = [...new Set(rawEnrollments.map(e => e.user_id))]
+    const { data: profileData } = userIds.length > 0
+      ? await supabase.from('profiles').select('id, full_name, username').in('id', userIds)
+      : { data: [] }
+
+    const profileById = new Map(
+      ((profileData as { id: string; full_name: string | null; username: string | null }[] | null) ?? [])
+        .map(p => [p.id, p])
+    )
+
+    const rows = rawEnrollments.map(r => ({
+      ...r,
+      profile: profileById.get(r.user_id) ?? null,
+      cohortName: cohortNames[r.cohort_id] ?? '',
+    }))
 
     setEnrollments(rows)
     setLoading(false)

@@ -214,7 +214,7 @@ function EnrolledCard({ ep, lang, t, onNavigate }: {
 function PendingFeedbackPrompt({ cohortId, lang }: {
   cohortId: string; lang: Lang
 }) {
-  const { pendingSessions, loading } = usePendingFeedback(cohortId)
+  const { pendingSessions, loading, refetch } = usePendingFeedback(cohortId)
   const { openFeedback } = useFeedbackModal()
   const { t } = useTranslation('common')
   if (loading || pendingSessions.length === 0) return null
@@ -239,6 +239,7 @@ function PendingFeedbackPrompt({ cohortId, lang }: {
               sessionId: session.id,
               cohortId,
               sessionTitle: lang === 'id' ? session.title_id : session.title_en,
+              onSubmitted: refetch,
             })}
             className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-amber-100 transition-colors text-left"
           >

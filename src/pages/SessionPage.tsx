@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Clock, CheckCircle2, BookOpen, ChevronRight, ChevronDown, ChevronUp,
   Lock, Video, CalendarDays, PlayCircle, Pencil, Copy, Check, ListOrdered,
-  MessageSquarePlus, Flag,
+  MessageSquarePlus, Flag, UserCheck,
 } from 'lucide-react'
 import { useSession, usePhases } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
@@ -37,7 +37,7 @@ export default function SessionPage() {
   const location = useLocation()
   const { user } = useAuth()
   const exercisesRef = useRef<HTMLDivElement>(null)
-  const { session: fetched, programId, loading } = useSession(id)
+  const { session: fetched, programId, mentorName, loading } = useSession(id)
   const { isCompleted, markComplete } = useProgress()
   const cohort = useCohort()
   const { setActiveProgram } = cohort
@@ -247,7 +247,7 @@ export default function SessionPage() {
               {done && <Badge variant="success" size="sm">✓ {t('common.completed')}</Badge>}
             </div>
             <h1 className="mt-3 text-xl font-bold text-gray-900 leading-snug">{title}</h1>
-            <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+            <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 flex-wrap">
               <span className="flex items-center gap-1">
                 <Clock size={14} />
                 {session.estimated_duration_minutes} {t('common.minutes')}
@@ -256,6 +256,12 @@ export default function SessionPage() {
                 <BookOpen size={14} />
                 {session.session_number === '11' ? t('session.one_project') : t('session.lesson_exercises')}
               </span>
+              {mentorName && (
+                <span className="flex items-center gap-1">
+                  <UserCheck size={14} />
+                  {mentorName}
+                </span>
+              )}
             </div>
           </div>
           {done && (
