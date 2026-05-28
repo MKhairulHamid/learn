@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { Loader2, XCircle, Printer, ArrowLeft } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import { useCertificate } from '../hooks/useCohortReview'
 
 export default function CertificatePrintPage() {
@@ -157,12 +158,19 @@ export default function CertificatePrintPage() {
               </div>
               <div style={{ fontSize: '10px', color: '#555', marginTop: '2px' }}>{issuedDate}</div>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '8px', color: '#bbb', fontFamily: 'monospace' }}>
-                ID: {certificate.id}
+            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+              <QRCodeSVG
+                value={verifyUrl}
+                size={64}
+                bgColor="#ffffff"
+                fgColor="#1e3a5f"
+                level="M"
+              />
+              <div style={{ fontSize: '7px', color: '#bbb', fontFamily: 'Arial, sans-serif' }}>
+                Scan to verify
               </div>
-              <div style={{ fontSize: '8px', color: '#bbb', marginTop: '2px' }}>
-                Verify: {verifyUrl}
+              <div style={{ fontSize: '7px', color: '#ccc', fontFamily: 'monospace' }}>
+                {certificate.id.slice(0, 8)}…
               </div>
             </div>
           </div>
