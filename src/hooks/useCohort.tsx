@@ -45,7 +45,7 @@ const CohortContext = createContext<CohortContextValue | null>(null)
  * Provided once at the app root so every page shares a single fetch.
  */
 export function CohortProvider({ children }: { children: ReactNode }) {
-  const { user, profile } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const isAdmin = profile?.role === 'admin'
   const isProgramManager = profile?.role === 'program_manager'
   // Mentors, admins, and program managers bypass cohort gating.
@@ -96,7 +96,13 @@ export function CohortProvider({ children }: { children: ReactNode }) {
     setEnrollLoading(false)
   }, [user, isEditor])
 
-  useEffect(() => { fetchCohort() }, [fetchCohort])
+  // Don't run until auth has fully resolved — otherwise profile?.role is
+  // still null and isEditor is false, which causes admins/mentors/PMs to
+  // get incorrectly auto-enrolled as pending students.
+  useEffect(() => {
+    if (authLoading) return
+    fetchCohort()
+  }, [authLoading, fetchCohort])
 
   // The "current" enrollment: prefer the active program's enrollment, else the
   // best overall (active > pending > the rest; tie-break by most recent start).

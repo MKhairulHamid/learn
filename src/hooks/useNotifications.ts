@@ -20,7 +20,7 @@ export function useNotifications() {
   const unreadCount = notifications.filter(n => !n.is_read).length
 
   const fetchNotifications = useCallback(async () => {
-    if (!user) return
+    if (!user) { setLoading(false); return }
     setLoading(true)
 
     const { data, error } = await supabase

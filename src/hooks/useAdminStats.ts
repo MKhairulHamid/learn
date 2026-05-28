@@ -25,7 +25,7 @@ export interface ActivityEntry {
   action_type: string
   metadata: Record<string, unknown>
   created_at: string
-  profiles?: { full_name: string | null; email: string | null }
+  profiles?: { full_name: string | null; username: string | null }
 }
 
 export function useAdminStats() {
@@ -42,7 +42,7 @@ export function useAdminStats() {
         { data: loginRows },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('user_progress').select('*', { count: 'exact', head: true })
+        supabase.from('cohort_session_progress').select('*', { count: 'exact', head: true })
           .eq('completed', true),
         supabase.from('user_activity_logs').select('user_id')
           .eq('action_type', 'login')
@@ -51,10 +51,10 @@ export function useAdminStats() {
 
       const activeToday = new Set(loginRows?.map(r => r.user_id)).size
 
-      // avg completion: completed sessions / (total users * 12 sessions)
-      const maxPossible = (totalUsers ?? 0) * 12
-      const avgCompletionRate = maxPossible > 0
-        ? Math.round(((totalSessions ?? 0) / maxPossible) * 100)
+      // avg completion: completed sessions across all cohorts / total users
+      // A rough platform-wide health metric — not per-cohort.
+      const avgCompletionRate = (totalUsers ?? 0) > 0 && (totalSessions ?? 0) > 0
+        ? Math.min(100, Math.round(((totalSessions ?? 0) / (totalUsers ?? 1)) * 10))
         : 0
 
       setStats({
@@ -79,7 +79,7 @@ export function useUserList() {
     async function load() {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email, role, created_at')
+        .select('id, full_name, role, created_at')
         .order('created_at', { ascending: false })
 
       if (!profiles) { setLoading(false); return }
@@ -90,7 +90,7 @@ export function useUserList() {
           { count: exercisesPassed },
           { data: lastLog },
         ] = await Promise.all([
-          supabase.from('user_progress').select('*', { count: 'exact', head: true })
+          supabase.from('cohort_session_progress').select('*', { count: 'exact', head: true })
             .eq('user_id', p.id).eq('completed', true),
           supabase.from('exercise_submissions').select('*', { count: 'exact', head: true })
             .eq('user_id', p.id).eq('passed', true),
@@ -100,6 +100,7 @@ export function useUserList() {
 
         return {
           ...p,
+          email: null,   // email lives in auth.users, not profiles
           sessionsCompleted: sessionsCompleted ?? 0,
           exercisesPassed: exercisesPassed ?? 0,
           lastActive: lastLog?.[0]?.created_at ?? null,
@@ -122,7 +123,7 @@ export function useActivityFeed() {
   const fetchFeed = useCallback(async () => {
     const { data } = await supabase
       .from('user_activity_logs')
-      .select('*, profiles(full_name, email, username)')
+      .select('*, profiles(full_name, username)')
       .order('created_at', { ascending: false })
       .limit(50)
 
@@ -160,7 +161,8 @@ export function useUserDetail(userId: string) {
       const [{ data: logs }, { data: prog }] = await Promise.all([
         supabase.from('user_activity_logs').select('*')
           .eq('user_id', userId).order('created_at', { ascending: false }).limit(100),
-        supabase.from('user_progress').select('session_id, completed, completed_at')
+        supabase.from('cohort_session_progress')
+          .select('session_id, completed, completed_at')
           .eq('user_id', userId),
       ])
       setActivity((logs ?? []) as ActivityEntry[])

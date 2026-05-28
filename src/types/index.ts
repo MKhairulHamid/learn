@@ -74,11 +74,11 @@ export interface ProgramManagerAssignment {
 
 export interface UserProgress {
   id: string
+  cohort_id: string
   user_id: string
   session_id: string
   completed: boolean
   completed_at: string | null
-  score: number
 }
 
 export interface Exercise {

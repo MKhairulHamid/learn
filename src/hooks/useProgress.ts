@@ -5,18 +5,16 @@ import { useCohort } from './useCohort'
 import type { UserProgress } from '../types'
 
 /**
- * Session-completion progress.
+ * Session-completion progress, scoped to the user's active cohort.
  *
- * Progress is tracked **per cohort**: an active cohort member reads and writes
- * `cohort_session_progress` scoped to their cohort, so the same learner in two
- * cohorts keeps independent progress. Users with no active cohort (admins, or
- * learners before approval) fall back to the legacy `user_progress` table.
+ * Progress is only tracked for active cohort members. Editors and admins
+ * bypass cohort gating and see empty progress (completedCount = 0).
  */
 export function useProgress() {
   const { user } = useAuth()
   const { cohortId, status, loading: cohortLoading } = useCohort()
 
-  // Only an active membership routes progress into the per-cohort table.
+  // Only an active membership has progress.
   const activeCohortId = status === 'active' ? cohortId : null
 
   const [progress, setProgress] = useState<UserProgress[]>([])
@@ -24,7 +22,7 @@ export function useProgress() {
 
   const fetchProgress = useCallback(async () => {
     if (!user) { setProgress([]); setLoading(false); return }
-    // Wait for the cohort to resolve so we query the right table.
+    // Wait for the cohort to resolve so we know whether there is an active cohort.
     if (cohortLoading) return
     setLoading(true)
 
@@ -36,11 +34,8 @@ export function useProgress() {
         .eq('cohort_id', activeCohortId)
       setProgress((data as UserProgress[]) ?? [])
     } else {
-      const { data } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', user.id)
-      setProgress((data as UserProgress[]) ?? [])
+      // No active cohort (admin, editor, pending, expired) — no tracked progress.
+      setProgress([])
     }
     setLoading(false)
   }, [user, activeCohortId, cohortLoading])
@@ -55,27 +50,17 @@ export function useProgress() {
   const completedCount = progress.filter(p => p.completed).length
 
   const markComplete = useCallback(async (sessionId: string) => {
-    if (!user) return
+    if (!user || !activeCohortId) return
 
     const completed_at = new Date().toISOString()
-    const result = activeCohortId
-      ? await supabase
-          .from('cohort_session_progress')
-          .upsert(
-            { cohort_id: activeCohortId, user_id: user.id, session_id: sessionId, completed: true, completed_at },
-            { onConflict: 'cohort_id,user_id,session_id' },
-          )
-          .select()
-          .single()
-      : await supabase
-          .from('user_progress')
-          .upsert(
-            { user_id: user.id, session_id: sessionId, completed: true, completed_at },
-            { onConflict: 'user_id,session_id' },
-          )
-          .select()
-          .single()
-    const { data, error } = result
+    const { data, error } = await supabase
+      .from('cohort_session_progress')
+      .upsert(
+        { cohort_id: activeCohortId, user_id: user.id, session_id: sessionId, completed: true, completed_at },
+        { onConflict: 'cohort_id,user_id,session_id' },
+      )
+      .select()
+      .single()
 
     if (!error && data) {
       setProgress(prev => {
