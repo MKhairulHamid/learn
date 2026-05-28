@@ -2,12 +2,16 @@
   "nav": {
     "home": "Home",
     "curriculum": "Lessons",
-    "playground": "SQL Playground",
+    "playground": "Playground",
     "dashboard": "Dashboard",
     "login": "Log In",
     "register": "Get Started",
     "logout": "Log Out",
-    "admin": "Admin"
+    "admin": "Admin",
+    "profile_settings": "Profile & Settings",
+    "admin_dashboard": "Admin Dashboard",
+    "install_app": "Install App",
+    "install": "Install"
   },
   "landing": {
     "hero_badge": "Data Analyst Career Program",
@@ -90,7 +94,8 @@
     "under_review_hint": "Application under review — explore the orientation while you wait",
     "access_ended_hint": "Your access to this course has ended.",
     "course_starts": "Course starts",
-    "unlocks_soon": "Your next lesson unlocks soon."
+    "unlocks_soon": "Your next lesson unlocks soon.",
+    "sessions_completed_of": "{{completed}}/{{total}} sessions completed"
   },
   "profile": {
     "title": "My Profile",
@@ -138,5 +143,70 @@
     "all_tests_passed": "All tests passed!",
     "tests_failed": "Some tests failed.",
     "try_again": "Try Again"
+  },
+  "session": {
+    "not_found": "Session not found.",
+    "back_to_curriculum": "Back to Curriculum",
+    "all_sessions": "All Sessions",
+    "done_count": "done",
+    "live_label": "Live session",
+    "recording_header": "Session Recording",
+    "rated": "Rated",
+    "rate_this": "Rate this session",
+    "watch_recording": "Watch Recording",
+    "recording_coming_soon": "Recording coming soon",
+    "recording_not_available": "Recording not yet available",
+    "recording_posted_soon": "The recording will be posted here shortly after the session.",
+    "recording_after_live": "After the live session, the recording will appear here.",
+    "join_live": "Join Live Session",
+    "copy_link": "Copy link",
+    "copied": "Copied!",
+    "what_youll_learn": "What you'll learn",
+    "lesson_exercises": "Lesson + exercises",
+    "one_project": "1 project",
+    "rate_live_first": "Please rate the live session above first",
+    "prev": "Prev",
+    "next_session": "Next Session",
+    "edit_lesson": "Edit lesson",
+    "lesson_unlocks_on": "This lesson unlocks on {{date}}. It pairs with the live session held that day.",
+    "lesson_unlocks_waiting": "This lesson opens once your course is underway. For now, start with the orientation lesson."
+  },
+  "curriculum_page": {
+    "start_here": "Start here",
+    "lesson_zero_desc": "Lesson 0 · Get oriented and meet your cohort",
+    "phase_complete": "Complete",
+    "rate_live": "Rate live session",
+    "unlocks": "Unlocks",
+    "locked": "Locked"
+  },
+  "feedback": {
+    "pending_one": "Live session awaiting your feedback",
+    "pending_other": "{{count}} live sessions awaiting your feedback",
+    "rate": "Rate"
+  },
+  "exercises": {
+    "practice": "Practice Exercises",
+    "count_one": "{{count}} exercise",
+    "count_other": "{{count}} exercises",
+    "passed_label": "· Passed"
+  },
+  "cohort": {
+    "enrolled": "Enrolled",
+    "course_running_ends": "Course running · ends {{date}}",
+    "course_starts_on": "Course starts {{date}}",
+    "orientation_only": "— only the orientation lesson is open until then.",
+    "pending_title": "Application under review",
+    "pending_body_with_cohort": "You've applied to {{name}}. An admin will review your enrollment soon. You can explore the orientation lesson while you wait.",
+    "pending_body": "An admin will review your enrollment soon. You can explore the orientation lesson while you wait.",
+    "open_orientation": "Open Lesson 0 — Orientation",
+    "expired_title": "Course access has ended",
+    "expired_body_with_cohort": "Your access to {{name}} has expired. Contact an admin if you need an extension.",
+    "expired_body": "Your course access has expired.",
+    "rejected_title": "Application not approved",
+    "rejected_body": "Your cohort application was not approved. Reach out to an admin if you think this is a mistake.",
+    "removed_title": "No longer in this cohort",
+    "removed_body": "You have been removed from your cohort. Contact an admin for details.",
+    "none_title": "You're not enrolled in a cohort yet",
+    "none_body": "Lessons open once you're enrolled in a cohort. Enrollment is available during an admission period — check back when the next intake opens."
   }
 }

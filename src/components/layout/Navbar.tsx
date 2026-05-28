@@ -81,7 +81,7 @@ export function Navbar() {
               </Link>
               <Link to="/playground" className={`text-sm transition-colors flex items-center gap-1 ${isActive('/playground')}`}>
                 <Gamepad2 size={14} />
-                Playground
+                {t('nav.playground')}
               </Link>
               {isAdmin && (
                 <Link
@@ -101,11 +101,11 @@ export function Navbar() {
             {canInstall && (
               <button
                 onClick={promptInstall}
-                title="Install app"
+                title={t('nav.install_app')}
                 className="flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 py-1.5 rounded-md hover:bg-primary-50 border border-primary-200"
               >
                 <Download size={15} />
-                <span className="text-xs font-medium hidden sm:inline">Install</span>
+                <span className="text-xs font-medium hidden sm:inline">{t('nav.install')}</span>
               </button>
             )}
 
@@ -166,7 +166,7 @@ export function Navbar() {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <User size={15} className="text-gray-400" />
-                      Profile & Settings
+                      {t('nav.profile_settings')}
                     </Link>
 
                     {isAdmin && (
@@ -176,7 +176,7 @@ export function Navbar() {
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <ShieldCheck size={15} className="text-yellow-500" />
-                        Admin Dashboard
+                        {t('nav.admin_dashboard')}
                       </Link>
                     )}
 
@@ -233,11 +233,11 @@ export function Navbar() {
 
               <MobileLink to="/dashboard"  icon={<LayoutDashboard size={16} />} label={t('nav.dashboard')}   onClick={() => setMobileOpen(false)} />
               <MobileLink to="/curriculum" icon={<BookOpen size={16} />}        label={t('nav.curriculum')}  onClick={() => setMobileOpen(false)} />
-              <MobileLink to="/playground" icon={<Gamepad2 size={16} />}         label="Playground"           onClick={() => setMobileOpen(false)} />
-              <MobileLink to="/profile"    icon={<User size={16} />}            label="Profile & Settings"   onClick={() => setMobileOpen(false)} />
+              <MobileLink to="/playground" icon={<Gamepad2 size={16} />}         label={t('nav.playground')}          onClick={() => setMobileOpen(false)} />
+              <MobileLink to="/profile"    icon={<User size={16} />}            label={t('nav.profile_settings')}   onClick={() => setMobileOpen(false)} />
 
               {isAdmin && (
-                <MobileLink to="/admin" icon={<ShieldCheck size={16} className="text-yellow-500" />} label="Admin Dashboard" onClick={() => setMobileOpen(false)} />
+                <MobileLink to="/admin" icon={<ShieldCheck size={16} className="text-yellow-500" />} label={t('nav.admin_dashboard')} onClick={() => setMobileOpen(false)} />
               )}
 
               <div className="h-px bg-gray-100 my-1" />
@@ -248,7 +248,7 @@ export function Navbar() {
                   className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-primary-600 hover:bg-primary-50 rounded-lg"
                 >
                   <Download size={16} />
-                  Install App
+                  {t('nav.install_app')}
                 </button>
               )}
 

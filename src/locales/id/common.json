@@ -2,12 +2,16 @@
   "nav": {
     "home": "Beranda",
     "curriculum": "Materi",
-    "playground": "SQL Playground",
+    "playground": "Playground",
     "dashboard": "Dashboard",
     "login": "Masuk",
     "register": "Mulai Belajar",
     "logout": "Keluar",
-    "admin": "Admin"
+    "admin": "Admin",
+    "profile_settings": "Profil & Pengaturan",
+    "admin_dashboard": "Dasbor Admin",
+    "install_app": "Pasang Aplikasi",
+    "install": "Pasang"
   },
   "landing": {
     "hero_badge": "Program Karir Data Analyst",
@@ -90,7 +94,8 @@
     "under_review_hint": "Pendaftaran sedang ditinjau — jelajahi orientasi sambil menunggu",
     "access_ended_hint": "Akses kamu ke kursus ini telah berakhir.",
     "course_starts": "Kursus dimulai",
-    "unlocks_soon": "Materi berikutnya akan segera terbuka."
+    "unlocks_soon": "Materi berikutnya akan segera terbuka.",
+    "sessions_completed_of": "{{completed}}/{{total}} sesi selesai"
   },
   "profile": {
     "title": "Profil Saya",
@@ -138,5 +143,70 @@
     "all_tests_passed": "Semua tes lulus!",
     "tests_failed": "Beberapa tes gagal.",
     "try_again": "Coba Lagi"
+  },
+  "session": {
+    "not_found": "Sesi tidak ditemukan.",
+    "back_to_curriculum": "Kembali ke Materi",
+    "all_sessions": "Semua Sesi",
+    "done_count": "selesai",
+    "live_label": "Sesi Live",
+    "recording_header": "Rekaman Sesi",
+    "rated": "Sudah Dinilai",
+    "rate_this": "Nilai Sesi Ini",
+    "watch_recording": "Tonton Rekaman",
+    "recording_coming_soon": "Rekaman Segera Tersedia",
+    "recording_not_available": "Rekaman Belum Tersedia",
+    "recording_posted_soon": "Rekaman akan dipublikasikan di sini sesaat setelah sesi selesai.",
+    "recording_after_live": "Setelah sesi live berlangsung, rekaman akan muncul di sini.",
+    "join_live": "Ikuti Sesi Live",
+    "copy_link": "Salin Tautan",
+    "copied": "Tersalin!",
+    "what_youll_learn": "Yang Akan Kamu Pelajari",
+    "lesson_exercises": "Materi + Latihan",
+    "one_project": "1 Proyek",
+    "rate_live_first": "Silakan nilai sesi live di atas terlebih dahulu",
+    "prev": "Sebelumnya",
+    "next_session": "Sesi Berikutnya",
+    "edit_lesson": "Edit Materi",
+    "lesson_unlocks_on": "Materi ini terbuka pada {{date}}. Materi ini sejalan dengan sesi live yang diadakan hari itu.",
+    "lesson_unlocks_waiting": "Materi ini terbuka setelah program dimulai. Untuk sementara, mulai dengan materi orientasi."
+  },
+  "curriculum_page": {
+    "start_here": "Mulai di sini",
+    "lesson_zero_desc": "Materi 0 · Kenali platform dan cohort-mu",
+    "phase_complete": "Selesai",
+    "rate_live": "Nilai sesi live",
+    "unlocks": "Terbuka",
+    "locked": "Terkunci"
+  },
+  "feedback": {
+    "pending_one": "Sesi live menunggu penilaianmu",
+    "pending_other": "{{count}} sesi live menunggu penilaianmu",
+    "rate": "Nilai"
+  },
+  "exercises": {
+    "practice": "Latihan Soal",
+    "count_one": "{{count}} latihan",
+    "count_other": "{{count}} latihan",
+    "passed_label": "· Selesai"
+  },
+  "cohort": {
+    "enrolled": "Terdaftar",
+    "course_running_ends": "Program berjalan · berakhir {{date}}",
+    "course_starts_on": "Program dimulai {{date}}",
+    "orientation_only": "— hanya materi orientasi yang terbuka sampai saat itu.",
+    "pending_title": "Pendaftaran sedang ditinjau",
+    "pending_body_with_cohort": "Kamu sudah mendaftar ke {{name}}. Admin akan meninjau pendaftaranmu sebentar lagi. Jelajahi materi orientasi sambil menunggu.",
+    "pending_body": "Admin akan meninjau pendaftaranmu sebentar lagi. Jelajahi materi orientasi sambil menunggu.",
+    "open_orientation": "Buka Materi 0 — Orientasi",
+    "expired_title": "Akses program telah berakhir",
+    "expired_body_with_cohort": "Akses kamu ke {{name}} telah berakhir. Hubungi admin jika membutuhkan perpanjangan.",
+    "expired_body": "Akses program kamu telah berakhir.",
+    "rejected_title": "Pendaftaran tidak disetujui",
+    "rejected_body": "Pendaftaran cohort-mu tidak disetujui. Hubungi admin jika kamu merasa ada kesalahan.",
+    "removed_title": "Tidak lagi dalam cohort ini",
+    "removed_body": "Kamu telah dikeluarkan dari cohort-mu. Hubungi admin untuk informasi lebih lanjut.",
+    "none_title": "Kamu belum terdaftar di cohort",
+    "none_body": "Materi terbuka setelah kamu terdaftar di cohort. Pendaftaran dibuka pada periode tertentu — pantau terus untuk intake berikutnya."
   }
 }

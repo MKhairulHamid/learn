@@ -24,8 +24,8 @@ import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
 
 // Long date label for a live session day, e.g. "Saturday, 14 June 2026"
-const fmtLong = (d: string) =>
-  new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
+const fmtLong = (d: string, locale: string) =>
+  new Date(d + 'T00:00:00').toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 
@@ -124,7 +124,7 @@ export default function SessionPage() {
   if (!session) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-500">Session not found.</p>
+        <p className="text-gray-500">{t('session.not_found')}</p>
         <Button className="mt-4" onClick={() => navigate(curriculumPath)}>
           {t('common.back')}
         </Button>
@@ -147,7 +147,7 @@ export default function SessionPage() {
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 mb-6 transition-colors"
         >
           <ArrowLeft size={16} />
-          {t('common.back')} to Curriculum
+          {t('session.back_to_curriculum')}
         </button>
 
         {cohortLevelIssue ? (
@@ -160,11 +160,11 @@ export default function SessionPage() {
             <h1 className="text-lg font-bold text-gray-900">{title}</h1>
             <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
               {sched
-                ? `This lesson unlocks on ${fmtLong(sched.scheduled_date)}. It pairs with the live session held that day.`
-                : 'This lesson opens once your course is underway. For now, start with the orientation lesson.'}
+                ? t('session.lesson_unlocks_on', { date: fmtLong(sched.scheduled_date, lang) })
+                : t('session.lesson_unlocks_waiting')}
             </p>
             <Button className="mt-5" onClick={() => navigate(curriculumPath)}>
-              Back to Curriculum
+              {t('session.back_to_curriculum')}
             </Button>
           </div>
         )}
@@ -186,7 +186,7 @@ export default function SessionPage() {
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 mb-6 transition-colors"
       >
         <ArrowLeft size={16} />
-        {t('common.back')} to Curriculum
+        {t('session.back_to_curriculum')}
       </button>
 
       {/* Mobile sessions toggle */}
@@ -196,9 +196,9 @@ export default function SessionPage() {
           className="lg:hidden flex items-center gap-2 w-full mb-4 px-4 py-3 bg-white rounded-xl border border-gray-100 shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
         >
           <ListOrdered size={16} className="text-primary-600" />
-          All Sessions
+          {t('session.all_sessions')}
           <span className="ml-auto text-xs text-gray-400">
-            {allSessions.filter(s => isCompleted(s.id)).length}/{allSessions.length} done
+            {allSessions.filter(s => isCompleted(s.id)).length}/{allSessions.length} {t('session.done_count')}
           </span>
           {sidebarOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
@@ -252,7 +252,7 @@ export default function SessionPage() {
               </span>
               <span className="flex items-center gap-1">
                 <BookOpen size={14} />
-                {session.session_number === '11' ? '1 project' : 'Lesson + exercises'}
+                {session.session_number === '11' ? t('session.one_project') : t('session.lesson_exercises')}
               </span>
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function SessionPage() {
         {learningOutput && (
           <div className="mt-4 p-4 bg-primary-50 rounded-xl border border-primary-100">
             <p className="text-xs font-semibold text-primary-700 uppercase tracking-wide mb-1">
-              What you'll learn
+              {t('session.what_youll_learn')}
             </p>
             <p className="text-sm text-primary-800">{learningOutput}</p>
           </div>
@@ -294,9 +294,9 @@ export default function SessionPage() {
                   <CalendarDays size={18} className="text-primary-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400">Live session</p>
+                  <p className="text-xs text-gray-400">{t('session.live_label')}</p>
                   <p className="text-sm font-semibold text-gray-800">
-                    {fmtLong(sched.scheduled_date)}
+                    {fmtLong(sched.scheduled_date, lang)}
                   </p>
                 </div>
               </div>
@@ -306,13 +306,13 @@ export default function SessionPage() {
                 {/* Header row — label left, feedback button right */}
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                    <PlayCircle size={13} /> Session Recording
+                    <PlayCircle size={13} /> {t('session.recording_header')}
                   </p>
                   {/* Feedback button anchored to top-right of this section */}
                   {isPast && !feedback.loading && (
                     feedback.submission ? (
                       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 border border-green-100 rounded-full px-2.5 py-1 shrink-0">
-                        <CheckCircle2 size={12} /> Rated
+                        <CheckCircle2 size={12} /> {t('session.rated')}
                       </span>
                     ) : feedback.feedbackOpen ? (
                       <button
@@ -325,7 +325,7 @@ export default function SessionPage() {
                         className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-colors shrink-0"
                       >
                         <MessageSquarePlus size={13} />
-                        Rate this session
+                        {t('session.rate_this')}
                       </button>
                     ) : null
                   )}
@@ -348,7 +348,7 @@ export default function SessionPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors w-fit"
                   >
-                    <PlayCircle size={15} /> Watch Recording
+                    <PlayCircle size={15} /> {t('session.watch_recording')}
                   </a>
                 ) : (
                   <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-5">
@@ -358,12 +358,12 @@ export default function SessionPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-500">
-                          {isPast ? 'Recording coming soon' : 'Recording not yet available'}
+                          {isPast ? t('session.recording_coming_soon') : t('session.recording_not_available')}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
                           {isPast
-                            ? 'The recording will be posted here shortly after the session.'
-                            : 'After the live session, the recording will appear here.'}
+                            ? t('session.recording_posted_soon')
+                            : t('session.recording_after_live')}
                         </p>
                       </div>
                     </div>
@@ -376,14 +376,14 @@ export default function SessionPage() {
                           rel="noopener noreferrer"
                           className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors"
                         >
-                          <Video size={15} /> Join Live Session
+                          <Video size={15} /> {t('session.join_live')}
                         </a>
                         <button
                           onClick={() => copyLiveLink(sched.zoom_link!)}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-white transition-colors"
                         >
                           {copied ? <Check size={15} className="text-green-500" /> : <Copy size={15} />}
-                          {copied ? 'Copied!' : 'Copy link'}
+                          {copied ? t('session.copied') : t('session.copy_link')}
                         </button>
                       </div>
                     )}
@@ -407,7 +407,7 @@ export default function SessionPage() {
           {cohort.isEditor && (
             <div className="flex justify-end mb-2">
               <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-                <Pencil size={14} /> Edit lesson
+                <Pencil size={14} /> {t('session.edit_lesson')}
               </Button>
             </div>
           )}
@@ -433,7 +433,7 @@ export default function SessionPage() {
           {prevSession ? (
             <Button variant="outline" size="sm" onClick={() => navigate(`/session/${prevSession.id}`)}>
               <ArrowLeft size={15} />
-              Prev
+              {t('session.prev')}
             </Button>
           ) : (
             <Button variant="outline" size="sm" onClick={() => navigate(curriculumPath)}>
@@ -448,7 +448,7 @@ export default function SessionPage() {
             feedbackRequired ? (
               <div className="flex items-center gap-2 text-sm text-amber-700">
                 <MessageSquarePlus size={15} className="shrink-0 text-amber-500" />
-                Please rate the live session above first
+                {t('session.rate_live_first')}
               </div>
             ) : (
               <Button
@@ -470,14 +470,14 @@ export default function SessionPage() {
                   variant="secondary"
                   onClick={() => navigate(`/session/${nextSession.id}`)}
                 >
-                  Next Session <ChevronRight size={16} />
+                  {t('session.next_session')} <ChevronRight size={16} />
                 </Button>
               ) : (
                 <Button
                   variant="secondary"
                   onClick={() => navigate(curriculumPath)}
                 >
-                  Back to Curriculum <ChevronRight size={16} />
+                  {t('session.back_to_curriculum')} <ChevronRight size={16} />
                 </Button>
               )}
             </div>
@@ -507,6 +507,7 @@ interface SessionSidebarProps {
 
 function SessionSidebar({ phases, currentSessionId, isCompleted, isAccessible, lang, onNavigate }: SessionSidebarProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation('common')
   const totalSessions = phases.reduce((n, p) => n + (p.sessions?.length ?? 0), 0)
   const completedCount = phases.reduce(
     (n, p) => n + (p.sessions?.filter(s => isCompleted(s.id)).length ?? 0),
@@ -517,7 +518,7 @@ function SessionSidebar({ phases, currentSessionId, isCompleted, isAccessible, l
     <div>
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-100">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Sessions</p>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('session.all_sessions')}</p>
         <div className="flex items-center gap-2 mt-1">
           <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div

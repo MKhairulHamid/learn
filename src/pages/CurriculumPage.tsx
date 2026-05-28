@@ -30,8 +30,8 @@ const PHASE_BG: Record<number, string> = {
 }
 
 // Short date label, e.g. "14 Jun"
-const fmtShort = (d: string) =>
-  new Date(d + 'T00:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+const fmtShort = (d: string, locale: string) =>
+  new Date(d + 'T00:00:00').toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' })
 
 export default function CurriculumPage() {
   const { t, i18n } = useTranslation(['common', 'curriculum'])
@@ -109,14 +109,14 @@ export default function CurriculumPage() {
       return (
         <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
           <Lock size={12} />
-          {sched ? `Unlocks ${fmtShort(sched.scheduled_date)}` : 'Locked'}
+          {sched ? `${t('common:curriculum_page.unlocks')} ${fmtShort(sched.scheduled_date, lang)}` : t('common:curriculum_page.locked')}
         </span>
       )
     }
     return (
       <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
         {sched
-          ? <><CalendarDays size={13} /> {fmtShort(sched.scheduled_date)}</>
+          ? <><CalendarDays size={13} /> {fmtShort(sched.scheduled_date, lang)}</>
           : <><Clock size={13} /> {session.estimated_duration_minutes} {t('common:common.minutes')}</>}
       </span>
     )
@@ -150,7 +150,7 @@ export default function CurriculumPage() {
           <ProgressBar
             value={programCompleted}
             max={totalSessions || 1}
-            label={`${programCompleted}/${totalSessions} sessions completed`}
+            label={`${programCompleted}/${totalSessions} ${t('common:dashboard.sessions_completed').toLowerCase()}`}
           />
         </div>
       </div>
@@ -180,12 +180,12 @@ export default function CurriculumPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="primary" size="sm">Start here</Badge>
+                <Badge variant="primary" size="sm">{t('common:curriculum_page.start_here')}</Badge>
                 {done && <Badge variant="success" size="sm">✓ {t('common:common.completed')}</Badge>}
               </div>
               <h2 className="mt-1 font-semibold text-gray-900 text-base">{sessionTitle(orientation)}</h2>
               <p className="text-xs text-gray-500 mt-0.5">
-                Lesson 0 · Get oriented and meet your cohort
+                {t('common:curriculum_page.lesson_zero_desc')}
               </p>
             </div>
             {accessible
@@ -216,8 +216,8 @@ export default function CurriculumPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="gray" size="sm">Phase {phase.phase_number}</Badge>
-                    {phaseCompleted && <Badge variant="success" size="sm">✓ Complete</Badge>}
+                    <Badge variant="gray" size="sm">{t('common:common.phase')} {phase.phase_number}</Badge>
+                    {phaseCompleted && <Badge variant="success" size="sm">✓ {t('common:curriculum_page.phase_complete')}</Badge>}
                   </div>
                   <h2 className="mt-1 font-semibold text-gray-900 text-base">{phaseName(phase)}</h2>
                   <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{phaseDesc(phase)}</p>
@@ -271,7 +271,7 @@ export default function CurriculumPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-xs font-medium text-gray-400">
-                              Session {session.session_number}
+                              {t('common:common.session')} {session.session_number}
                             </span>
                             <Badge variant={done ? 'success' : 'gray'} size="sm">
                               {done ? t('common:common.completed') : session.unit_skkni}
@@ -289,7 +289,7 @@ export default function CurriculumPage() {
                                 }}
                                 className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
                               >
-                                <MessageSquarePlus size={11} /> Rate live session
+                                <MessageSquarePlus size={11} /> {t('common:curriculum_page.rate_live')}
                               </button>
                             )}
                           </div>

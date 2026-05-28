@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Code2, ChevronRight, Trophy, CheckCircle2 } from 'lucide-react'
 import { useExercises, usePassedExerciseIds } from '../../hooks/useExercises'
 import { useAuth } from '../../context/AuthContext'
@@ -17,11 +18,11 @@ const DIFFICULTY_BADGE: Record<string, string> = {
 export function SessionExercises({ sessionId, lang = 'en' }: Props) {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation('common')
   const { exercises, loading } = useExercises(sessionId)
   const exerciseIds = exercises.map(e => e.id)
   const { passedIds } = usePassedExerciseIds(exerciseIds, user?.id)
 
-  const label = lang === 'id' ? 'Latihan Soal' : 'Practice Exercises'
   const passedCount = exerciseIds.filter(id => passedIds.has(id)).length
 
   if (loading) {
@@ -44,7 +45,7 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
         <div className="w-7 h-7 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
           <Code2 size={14} className="text-primary-600" />
         </div>
-        <h3 className="text-sm font-semibold text-gray-800">{label}</h3>
+        <h3 className="text-sm font-semibold text-gray-800">{t('exercises.practice')}</h3>
         <span className="ml-auto text-xs flex items-center gap-1.5">
           {passedCount > 0 && (
             <span className="text-green-600 font-medium flex items-center gap-1">
@@ -55,7 +56,7 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
           {passedCount === 0 && (
             <span className="text-gray-400 flex items-center gap-1">
               <Trophy size={11} />
-              {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
+              {t('exercises.count_other', { count: exercises.length })}
             </span>
           )}
         </span>
@@ -65,7 +66,9 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
       <div className="divide-y divide-gray-50">
         {exercises.map(exercise => {
           const title = lang === 'id' ? exercise.title_id : exercise.title_en
-          const diffLabel = exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1)
+          const diffLabel = lang === 'id'
+            ? t(`common.difficulty_${exercise.difficulty}`)
+            : exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1)
           const passed = passedIds.has(exercise.id)
 
           return (
@@ -90,7 +93,7 @@ export function SessionExercises({ sessionId, lang = 'en' }: Props) {
                 {title}
                 {passed && (
                   <span className="ml-2 text-xs text-green-500">
-                    {lang === 'id' ? '· Selesai' : '· Passed'}
+                    {t('exercises.passed_label')}
                   </span>
                 )}
               </span>

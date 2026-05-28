@@ -13,8 +13,8 @@ export function MobileNav() {
   const tabs = [
     { to: '/dashboard',  icon: LayoutDashboard, label: t('nav.dashboard') },
     { to: '/curriculum', icon: BookOpen,         label: t('nav.curriculum') },
-    { to: '/playground', icon: Gamepad2,         label: 'Playground' },
-    { to: '/profile',    icon: User,             label: 'Profile' },
+    { to: '/playground', icon: Gamepad2,         label: t('nav.playground') },
+    { to: '/profile',    icon: User,             label: t('nav.profile_settings') },
   ]
 
   return (

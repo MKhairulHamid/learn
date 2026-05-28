@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   Star, Users, ChevronDown, ChevronUp, TrendingUp, TrendingDown,
-  ThumbsUp, AlertTriangle, BarChart3, Lightbulb,
+  ThumbsUp, AlertTriangle, BarChart3, Lightbulb, Search, X,
 } from 'lucide-react'
 import { useFeedbackAdmin, type FeedbackRow, type FeedbackStats } from '../../hooks/useFeedback'
 import { useCohortAdmin } from '../../hooks/useCohortAdmin'
@@ -485,20 +485,155 @@ function WordFrequencySection({ rows }: { rows: FeedbackRow[] }) {
 
 // ── Individual responses ───────────────────────────────────────────────
 
+type SortKey = 'newest' | 'oldest' | 'rating_high' | 'rating_low' | 'name'
+
 function ResponseList({ rows }: { rows: FeedbackRow[] }) {
+  const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState<SortKey>('newest')
+  const [filterRating, setFilterRating] = useState<number | null>(null)
+  const [filterHasComment, setFilterHasComment] = useState(false)
+
+  const q = search.trim().toLowerCase()
+
+  const filtered = rows
+    .filter(r => {
+      if (filterRating !== null && r.rating_overall !== filterRating) return false
+      if (filterHasComment && !r.comment_highlight && !r.comment_improve && !r.comment_other) return false
+      if (q) {
+        const name = (r.profile?.full_name ?? r.profile?.email ?? '').toLowerCase()
+        const comments = [r.comment_highlight, r.comment_improve, r.comment_other]
+          .filter(Boolean).join(' ').toLowerCase()
+        if (!name.includes(q) && !comments.includes(q)) return false
+      }
+      return true
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':      return new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+        case 'oldest':      return new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime()
+        case 'rating_high': return b.rating_overall - a.rating_overall
+        case 'rating_low':  return a.rating_overall - b.rating_overall
+        case 'name': {
+          const na = (a.profile?.full_name ?? a.profile?.email ?? '').toLowerCase()
+          const nb = (b.profile?.full_name ?? b.profile?.email ?? '').toLowerCase()
+          return na.localeCompare(nb)
+        }
+        default: return 0
+      }
+    })
+
+  const hasFilters = !!q || filterRating !== null || filterHasComment
+
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-        Individual Responses
-      </p>
-      {rows.map(r => <ResponseCard key={r.id} row={r} />)}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          Individual Responses
+        </p>
+        <span className="text-[11px] text-gray-600">
+          {filtered.length !== rows.length
+            ? `${filtered.length} of ${rows.length}`
+            : `${rows.length} total`}
+        </span>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-wrap gap-2">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[180px]">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name or comment…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-7 pr-7 py-1.5 rounded-lg bg-[#0a0e1a] border border-white/10 text-sm text-gray-200 placeholder:text-gray-600 focus:outline-none focus:border-primary-500/50"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400"
+            >
+              <X size={13} />
+            </button>
+          )}
+        </div>
+
+        {/* Sort */}
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as SortKey)}
+          className={selectCls}
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="rating_high">Rating: High → Low</option>
+          <option value="rating_low">Rating: Low → High</option>
+          <option value="name">Name A → Z</option>
+        </select>
+
+        {/* Filter: Overall rating */}
+        <select
+          value={filterRating ?? ''}
+          onChange={e => setFilterRating(e.target.value ? Number(e.target.value) : null)}
+          className={selectCls}
+        >
+          <option value="">All ratings</option>
+          {[5, 4, 3, 2, 1].map(n => (
+            <option key={n} value={n}>★{n} only</option>
+          ))}
+        </select>
+
+        {/* Filter: Has comments toggle */}
+        <button
+          onClick={() => setFilterHasComment(v => !v)}
+          className={`px-3 py-1.5 rounded-lg border text-xs transition-colors whitespace-nowrap ${
+            filterHasComment
+              ? 'bg-primary-600/20 border-primary-500/40 text-primary-400'
+              : 'bg-[#0a0e1a] border-white/10 text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          With comments
+        </button>
+
+        {/* Clear all */}
+        {hasFilters && (
+          <button
+            onClick={() => { setSearch(''); setFilterRating(null); setFilterHasComment(false) }}
+            className="px-2.5 py-1.5 rounded-lg border border-white/10 text-[11px] text-gray-500 hover:text-gray-300 hover:border-white/20 transition-colors whitespace-nowrap"
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-sm text-gray-600 text-center py-10 border border-dashed border-white/[0.06] rounded-xl">
+          No responses match your filters.
+        </p>
+      ) : (
+        filtered.map(r => <ResponseCard key={r.id} row={r} searchQuery={q} />)
+      )}
     </div>
   )
 }
 
-function ResponseCard({ row }: { row: FeedbackRow }) {
+function Highlight({ text, query }: { text: string; query: string }) {
+  if (!query) return <>{text}</>
+  const idx = text.toLowerCase().indexOf(query)
+  if (idx === -1) return <>{text}</>
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-amber-400/25 text-amber-300 rounded-sm">{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  )
+}
+
+function ResponseCard({ row, searchQuery = '' }: { row: FeedbackRow; searchQuery?: string }) {
   const [expanded, setExpanded] = useState(false)
-  const name = row.profile?.full_name || row.profile?.email || 'Anonymous'
+  const nameRaw = row.profile?.full_name || row.profile?.email || 'Anonymous'
   const date = new Date(row.submitted_at).toLocaleDateString('en-US', {
     day: 'numeric', month: 'short', year: 'numeric',
   })
@@ -511,7 +646,9 @@ function ResponseCard({ row }: { row: FeedbackRow }) {
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-gray-200 font-medium truncate">{name}</span>
+            <span className="text-sm text-gray-200 font-medium truncate">
+              <Highlight text={nameRaw} query={searchQuery} />
+            </span>
             <span className="text-[11px] text-gray-500">{row.session_title}</span>
             <span className="text-[11px] text-gray-600">{date}</span>
           </div>
@@ -549,13 +686,13 @@ function ResponseCard({ row }: { row: FeedbackRow }) {
 
           <div className="space-y-3 mt-1">
             {row.comment_highlight && (
-              <Comment label="Most valuable" text={row.comment_highlight} color="green" />
+              <Comment label="Most valuable" text={row.comment_highlight} color="green" searchQuery={searchQuery} />
             )}
             {row.comment_improve && (
-              <Comment label="Could improve" text={row.comment_improve} color="amber" />
+              <Comment label="Could improve" text={row.comment_improve} color="amber" searchQuery={searchQuery} />
             )}
             {row.comment_other && (
-              <Comment label="Other comments" text={row.comment_other} color="gray" />
+              <Comment label="Other comments" text={row.comment_other} color="gray" searchQuery={searchQuery} />
             )}
           </div>
         </div>
@@ -574,8 +711,8 @@ function StarChip({ label, value }: { label: string; value: number }) {
   )
 }
 
-function Comment({ label, text, color }: {
-  label: string; text: string; color: 'green' | 'amber' | 'gray'
+function Comment({ label, text, color, searchQuery = '' }: {
+  label: string; text: string; color: 'green' | 'amber' | 'gray'; searchQuery?: string
 }) {
   const cls = color === 'green'
     ? 'bg-green-950/30 border-green-900/50 text-green-400'
@@ -585,7 +722,9 @@ function Comment({ label, text, color }: {
   return (
     <div className={`rounded-lg border px-3 py-2 ${cls}`}>
       <p className="text-[10px] font-semibold uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-xs text-gray-300 whitespace-pre-wrap">{text}</p>
+      <p className="text-xs text-gray-300 whitespace-pre-wrap">
+        <Highlight text={text} query={searchQuery} />
+      </p>
     </div>
   )
 }

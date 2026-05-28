@@ -117,7 +117,7 @@ function EnrolledProgramCard({ ep, lang, t, onOpen }: {
         <ProgressBar
           value={completedCount}
           max={totalSessions || 1}
-          label={`${completedCount}/${totalSessions} sessions completed`}
+          label={`${completedCount}/${totalSessions} ${t('dashboard.sessions_completed').toLowerCase()}`}
         />
       </div>
     </button>

@@ -216,6 +216,7 @@ function PendingFeedbackPrompt({ cohortId, lang }: {
 }) {
   const { pendingSessions, loading } = usePendingFeedback(cohortId)
   const { openFeedback } = useFeedbackModal()
+  const { t } = useTranslation('common')
   if (loading || pendingSessions.length === 0) return null
 
   const count = pendingSessions.length
@@ -226,7 +227,7 @@ function PendingFeedbackPrompt({ cohortId, lang }: {
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-amber-200">
         <MessageSquarePlus size={14} className="text-amber-600 shrink-0" />
         <span className="text-xs font-semibold text-amber-800">
-          {count === 1 ? 'Live session awaiting your feedback' : `${count} live sessions awaiting your feedback`}
+          {count === 1 ? t('feedback.pending_one') : t('feedback.pending_other', { count })}
         </span>
       </div>
       {/* One row per pending session */}
@@ -245,7 +246,7 @@ function PendingFeedbackPrompt({ cohortId, lang }: {
               {lang === 'id' ? session.title_id : session.title_en}
             </span>
             <span className="text-xs text-amber-600 font-medium shrink-0 flex items-center gap-1">
-              Rate <ArrowRight size={12} />
+              {t('feedback.rate')} <ArrowRight size={12} />
             </span>
           </button>
         ))}
