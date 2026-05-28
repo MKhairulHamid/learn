@@ -39,9 +39,11 @@ function CodeBlock({ children, className }: ComponentPropsWithoutRef<'code'>) {
   const text = String(children).trim()
   const lang = className?.replace('language-', '') ?? ''
   const isBlock = !!lang || text.includes('\n')
-  const isFlow = text.includes('→') && !className
+  const isInlineFlow = text.includes('→') && !className
+  // Vertical step diagrams: fenced block with no language that uses ↓ between steps
+  const isVerticalFlow = !lang && text.includes('↓')
 
-  if (isFlow) {
+  if (isInlineFlow) {
     const steps = text.split('→').map(s => s.trim()).filter(Boolean)
     return (
       <div className="my-4 flex flex-wrap items-center gap-2">
@@ -55,6 +57,50 @@ function CodeBlock({ children, className }: ComponentPropsWithoutRef<'code'>) {
             )}
           </span>
         ))}
+      </div>
+    )
+  }
+
+  if (isVerticalFlow) {
+    // Split on lines that are only "↓" (with optional surrounding whitespace)
+    const steps: string[] = []
+    let current = ''
+    for (const line of text.split('\n')) {
+      if (line.trim() === '↓') {
+        if (current.trim()) { steps.push(current.trim()); current = '' }
+      } else {
+        current += (current ? '\n' : '') + line
+      }
+    }
+    if (current.trim()) steps.push(current.trim())
+
+    return (
+      <div className="my-5 not-prose flex flex-col">
+        {steps.map((step, i) => {
+          const arrowIdx = step.indexOf('→')
+          const label = arrowIdx > -1 ? step.slice(0, arrowIdx).trim() : null
+          const desc  = arrowIdx > -1 ? step.slice(arrowIdx + 1).trim() : step
+          return (
+            <div key={i}>
+              <div className="bg-primary-50 border border-primary-200 rounded-xl px-4 py-3">
+                {label ? (
+                  <div className="flex flex-wrap gap-x-2 gap-y-1 items-baseline">
+                    <span className="font-bold text-primary-700 text-sm shrink-0">{label}</span>
+                    <span className="text-primary-400 shrink-0">→</span>
+                    <span className="text-gray-700 text-sm">{desc}</span>
+                  </div>
+                ) : (
+                  <p className="text-gray-700 text-sm m-0 whitespace-pre-wrap">{step}</p>
+                )}
+              </div>
+              {i < steps.length - 1 && (
+                <div className="flex justify-center py-1.5">
+                  <span className="text-primary-400 text-xl leading-none font-bold">↓</span>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     )
   }
