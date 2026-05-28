@@ -4,14 +4,14 @@ import {
   BarChart3, Users, GraduationCap, CheckCircle2, Star, Target,
   MessageSquare, TrendingUp, Layers, CalendarDays, ShieldCheck,
   Activity, XCircle, ArrowRight, Database, ShieldAlert,
-  LayoutDashboard, Lock,
+  LayoutDashboard, Lock, Clock, Wrench, CalendarCheck, Minus,
 } from 'lucide-react'
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Pitch deck — tidak muncul di navigasi. Akses via URL: #/pitch
 ───────────────────────────────────────────────────────────────────────────── */
 
-const TOTAL = 12
+const TOTAL = 15
 
 function Glow({ className }: { className: string }) {
   return <div className={`absolute pointer-events-none rounded-full blur-[130px] ${className}`} />
@@ -913,6 +913,418 @@ function Slide12() {
   )
 }
 
+// ── Slide 13 — Competitor Comparison ─────────────────────────────────────────
+
+function Slide13() {
+  const rows = [
+    {
+      label: 'Tetap pakai\nGoogle Tools',
+      cost: 'Rp 0',
+      costSub: 'tapi biaya tersembunyi',
+      cohortOps: false,
+      mentorAnalytics: false,
+      whiteLabel: false,
+      timeToValue: '—',
+      risk: 'Tinggi',
+      riskColor: 'text-red-400',
+      highlight: false,
+    },
+    {
+      label: 'TalentLMS\n/ Docebo',
+      cost: 'Rp 4–8 juta/mo',
+      costSub: 'belum termasuk setup',
+      cohortOps: false,
+      mentorAnalytics: false,
+      whiteLabel: true,
+      timeToValue: '4–8 minggu',
+      risk: 'Sedang',
+      riskColor: 'text-amber-400',
+      highlight: false,
+    },
+    {
+      label: 'Moodle\n(self-hosted)',
+      cost: 'Rp 8–25 juta/mo',
+      costSub: 'dev + hosting + ops',
+      cohortOps: false,
+      mentorAnalytics: false,
+      whiteLabel: true,
+      timeToValue: '3–6 bulan',
+      risk: 'Tinggi',
+      riskColor: 'text-red-400',
+      highlight: false,
+    },
+    {
+      label: 'Bangun\nsendiri',
+      cost: 'Rp 150–300 juta',
+      costSub: 'sebelum ada yang jalan',
+      cohortOps: true,
+      mentorAnalytics: true,
+      whiteLabel: true,
+      timeToValue: '12–18 bulan',
+      risk: 'Sangat tinggi',
+      riskColor: 'text-red-500',
+      highlight: false,
+    },
+    {
+      label: 'Platform ini',
+      cost: 'Rp 2.5–15 juta/mo',
+      costSub: 'semua sudah termasuk',
+      cohortOps: true,
+      mentorAnalytics: true,
+      whiteLabel: true,
+      timeToValue: '< 1 minggu',
+      risk: 'Rendah',
+      riskColor: 'text-emerald-400',
+      highlight: true,
+    },
+  ]
+
+  const Tick = ({ v }: { v: boolean }) =>
+    v
+      ? <CheckCircle2 size={15} className="text-emerald-400 mx-auto" />
+      : <XCircle size={15} className="text-gray-600 mx-auto" />
+
+  return (
+    <Shell>
+      <Glow className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-primary-600/8" />
+      <div className="relative z-10 max-w-5xl mx-auto w-full">
+        <Tag color="text-primary-400" label="Perbandingan Opsi" />
+        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-center mb-2 sm:mb-4">
+          Semua opsi di satu tabel.
+        </h2>
+        <p className="text-center text-gray-400 text-sm mb-6 sm:mb-10 max-w-xl mx-auto">
+          Sebelum memutuskan, ini gambaran lengkap apa yang tersedia — dan apa yang masing-masing benar-benar butuhkan.
+        </p>
+
+        {/* Table */}
+        <div className="rounded-2xl border border-white/[0.08] overflow-hidden text-sm">
+          {/* Header */}
+          <div className="grid grid-cols-6 bg-white/[0.04] border-b border-white/[0.08] px-2 py-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+            <div className="pl-2">Opsi</div>
+            <div className="text-center">Biaya</div>
+            <div className="text-center">Cohort Ops</div>
+            <div className="text-center">Mentor Analytics</div>
+            <div className="text-center">Time to Value</div>
+            <div className="text-center">Risiko</div>
+          </div>
+
+          {rows.map((r, i) => (
+            <div
+              key={i}
+              className={`grid grid-cols-6 px-2 py-3.5 border-b border-white/[0.05] last:border-0 items-center ${
+                r.highlight
+                  ? 'bg-primary-500/10 border-primary-500/20'
+                  : 'bg-transparent hover:bg-white/[0.02]'
+              }`}
+            >
+              <div className="pl-2">
+                <span className={`font-semibold text-xs whitespace-pre-line leading-tight ${r.highlight ? 'text-primary-300' : 'text-gray-200'}`}>
+                  {r.label}
+                </span>
+                {r.highlight && (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-primary-500/20 border border-primary-500/30 px-1.5 py-0.5 text-[9px] font-semibold text-primary-300 uppercase tracking-wider">
+                    Ini
+                  </span>
+                )}
+              </div>
+              <div className="text-center">
+                <div className={`text-xs font-semibold ${r.highlight ? 'text-white' : 'text-gray-300'}`}>{r.cost}</div>
+                <div className="text-[9px] text-gray-500 mt-0.5">{r.costSub}</div>
+              </div>
+              <div className="text-center"><Tick v={r.cohortOps} /></div>
+              <div className="text-center"><Tick v={r.mentorAnalytics} /></div>
+              <div className={`text-center text-xs font-medium ${r.highlight ? 'text-emerald-400' : 'text-gray-400'}`}>
+                {r.timeToValue}
+              </div>
+              <div className={`text-center text-xs font-semibold ${r.riskColor}`}>{r.risk}</div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-xs text-gray-600 mt-4">
+          Cohort Ops = batch scheduling, enrollment approval, access control, Zoom links built-in &nbsp;·&nbsp; Mentor Analytics = per-session scoring, trend across batches
+        </p>
+      </div>
+    </Shell>
+  )
+}
+
+// ── Slide 14 — Pricing Tiers ──────────────────────────────────────────────────
+
+function Slide14() {
+  const tiers = [
+    {
+      name: 'Platform',
+      price: '2.5',
+      sub: 'juta / bulan',
+      tag: null,
+      gradient: 'from-gray-700 to-gray-600',
+      border: 'border-white/[0.08]',
+      bg: 'bg-white/[0.02]',
+      highlight: false,
+      programs: 'Hingga 3 program',
+      learners: '150 learners/batch',
+      whiteLabel: false,
+      ops: false,
+      report: false,
+      content: '—',
+      featureReq: { label: 'Tidak ada', sub: 'gunakan platform apa adanya', icon: <Minus size={13} className="text-gray-600" /> },
+      bugSla: { label: '3–5 hari kerja', sub: 'best effort', icon: <Clock size={13} className="text-gray-500" /> },
+      meeting: { label: 'Tidak ada', sub: 'async — email & chat', icon: <Minus size={13} className="text-gray-600" /> },
+      support: 'Email & chat',
+    },
+    {
+      name: 'Growth',
+      price: '10',
+      sub: 'juta / bulan',
+      tag: 'Paling Populer',
+      gradient: 'from-primary-600 to-cyan-500',
+      border: 'border-primary-500/30',
+      bg: 'bg-primary-500/5',
+      highlight: true,
+      programs: 'Unlimited program',
+      learners: '500 learners/batch',
+      whiteLabel: true,
+      ops: true,
+      report: 'Bulanan',
+      content: '2 update/bulan',
+      featureReq: { label: '1 per kuartal', sub: 'diprioritaskan di roadmap', icon: <Star size={13} className="text-primary-400" /> },
+      bugSla: { label: '48 jam (critical)', sub: 'non-critical: 5 hari', icon: <Clock size={13} className="text-primary-400" /> },
+      meeting: { label: 'Bulanan (1 jam)', sub: 'review data + laporan batch', icon: <CalendarCheck size={13} className="text-primary-400" /> },
+      support: 'Email + WhatsApp',
+    },
+    {
+      name: 'Partner',
+      price: '15',
+      sub: 'juta / bulan',
+      tag: null,
+      gradient: 'from-violet-600 to-purple-500',
+      border: 'border-violet-500/30',
+      bg: 'bg-violet-500/5',
+      highlight: false,
+      programs: 'Unlimited program',
+      learners: 'Unlimited learners',
+      whiteLabel: true,
+      ops: true,
+      report: 'Bulanan + QBR deck',
+      content: '4 update/bulan + 1 exercise baru',
+      featureReq: { label: '1 per bulan', sub: 'delivered dalam 60 hari', icon: <Star size={13} className="text-violet-400" /> },
+      bugSla: { label: 'Same day — 8 jam', sub: 'semua severity level', icon: <Wrench size={13} className="text-violet-400" /> },
+      meeting: { label: 'Mingguan (1 jam)', sub: 'bisa eskalasi ke harian saat batch launch', icon: <CalendarCheck size={13} className="text-violet-400" /> },
+      support: 'Dedicated WA line',
+    },
+  ]
+
+  return (
+    <Shell>
+      <Glow className="top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-primary-600/8" />
+      <Glow className="bottom-0 right-0 w-[500px] h-[300px] bg-violet-600/6" />
+      <div className="relative z-10 max-w-5xl mx-auto w-full">
+        <Tag color="text-primary-400" label="Pilihan Paket" />
+        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-center mb-2 sm:mb-4">
+          Pilih sesuai tahap bisnis.
+        </h2>
+        <p className="text-center text-gray-400 text-sm mb-6 sm:mb-10 max-w-xl mx-auto">
+          Dari yang baru mulai sampai yang sudah pitching ke klien korporat — ada paket yang pas.
+        </p>
+
+        <div className="grid sm:grid-cols-3 gap-5">
+          {tiers.map(t => (
+            <div key={t.name} className={`rounded-2xl border ${t.border} ${t.bg} p-6 flex flex-col relative`}>
+              {t.tag && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-500 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                  {t.tag}
+                </div>
+              )}
+
+              {/* Header */}
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.gradient} flex items-center justify-center text-white mb-4`}>
+                <Zap size={18} />
+              </div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">{t.name}</div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-bold text-white">Rp {t.price}</span>
+                <span className="text-xs text-gray-500">{t.sub}</span>
+              </div>
+              <div className="text-[10px] text-gray-600 mb-5">{t.programs} · {t.learners}</div>
+
+              <div className="space-y-3 flex-1">
+                {/* Feature Request */}
+                <div className={`rounded-xl p-3 ${t.highlight ? 'bg-primary-500/10 border border-primary-500/20' : 'bg-white/[0.03] border border-white/[0.06]'}`}>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {t.featureReq.icon}
+                    <span className="text-xs font-semibold text-white">Feature Request</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400 pl-5">{t.featureReq.label}</div>
+                  <div className="text-[9px] text-gray-600 pl-5">{t.featureReq.sub}</div>
+                </div>
+
+                {/* Bug Fix SLA */}
+                <div className={`rounded-xl p-3 ${t.highlight ? 'bg-primary-500/10 border border-primary-500/20' : 'bg-white/[0.03] border border-white/[0.06]'}`}>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {t.bugSla.icon}
+                    <span className="text-xs font-semibold text-white">Bug Fix SLA</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400 pl-5">{t.bugSla.label}</div>
+                  <div className="text-[9px] text-gray-600 pl-5">{t.bugSla.sub}</div>
+                </div>
+
+                {/* Meeting */}
+                <div className={`rounded-xl p-3 ${t.highlight ? 'bg-primary-500/10 border border-primary-500/20' : 'bg-white/[0.03] border border-white/[0.06]'}`}>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {t.meeting.icon}
+                    <span className="text-xs font-semibold text-white">Alignment</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400 pl-5">{t.meeting.label}</div>
+                  <div className="text-[9px] text-gray-600 pl-5">{t.meeting.sub}</div>
+                </div>
+
+                {/* Other features */}
+                <div className="pt-1 space-y-1.5 text-[11px] text-gray-400">
+                  <div className="flex items-center gap-2">
+                    {t.whiteLabel ? <CheckCircle2 size={12} className="text-emerald-400 shrink-0" /> : <XCircle size={12} className="text-gray-600 shrink-0" />}
+                    White-label domain
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {t.ops ? <CheckCircle2 size={12} className="text-emerald-400 shrink-0" /> : <XCircle size={12} className="text-gray-600 shrink-0" />}
+                    Managed ops (batch setup)
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {t.report ? <CheckCircle2 size={12} className="text-emerald-400 shrink-0" /> : <XCircle size={12} className="text-gray-600 shrink-0" />}
+                    {t.report ? `Laporan analytics ${t.report}` : 'Laporan analytics'}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {t.content !== '—' ? <CheckCircle2 size={12} className="text-emerald-400 shrink-0" /> : <XCircle size={12} className="text-gray-600 shrink-0" />}
+                    {t.content !== '—' ? `Konten: ${t.content}` : 'Content retainer'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+// ── Slide 15 — ROI for Talentiv ───────────────────────────────────────────────
+
+function Slide15() {
+  const valueRows = [
+    {
+      label: 'Penghematan ops (100–150 jam/batch × 4 batch)',
+      low: 20,
+      high: 30,
+      color: 'bg-primary-500',
+      note: 'Langsung terukur dari hari pertama',
+    },
+    {
+      label: 'Penurunan dropout learner (25% → 8%)',
+      low: 60,
+      high: 88,
+      color: 'bg-emerald-500',
+      note: '50 learner × Rp 3 juta × 4 batch',
+    },
+    {
+      label: 'Cegah 1 siklus program buruk (mentor undetected)',
+      low: 50,
+      high: 100,
+      color: 'bg-amber-500',
+      note: 'Feedback 6 dimensi per sesi',
+    },
+    {
+      label: 'Klien korporat baru yang bisa dimenangkan',
+      low: 120,
+      high: 240,
+      color: 'bg-violet-500',
+      note: 'White-label portal jadi deal enabler',
+    },
+  ]
+
+  const totalLow = valueRows.reduce((s, r) => s + r.low, 0)
+  const totalHigh = valueRows.reduce((s, r) => s + r.high, 0)
+
+  const tiers = [
+    { name: 'Platform', monthly: 2.5, annual: 30, roi: Math.round(totalLow / 30), color: 'text-gray-300' },
+    { name: 'Growth', monthly: 10, annual: 120, roi: Math.round(totalLow / 120), color: 'text-primary-400', highlight: true },
+    { name: 'Partner', monthly: 15, annual: 180, roi: Math.round(totalHigh / 180), color: 'text-violet-400' },
+  ]
+
+  return (
+    <Shell>
+      <Glow className="top-0 left-1/4 w-[600px] h-[350px] bg-emerald-600/8" />
+      <Glow className="bottom-0 right-1/4 w-[500px] h-[300px] bg-primary-600/8" />
+      <div className="relative z-10 max-w-5xl mx-auto w-full">
+        <Tag color="text-emerald-400" label="ROI untuk Talentiv.id" />
+        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-center mb-2 sm:mb-4">
+          Angkanya bicara sendiri.
+        </h2>
+        <p className="text-center text-gray-400 text-sm mb-6 sm:mb-8 max-w-xl mx-auto">
+          Estimasi konservatif — 4 batch/tahun, 50 learner @ Rp 3 juta per batch.
+        </p>
+
+        {/* Value sources */}
+        <div className="space-y-3 mb-6">
+          {valueRows.map((r, i) => (
+            <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <span className="text-xs text-gray-300 flex-1">{r.label}</span>
+                <span className="text-sm font-bold text-white shrink-0">
+                  Rp {r.low}–{r.high} juta
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${r.color} rounded-full opacity-70`}
+                    style={{ width: `${(r.high / totalHigh) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-gray-500 w-44 text-right shrink-0">{r.note}</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Total */}
+          <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-3 flex items-center justify-between">
+            <span className="text-sm font-semibold text-emerald-300">Total nilai terukur per tahun</span>
+            <span className="text-xl font-bold text-white">Rp {totalLow}–{totalHigh} juta</span>
+          </div>
+        </div>
+
+        {/* ROI per tier */}
+        <div className="grid grid-cols-3 gap-4">
+          {tiers.map(t => (
+            <div
+              key={t.name}
+              className={`rounded-2xl border p-4 text-center ${
+                t.highlight
+                  ? 'border-primary-500/30 bg-primary-500/8'
+                  : 'border-white/[0.08] bg-white/[0.02]'
+              }`}
+            >
+              <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">{t.name}</div>
+              <div className="text-lg font-bold text-white mb-0.5">Rp {t.annual} juta/tahun</div>
+              <div className={`text-3xl font-bold ${t.color} my-2`}>{t.roi}×</div>
+              <div className="text-[10px] text-gray-500">return on investment</div>
+              <div className="mt-2 text-[10px] text-gray-400">
+                Balik modal dalam{' '}
+                <span className="font-semibold text-white">
+                  {t.annual <= 30 ? '< 2 bulan' : t.annual <= 120 ? '< 3 bulan' : '< 4 bulan'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-[10px] text-gray-600 mt-4">
+          Angka klien korporat menggunakan estimasi 1 klien baru/tahun · ROI dihitung dari nilai konservatif (batas bawah)
+        </p>
+      </div>
+    </Shell>
+  )
+}
+
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function PitchPage() {
@@ -948,6 +1360,7 @@ export default function PitchPage() {
     <Slide01 />, <Slide02 />, <Slide03 />, <Slide04 />, <Slide05 />,
     <Slide06 />, <Slide07 />, <Slide08 />, <Slide09 />,
     <Slide10 />, <Slide11 />, <Slide12 />,
+    <Slide13 />, <Slide14 />, <Slide15 />,
   ]
 
   return (
