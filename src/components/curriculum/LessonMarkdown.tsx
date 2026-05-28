@@ -3,6 +3,14 @@ import type { ComponentPropsWithoutRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
+function TableWrapper({ children }: ComponentPropsWithoutRef<'table'>) {
+  return (
+    <div className="overflow-x-auto -mx-1 my-5">
+      <table className="min-w-full">{children}</table>
+    </div>
+  )
+}
+
 // Passthrough pre — CodeBlock handles block rendering entirely.
 function PreBlock({ children }: ComponentPropsWithoutRef<'pre'>) {
   return <>{children}</>
@@ -108,7 +116,14 @@ export function LessonMarkdown({ children }: { children: string }) {
     <div className={PROSE}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        components={{ code: CodeBlock, pre: PreBlock }}
+        components={{
+          code: CodeBlock,
+          pre: PreBlock,
+          table: TableWrapper,
+          img: ({ alt, src }) => (
+            <img src={src} alt={alt ?? ''} className="max-w-full h-auto rounded-lg" />
+          ),
+        }}
       >
         {children || '*Content coming soon.*'}
       </ReactMarkdown>
