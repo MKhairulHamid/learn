@@ -248,7 +248,8 @@
   },
   "report": {
     "button": "Laporkan masalah",
-    "cta_hint": "Ada yang salah atau kurang di sesi ini?",
+    "cta_title": "Bantu kami tingkatkan sesi ini",
+    "cta_hint": "Ceritakan jika ada konten yang salah, usang, atau kurang lengkap.",
     "modal_title": "Laporkan Masalah Konten",
     "reason_label": "Apa masalahnya?",
     "reason_incorrect": "Konten tidak benar atau menyesatkan",

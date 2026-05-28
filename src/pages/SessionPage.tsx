@@ -488,13 +488,18 @@ export default function SessionPage() {
       </div>
 
       {/* Report content */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 mb-4 flex items-center justify-between gap-4">
-        <p className="text-xs text-gray-400">{t('report.cta_hint')}</p>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 mb-4 flex items-center gap-4">
+        <div className="w-8 h-8 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center shrink-0">
+          <Flag size={14} className="text-primary-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-gray-800">{t('report.cta_title')}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{t('report.cta_hint')}</p>
+        </div>
         <button
           onClick={() => setReportOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-xs font-medium text-red-500 hover:bg-red-50 transition-colors shrink-0"
+          className="shrink-0 px-3.5 py-1.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          <Flag size={12} />
           {t('report.button')}
         </button>
       </div>

@@ -248,7 +248,8 @@
   },
   "report": {
     "button": "Report an issue",
-    "cta_hint": "Something incorrect or missing in this session?",
+    "cta_title": "Help us improve this session",
+    "cta_hint": "Tell us if something is incorrect, outdated, or missing with a quick report.",
     "modal_title": "Report Content Issue",
     "reason_label": "What's the issue?",
     "reason_incorrect": "Incorrect or misleading content",
