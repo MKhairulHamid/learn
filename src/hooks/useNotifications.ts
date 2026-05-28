@@ -14,10 +14,12 @@ export interface AppNotification {
 }
 
 export function useNotifications() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
   const unreadCount = notifications.filter(n => !n.is_read).length
+
+  const lang = profile?.preferred_language ?? 'en'
 
   const fetchNotifications = useCallback(async () => {
     if (!user) { setLoading(false); return }
@@ -51,7 +53,8 @@ export function useNotifications() {
       : { data: [] }
 
     const sessionMap: Record<string, string> = {}
-    for (const s of (sessions ?? [])) sessionMap[s.id] = s.title_en
+    for (const s of (sessions ?? []))
+      sessionMap[s.id] = lang === 'id' ? s.title_id : s.title_en
 
     setNotifications(
       data.map(n => ({
@@ -66,7 +69,7 @@ export function useNotifications() {
       }))
     )
     setLoading(false)
-  }, [user])
+  }, [user, lang])
 
   useEffect(() => { fetchNotifications() }, [fetchNotifications])
 

@@ -123,11 +123,18 @@ async function runSingleTest(
       }
       const normalize = (v: unknown) =>
         typeof v === 'number' ? Math.round(v * 100) / 100 : String(v ?? '')
-      const match = expected.every((expRow, i) =>
-        Object.entries(expRow).every(
-          ([k, v]) => normalize(rows[i]?.[k]) === normalize(v)
+      // Order-insensitive: find a unique actual row that matches each expected row.
+      // SQL doesn't guarantee result order without ORDER BY, so positional
+      // comparison would cause intermittent false-failures.
+      const usedIndices = new Set<number>()
+      const match = expected.every(expRow => {
+        const idx = rows.findIndex((r, i) =>
+          !usedIndices.has(i) &&
+          Object.entries(expRow).every(([k, v]) => normalize(r[k]) === normalize(v))
         )
-      )
+        if (idx >= 0) { usedIndices.add(idx); return true }
+        return false
+      })
       return {
         test_id: tc.id,
         passed: match,

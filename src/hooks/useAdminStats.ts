@@ -77,37 +77,47 @@ export function useUserList() {
 
   useEffect(() => {
     async function load() {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, role, created_at')
-        .order('created_at', { ascending: false })
+      // Three bulk queries instead of 3×N per-user queries.
+      const [
+        { data: profiles },
+        { data: progressRows },
+        { data: exerciseRows },
+        { data: logRows },
+      ] = await Promise.all([
+        supabase.from('profiles').select('id, full_name, role, created_at')
+          .order('created_at', { ascending: false }),
+        supabase.from('cohort_session_progress').select('user_id')
+          .eq('completed', true),
+        supabase.from('exercise_submissions').select('user_id')
+          .eq('passed', true),
+        // Ordered desc — first occurrence per user_id is their most recent log.
+        supabase.from('user_activity_logs').select('user_id, created_at')
+          .order('created_at', { ascending: false }).limit(2000),
+      ])
 
       if (!profiles) { setLoading(false); return }
 
-      const enriched = await Promise.all(profiles.map(async p => {
-        const [
-          { count: sessionsCompleted },
-          { count: exercisesPassed },
-          { data: lastLog },
-        ] = await Promise.all([
-          supabase.from('cohort_session_progress').select('*', { count: 'exact', head: true })
-            .eq('user_id', p.id).eq('completed', true),
-          supabase.from('exercise_submissions').select('*', { count: 'exact', head: true })
-            .eq('user_id', p.id).eq('passed', true),
-          supabase.from('user_activity_logs').select('created_at')
-            .eq('user_id', p.id).order('created_at', { ascending: false }).limit(1),
-        ])
+      // Aggregate in JS — O(n) maps.
+      const sessionsByUser = new Map<string, number>()
+      for (const r of progressRows ?? [])
+        sessionsByUser.set(r.user_id, (sessionsByUser.get(r.user_id) ?? 0) + 1)
 
-        return {
-          ...p,
-          email: null,   // email lives in auth.users, not profiles
-          sessionsCompleted: sessionsCompleted ?? 0,
-          exercisesPassed: exercisesPassed ?? 0,
-          lastActive: lastLog?.[0]?.created_at ?? null,
-        } as UserRow
-      }))
+      const exercisesByUser = new Map<string, number>()
+      for (const r of exerciseRows ?? [])
+        exercisesByUser.set(r.user_id, (exercisesByUser.get(r.user_id) ?? 0) + 1)
 
-      setUsers(enriched)
+      const lastActiveByUser = new Map<string, string>()
+      for (const r of logRows ?? []) {
+        if (!lastActiveByUser.has(r.user_id)) lastActiveByUser.set(r.user_id, r.created_at)
+      }
+
+      setUsers(profiles.map(p => ({
+        ...p,
+        email: null,   // email lives in auth.users, not profiles
+        sessionsCompleted: sessionsByUser.get(p.id) ?? 0,
+        exercisesPassed: exercisesByUser.get(p.id) ?? 0,
+        lastActive: lastActiveByUser.get(p.id) ?? null,
+      })))
       setLoading(false)
     }
     load()

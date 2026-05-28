@@ -82,8 +82,8 @@ export function useDashboardPrograms() {
       ((cohortData as Cohort[] | null) ?? []).map(c => [c.id, c]),
     )
     const enrollments: EnrollmentWithCohort[] = rawEnrollments
-      .map(e => ({ ...e, cohort: cohortById.get(e.cohort_id)! }))
-      .filter(e => !!e.cohort)
+      .map(e => ({ ...e, cohort: cohortById.get(e.cohort_id) }))
+      .filter((e): e is EnrollmentWithCohort => !!e.cohort)
 
     const allPrograms = (progData as Program[] | null) ?? []
     const openCohorts = (openData as Cohort[] | null) ?? []
