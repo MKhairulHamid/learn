@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next'
 import {
   Menu, X, Globe, BookOpen, LogOut,
   LayoutDashboard, Gamepad2, ShieldCheck,
-  User, ChevronDown,
+  User, ChevronDown, Download,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../ui/Button'
 import { NotificationDropdown } from '../discussion/NotificationDropdown'
 import { useNotifications } from '../../hooks/useNotifications'
+import { usePWAInstall } from '../../hooks/usePWAInstall'
 
 export function Navbar() {
   const { t, i18n } = useTranslation('common')
@@ -22,6 +23,7 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null)
   const currentLang = i18n.resolvedLanguage === 'id' ? 'id' : 'en'
   const { notifications, unreadCount, loading: notifLoading, markRead, markAllRead } = useNotifications()
+  const { canInstall, promptInstall } = usePWAInstall()
 
   const toggleLang = () => {
     i18n.changeLanguage(currentLang === 'en' ? 'id' : 'en')
@@ -95,6 +97,18 @@ export function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            {/* PWA Install button */}
+            {canInstall && (
+              <button
+                onClick={promptInstall}
+                title="Install app"
+                className="flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 py-1.5 rounded-md hover:bg-primary-50 border border-primary-200"
+              >
+                <Download size={15} />
+                <span className="text-xs font-medium hidden sm:inline">Install</span>
+              </button>
+            )}
+
             {/* Language toggle */}
             <button
               onClick={toggleLang}
@@ -227,6 +241,17 @@ export function Navbar() {
               )}
 
               <div className="h-px bg-gray-100 my-1" />
+
+              {canInstall && (
+                <button
+                  onClick={() => { promptInstall(); setMobileOpen(false) }}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-primary-600 hover:bg-primary-50 rounded-lg"
+                >
+                  <Download size={16} />
+                  Install App
+                </button>
+              )}
+
               <button
                 onClick={() => { handleSignOut(); setMobileOpen(false) }}
                 className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg"
