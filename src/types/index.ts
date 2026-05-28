@@ -1,10 +1,14 @@
 export type Language = 'en' | 'id'
 
-export type UserRole = 'student' | 'admin' | 'mentor'
+export type UserRole = 'student' | 'admin' | 'mentor' | 'program_manager'
 
 // Editors (admins + mentors) can edit lesson content and exercises.
 export const canEditContent = (role: UserRole | null | undefined): boolean =>
   role === 'admin' || role === 'mentor'
+
+// Program managers (and admins) manage program operations.
+export const isProgramManagerRole = (role: UserRole | null | undefined): boolean =>
+  role === 'admin' || role === 'program_manager'
 
 export interface Profile {
   id: string
@@ -57,6 +61,15 @@ export interface Session {
   learning_output_en: string
   order_num: number
   estimated_duration_minutes: number
+  mentor_id: string | null
+}
+
+export interface ProgramManagerAssignment {
+  id: string
+  user_id: string
+  program_id: string
+  assigned_at: string
+  assigned_by: string | null
 }
 
 export interface UserProgress {

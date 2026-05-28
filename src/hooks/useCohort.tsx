@@ -15,6 +15,7 @@ export type EnrollmentWithCohort = CohortEnrollment & { cohort: Cohort }
 interface CohortContextValue {
   loading: boolean
   isAdmin: boolean
+  isProgramManager: boolean
   isEditor: boolean
   enrollments: EnrollmentWithCohort[]
   enrolledProgramIds: string[]
@@ -46,8 +47,9 @@ const CohortContext = createContext<CohortContextValue | null>(null)
 export function CohortProvider({ children }: { children: ReactNode }) {
   const { user, profile } = useAuth()
   const isAdmin = profile?.role === 'admin'
-  // Mentors and admins bypass cohort gating so they can review/edit any lesson.
-  const isEditor = profile?.role === 'admin' || profile?.role === 'mentor'
+  const isProgramManager = profile?.role === 'program_manager'
+  // Mentors, admins, and program managers bypass cohort gating.
+  const isEditor = profile?.role === 'admin' || profile?.role === 'mentor' || isProgramManager
 
   const [enrollments, setEnrollments] = useState<EnrollmentWithCohort[]>([])
   const [schedule, setSchedule] = useState<CohortLessonSchedule[]>([])
@@ -160,6 +162,7 @@ export function CohortProvider({ children }: { children: ReactNode }) {
   const value: CohortContextValue = {
     loading: enrollLoading || scheduleLoading,
     isAdmin,
+    isProgramManager,
     isEditor,
     enrollments,
     enrolledProgramIds,

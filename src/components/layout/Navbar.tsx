@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Menu, X, Globe, BookOpen, LogOut,
-  LayoutDashboard, Gamepad2, ShieldCheck,
+  LayoutDashboard, Gamepad2, ShieldCheck, Briefcase,
   User, ChevronDown, Download,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -56,6 +56,7 @@ export function Navbar() {
     : user?.email?.[0]?.toUpperCase() ?? '?'
 
   const isAdmin = profile?.role === 'admin'
+  const isProgramManager = profile?.role === 'program_manager' || isAdmin
 
   return (
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200 safe-area-pt">
@@ -83,6 +84,15 @@ export function Navbar() {
                 <Gamepad2 size={14} />
                 {t('nav.playground')}
               </Link>
+              {isProgramManager && (
+                <Link
+                  to="/program-manager"
+                  className={`text-sm transition-colors flex items-center gap-1 ${isActive('/program-manager')}`}
+                >
+                  <Briefcase size={14} />
+                  Programs
+                </Link>
+              )}
               {isAdmin && (
                 <Link
                   to="/admin"
@@ -169,6 +179,16 @@ export function Navbar() {
                       {t('nav.profile_settings')}
                     </Link>
 
+                    {isProgramManager && (
+                      <Link
+                        to="/program-manager"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <Briefcase size={15} className="text-violet-500" />
+                        Program Manager
+                      </Link>
+                    )}
                     {isAdmin && (
                       <Link
                         to="/admin"
@@ -236,6 +256,9 @@ export function Navbar() {
               <MobileLink to="/playground" icon={<Gamepad2 size={16} />}         label={t('nav.playground')}          onClick={() => setMobileOpen(false)} />
               <MobileLink to="/profile"    icon={<User size={16} />}            label={t('nav.profile_settings')}   onClick={() => setMobileOpen(false)} />
 
+              {isProgramManager && (
+                <MobileLink to="/program-manager" icon={<Briefcase size={16} className="text-violet-500" />} label="Program Manager" onClick={() => setMobileOpen(false)} />
+              )}
               {isAdmin && (
                 <MobileLink to="/admin" icon={<ShieldCheck size={16} className="text-yellow-500" />} label={t('nav.admin_dashboard')} onClick={() => setMobileOpen(false)} />
               )}

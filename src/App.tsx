@@ -19,12 +19,14 @@ const CurriculumPage   = lazy(() => import('./pages/CurriculumPage'))
 const SessionPage      = lazy(() => import('./pages/SessionPage'))
 const PlaygroundPage   = lazy(() => import('./pages/PlaygroundPage'))
 const ExercisePage     = lazy(() => import('./pages/ExercisePage'))
-const AdminDashboard        = lazy(() => import('./pages/admin/AdminDashboard'))
-const UserDetailPage        = lazy(() => import('./pages/admin/UserDetailPage'))
-const ExerciseAnalyticsPage = lazy(() => import('./pages/admin/ExerciseAnalyticsPage'))
-const ProfilePage           = lazy(() => import('./pages/ProfilePage'))
-const DemoPage              = lazy(() => import('./pages/DemoPage'))
-const NotFound              = lazy(() => import('./pages/NotFound'))
+const AdminDashboard           = lazy(() => import('./pages/admin/AdminDashboard'))
+const UserDetailPage           = lazy(() => import('./pages/admin/UserDetailPage'))
+const ExerciseAnalyticsPage    = lazy(() => import('./pages/admin/ExerciseAnalyticsPage'))
+const ProgramManagerDashboard  = lazy(() => import('./pages/program-manager/ProgramManagerDashboard'))
+const ProgramManagerPage       = lazy(() => import('./pages/program-manager/ProgramManagerPage'))
+const ProfilePage              = lazy(() => import('./pages/ProfilePage'))
+const DemoPage                 = lazy(() => import('./pages/DemoPage'))
+const NotFound                 = lazy(() => import('./pages/NotFound'))
 
 // ── Route guards ──────────────────────────────────────────────
 
@@ -41,6 +43,17 @@ function AdminRoute() {
   if (recoveryMode) return <Navigate to="/reset-password" replace />
   if (!user) return <Navigate to="/login" replace />
   if (profile?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  return <Outlet />
+}
+
+function ProgramManagerRoute() {
+  const { user, profile, loading, recoveryMode } = useAuth()
+  if (loading) return <SplashScreen />
+  if (recoveryMode) return <Navigate to="/reset-password" replace />
+  if (!user) return <Navigate to="/login" replace />
+  if (profile?.role !== 'admin' && profile?.role !== 'program_manager') {
+    return <Navigate to="/dashboard" replace />
+  }
   return <Outlet />
 }
 
@@ -120,6 +133,12 @@ function AppRoutes() {
               <Route path="/admin"                      element={<AdminDashboard />} />
               <Route path="/admin/users/:userId"        element={<UserDetailPage />} />
               <Route path="/admin/exercise-analytics"   element={<ExerciseAnalyticsPage />} />
+            </Route>
+
+            {/* Program Manager routes (admin + program_manager) */}
+            <Route element={<ProgramManagerRoute />}>
+              <Route path="/program-manager"                    element={<ProgramManagerDashboard />} />
+              <Route path="/program-manager/:programId"         element={<ProgramManagerPage />} />
             </Route>
           </Route>
 
