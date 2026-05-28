@@ -27,7 +27,7 @@ export function MobileNav() {
             <Link
               key={to}
               to={to}
-              className={`flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
+              className={`flex flex-col items-center gap-1 py-2.5 text-xs transition-colors ${
                 active ? 'text-primary-600' : 'text-gray-500 hover:text-primary-500'
               }`}
             >
