@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Briefcase, Loader2, Save, Users, CalendarDays,
   BarChart2, UserCheck, ChevronDown, Check, X, Star,
-  BookOpen, Clock, Plus, Eye, EyeOff,
+  BookOpen, Clock, Eye, EyeOff,
 } from 'lucide-react'
 import {
   usePMProgramDetail,
@@ -264,7 +264,6 @@ function CohortsTab({ programId }: { programId: string }) {
         sessions={sessions}
         onBack={() => setSelectedCohort(null)}
         onUpsert={upsertScheduleRow}
-        onUpdateCohort={updateCohort}
       />
     )
   }
@@ -329,13 +328,12 @@ function CohortsTab({ programId }: { programId: string }) {
 }
 
 function ScheduleEditor({
-  cohort, sessions, onBack, onUpsert, onUpdateCohort,
+  cohort, sessions, onBack, onUpsert,
 }: {
   cohort: CohortWithSchedule
   sessions: SessionWithMentor[]
   onBack: () => void
   onUpsert: (cohortId: string, sessionId: string, patch: Record<string, unknown>) => Promise<boolean>
-  onUpdateCohort: (cohortId: string, patch: Record<string, unknown>) => Promise<boolean>
 }) {
   const scheduleMap = Object.fromEntries(cohort.schedule.map(s => [s.session_id, s]))
   const [saving, setSaving] = useState<string | null>(null)
