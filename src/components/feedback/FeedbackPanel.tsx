@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Star, CheckCircle2, MessageSquarePlus, Loader2 } from 'lucide-react'
 import type { FeedbackDraft } from '../../hooks/useFeedback'
 import type { SessionFeedback } from '../../types'
@@ -15,6 +16,7 @@ export interface FeedbackPanelProps {
 // Thin wrapper — now just used on the session page as a fallback inline view.
 // The primary UX is the modal (FeedbackModal) opened from multiple places.
 export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, error, submitFeedback }: FeedbackPanelProps) {
+  const { t } = useTranslation('common')
   if (loading) return null
   if (!feedbackOpen) return null
 
@@ -23,7 +25,7 @@ export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, e
       <div className="flex items-center gap-2 mb-3">
         <MessageSquarePlus size={16} className="text-primary-600" />
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          Live Session Feedback
+          {t('feedback.modal_title')}
         </h2>
       </div>
       {submission ? <SubmittedState /> : (
@@ -34,14 +36,13 @@ export function FeedbackPanel({ feedbackOpen, submission, loading, submitting, e
 }
 
 export function SubmittedState() {
+  const { t } = useTranslation('common')
   return (
     <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex items-center gap-4">
       <CheckCircle2 size={32} className="text-green-500 shrink-0" />
       <div>
-        <p className="text-sm font-semibold text-green-800">Thanks for your live session feedback!</p>
-        <p className="text-xs text-green-600 mt-0.5">
-          Your response has been recorded and will help us improve future live sessions.
-        </p>
+        <p className="text-sm font-semibold text-green-800">{t('feedback.submitted_title')}</p>
+        <p className="text-xs text-green-600 mt-0.5">{t('feedback.submitted_desc')}</p>
       </div>
     </div>
   )
@@ -55,8 +56,17 @@ export function StarRating({ value, onChange, label, size = 22 }: {
   label: string
   size?: number
 }) {
+  const { t } = useTranslation('common')
   const [hovered, setHovered] = useState(0)
   const display = hovered || value
+
+  const starLabels = [
+    t('feedback.star_poor'),
+    t('feedback.star_fair'),
+    t('feedback.star_good'),
+    t('feedback.star_great'),
+    t('feedback.star_excellent'),
+  ]
 
   return (
     <div>
@@ -78,14 +88,12 @@ export function StarRating({ value, onChange, label, size = 22 }: {
           </button>
         ))}
         {value > 0 && (
-          <span className="ml-1 text-xs text-gray-400">{STAR_LABELS[value - 1]}</span>
+          <span className="ml-1 text-xs text-gray-400">{starLabels[value - 1]}</span>
         )}
       </div>
     </div>
   )
 }
-
-export const STAR_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Excellent']
 
 // ── Shared form ────────────────────────────────────────────────────────
 
@@ -106,6 +114,7 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
   error: string | null
   onSubmit: (d: FeedbackDraft) => Promise<{ error: string | null }>
 }) {
+  const { t } = useTranslation('common')
   const [draft, setDraft] = useState<FeedbackDraft>(EMPTY)
   const [validationError, setValidationError] = useState<string | null>(null)
 
@@ -126,11 +135,11 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
       'rating_overall',
     ]
     if (ratingFields.some(k => (draft[k] as number) === 0)) {
-      setValidationError('Please rate all categories before submitting.')
+      setValidationError(t('feedback.validation_rate_all'))
       return
     }
     if (!draft.comment_highlight.trim()) {
-      setValidationError('Please share what was most valuable about the session.')
+      setValidationError(t('feedback.validation_highlight_required'))
       return
     }
     setValidationError(null)
@@ -146,13 +155,13 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
       {/* Section 1: Live Session Materials */}
       <div className="pb-5 mb-5 border-b border-gray-100">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Live Session Materials
+          {t('feedback.section_materials')}
         </p>
-        <p className="text-[11px] text-gray-400 mb-4">Rate the content covered during the live session</p>
+        <p className="text-[11px] text-gray-400 mb-4">{t('feedback.section_materials_desc')}</p>
         <div className="space-y-4">
-          <StarRating label="How would you rate the quality of the live session content?"
+          <StarRating label={t('feedback.label_materials')}
             value={draft.rating_materials} onChange={v => setRating('rating_materials', v)} />
-          <StarRating label="How useful were the in-session activities and discussions?"
+          <StarRating label={t('feedback.label_exercises')}
             value={draft.rating_exercises} onChange={v => setRating('rating_exercises', v)} />
         </div>
       </div>
@@ -160,15 +169,15 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
       {/* Section 2: Mentor */}
       <div className="pb-5 mb-5 border-b border-gray-100">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Mentor / Instructor
+          {t('feedback.section_mentor')}
         </p>
-        <p className="text-[11px] text-gray-400 mb-4">Rate how the mentor conducted the live session</p>
+        <p className="text-[11px] text-gray-400 mb-4">{t('feedback.section_mentor_desc')}</p>
         <div className="space-y-4">
-          <StarRating label="How clearly did the mentor explain the concepts during the live session?"
+          <StarRating label={t('feedback.label_mentor_clarity')}
             value={draft.rating_mentor_clarity} onChange={v => setRating('rating_mentor_clarity', v)} />
-          <StarRating label="How well did the mentor manage the class flow and timing?"
+          <StarRating label={t('feedback.label_mentor_management')}
             value={draft.rating_mentor_management} onChange={v => setRating('rating_mentor_management', v)} />
-          <StarRating label="How responsive was the mentor to questions during the session?"
+          <StarRating label={t('feedback.label_mentor_engagement')}
             value={draft.rating_mentor_engagement} onChange={v => setRating('rating_mentor_engagement', v)} />
         </div>
       </div>
@@ -176,33 +185,33 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
       {/* Section 3: Overall */}
       <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Overall Live Session
+          {t('feedback.section_overall')}
         </p>
-        <p className="text-[11px] text-gray-400 mb-4">Your overall impression of this live session</p>
+        <p className="text-[11px] text-gray-400 mb-4">{t('feedback.section_overall_desc')}</p>
         <div className="space-y-4">
-          <StarRating label="Overall, how satisfied are you with this live session?"
+          <StarRating label={t('feedback.label_overall')}
             value={draft.rating_overall} onChange={v => setRating('rating_overall', v)} />
           <div>
             <label className="text-xs text-gray-600 mb-1.5 block">
-              What was the most valuable part of this live session? <span className="text-red-400">*</span>
+              {t('feedback.label_highlight')} <span className="text-red-400">*</span>
             </label>
             <textarea rows={2} value={draft.comment_highlight}
               onChange={e => setText('comment_highlight', e.target.value)}
-              placeholder="What stood out during the live session? What will you apply?"
+              placeholder={t('feedback.placeholder_highlight')}
               className={inputCls} />
           </div>
           <div>
-            <label className="text-xs text-gray-600 mb-1.5 block">What could be improved in future live sessions?</label>
+            <label className="text-xs text-gray-600 mb-1.5 block">{t('feedback.label_improve')}</label>
             <textarea rows={2} value={draft.comment_improve}
               onChange={e => setText('comment_improve', e.target.value)}
-              placeholder="Pace, depth of discussion, class interaction, delivery…"
+              placeholder={t('feedback.placeholder_improve')}
               className={inputCls} />
           </div>
           <div>
-            <label className="text-xs text-gray-600 mb-1.5 block">Any other comments for the mentor or organiser?</label>
+            <label className="text-xs text-gray-600 mb-1.5 block">{t('feedback.label_other')}</label>
             <textarea rows={2} value={draft.comment_other}
               onChange={e => setText('comment_other', e.target.value)}
-              placeholder="Anything else you'd like to share…"
+              placeholder={t('feedback.placeholder_other')}
               className={inputCls} />
           </div>
         </div>
@@ -218,7 +227,7 @@ export function FeedbackForm({ submitting, error, onSubmit }: {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 transition-colors"
           >
             {submitting && <Loader2 size={14} className="animate-spin" />}
-            Submit Feedback
+            {t('feedback.submit')}
           </button>
         </div>
       </div>

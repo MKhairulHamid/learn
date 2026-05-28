@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, MessageSquarePlus, Loader2 } from 'lucide-react'
 import { useFeedback } from '../../hooks/useFeedback'
 import { FeedbackForm, SubmittedState } from './FeedbackPanel'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function FeedbackModal({ sessionId, cohortId, sessionTitle, onClose, onSubmitted }: Props) {
+  const { t } = useTranslation('common')
   const { submission, submitting, error, submitFeedback, loading } = useFeedback(sessionId, cohortId)
 
   // Close on Escape key
@@ -51,7 +53,7 @@ export function FeedbackModal({ sessionId, cohortId, sessionTitle, onClose, onSu
               <MessageSquarePlus size={16} className="text-primary-600" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-gray-900">Live Session Feedback</h2>
+              <h2 className="text-sm font-semibold text-gray-900">{t('feedback.modal_title')}</h2>
               {sessionTitle && (
                 <p className="text-xs text-gray-500 truncate max-w-[280px]">{sessionTitle}</p>
               )}
