@@ -26,6 +26,7 @@ const ProgramManagerDashboard  = lazy(() => import('./pages/program-manager/Prog
 const ProgramManagerPage       = lazy(() => import('./pages/program-manager/ProgramManagerPage'))
 const ProfilePage              = lazy(() => import('./pages/ProfilePage'))
 const DemoPage                 = lazy(() => import('./pages/DemoPage'))
+const PitchPage                = lazy(() => import('./pages/PitchPage'))
 const NotFound                 = lazy(() => import('./pages/NotFound'))
 
 // ── Route guards ──────────────────────────────────────────────
@@ -151,6 +152,9 @@ function AppRoutes() {
 
           {/* Standalone demo / sales page — direct URL only, not in any nav */}
           <Route path="/demo" element={<DemoPage />} />
+
+          {/* Standalone pitch deck — direct URL only: #/pitch */}
+          <Route path="/pitch" element={<PitchPage />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
