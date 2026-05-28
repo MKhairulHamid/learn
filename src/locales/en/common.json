@@ -238,6 +238,14 @@
     "none_title": "You're not enrolled in a cohort yet",
     "none_body": "Lessons open once you're enrolled in a cohort. Enrollment is available during an admission period — check back when the next intake opens."
   },
+  "playground": {
+    "tab_sql": "SQL",
+    "tab_python": "Python",
+    "tab_net_salary": "Net Salary Calc",
+    "tab_overtime": "Overtime Calc",
+    "tab_xlookup": "XLOOKUP Simulator",
+    "tab_okr": "OKR Builder"
+  },
   "report": {
     "button": "Report an issue",
     "cta_hint": "Something incorrect or missing in this session?",

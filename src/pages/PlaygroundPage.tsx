@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock } from 'lucide-react'
+import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { runQuery, resetDB } from '../lib/sqlSimulator'
@@ -11,6 +11,8 @@ import { useCohort } from '../hooks/useCohort'
 import { usePrograms } from '../hooks/usePhases'
 import HrPlaygroundPage from './HrPlaygroundPage'
 import OvertimeCalculatorPage from './OvertimeCalculatorPage'
+import XlookupSimulatorPage from './XlookupSimulatorPage'
+import OkrBuilderPage from './OkrBuilderPage'
 import type { QueryResult } from '../lib/sqlSimulator'
 import type { PyLoadProgress, PyResult } from '../lib/pyodideRunner'
 
@@ -487,28 +489,30 @@ function PythonPlayground() {
 
 // ── Main PlaygroundPage ───────────────────────────────────────────────
 
-type PlaygroundId = 'sql' | 'python' | 'hr-salary' | 'hr-overtime'
+type PlaygroundId = 'sql' | 'python' | 'hr-salary' | 'hr-overtime' | 'hr-xlookup' | 'hr-okr'
 
 interface PgTab {
   id: PlaygroundId
-  label: string
+  labelKey: string
   icon: typeof Code2
   activeColor: string
 }
 
 const PROGRAM_PLAYGROUNDS: Record<string, PgTab[]> = {
   'data-analyst': [
-    { id: 'sql',    label: 'SQL',    icon: Code2,    activeColor: 'text-blue-400 border-blue-400' },
-    { id: 'python', label: 'Python', icon: Terminal, activeColor: 'text-yellow-400 border-yellow-400' },
+    { id: 'sql',    labelKey: 'playground.tab_sql',    icon: Code2,    activeColor: 'text-blue-400 border-blue-400' },
+    { id: 'python', labelKey: 'playground.tab_python', icon: Terminal, activeColor: 'text-yellow-400 border-yellow-400' },
   ],
   'hr-fast-track': [
-    { id: 'hr-salary',   label: 'Net Salary Calc',  icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
-    { id: 'hr-overtime', label: 'Overtime Calc',     icon: Clock,      activeColor: 'text-orange-500 border-orange-500' },
+    { id: 'hr-salary',   labelKey: 'playground.tab_net_salary', icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
+    { id: 'hr-overtime', labelKey: 'playground.tab_overtime',   icon: Clock,      activeColor: 'text-orange-500 border-orange-500' },
+    { id: 'hr-xlookup',  labelKey: 'playground.tab_xlookup',    icon: Search,     activeColor: 'text-emerald-600 border-emerald-600' },
+    { id: 'hr-okr',      labelKey: 'playground.tab_okr',        icon: Target,     activeColor: 'text-violet-600 border-violet-600' },
   ],
 }
 
 export default function PlaygroundPage() {
-  const { i18n } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   const cohort = useCohort()
   const { programs, loading: programsLoading } = usePrograms()
   const lang = i18n.language === 'id' ? 'id' : 'en'
@@ -588,7 +592,7 @@ export default function PlaygroundPage() {
         {/* Right: playground sub-nav + content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
-            {pgTabs.map(({ id, label, icon: Icon, activeColor }) => (
+            {pgTabs.map(({ id, labelKey, icon: Icon, activeColor }) => (
               <button
                 key={id}
                 onClick={() => setPickedPg(id)}
@@ -599,7 +603,7 @@ export default function PlaygroundPage() {
                 }`}
               >
                 <Icon size={15} />
-                {label}
+                {t(labelKey)}
               </button>
             ))}
           </div>
@@ -608,6 +612,8 @@ export default function PlaygroundPage() {
           {pgId === 'python'       && <PythonPlayground />}
           {pgId === 'hr-salary'    && <HrPlaygroundPage />}
           {pgId === 'hr-overtime'  && <OvertimeCalculatorPage />}
+          {pgId === 'hr-xlookup'   && <XlookupSimulatorPage />}
+          {pgId === 'hr-okr'       && <OkrBuilderPage />}
         </div>
       </div>
     </div>

@@ -238,6 +238,14 @@
     "none_title": "Kamu belum terdaftar di cohort",
     "none_body": "Materi terbuka setelah kamu terdaftar di cohort. Pendaftaran dibuka pada periode tertentu — pantau terus untuk intake berikutnya."
   },
+  "playground": {
+    "tab_sql": "SQL",
+    "tab_python": "Python",
+    "tab_net_salary": "Kalkulator Gaji Bersih",
+    "tab_overtime": "Kalkulator Lembur",
+    "tab_xlookup": "Simulator XLOOKUP",
+    "tab_okr": "OKR Builder"
+  },
   "report": {
     "button": "Laporkan masalah",
     "cta_hint": "Ada yang salah atau kurang di sesi ini?",
