@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { runQuery, resetDB } from '../lib/sqlSimulator'
@@ -10,6 +10,7 @@ import { initPyodide, runPython, isPyodideReady, preloadCSVFiles } from '../lib/
 import { useCohort } from '../hooks/useCohort'
 import { usePrograms } from '../hooks/usePhases'
 import HrPlaygroundPage from './HrPlaygroundPage'
+import OvertimeCalculatorPage from './OvertimeCalculatorPage'
 import type { QueryResult } from '../lib/sqlSimulator'
 import type { PyLoadProgress, PyResult } from '../lib/pyodideRunner'
 
@@ -486,7 +487,7 @@ function PythonPlayground() {
 
 // ── Main PlaygroundPage ───────────────────────────────────────────────
 
-type PlaygroundId = 'sql' | 'python' | 'hr-salary'
+type PlaygroundId = 'sql' | 'python' | 'hr-salary' | 'hr-overtime'
 
 interface PgTab {
   id: PlaygroundId
@@ -501,7 +502,8 @@ const PROGRAM_PLAYGROUNDS: Record<string, PgTab[]> = {
     { id: 'python', label: 'Python', icon: Terminal, activeColor: 'text-yellow-400 border-yellow-400' },
   ],
   'hr-fast-track': [
-    { id: 'hr-salary', label: 'Net Salary Calc', icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
+    { id: 'hr-salary',   label: 'Net Salary Calc',  icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
+    { id: 'hr-overtime', label: 'Overtime Calc',     icon: Clock,      activeColor: 'text-orange-500 border-orange-500' },
   ],
 }
 
@@ -602,9 +604,10 @@ export default function PlaygroundPage() {
             ))}
           </div>
 
-          {pgId === 'sql'       && <SqlPlayground />}
-          {pgId === 'python'    && <PythonPlayground />}
-          {pgId === 'hr-salary' && <HrPlaygroundPage />}
+          {pgId === 'sql'          && <SqlPlayground />}
+          {pgId === 'python'       && <PythonPlayground />}
+          {pgId === 'hr-salary'    && <HrPlaygroundPage />}
+          {pgId === 'hr-overtime'  && <OvertimeCalculatorPage />}
         </div>
       </div>
     </div>
