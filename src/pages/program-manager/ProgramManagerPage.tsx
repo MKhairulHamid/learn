@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Briefcase, Loader2, Save, Users, CalendarDays,
   BarChart2, UserCheck, ChevronDown, Check, X, Star,
-  BookOpen, Clock, Eye, EyeOff,
+  BookOpen, Clock, Eye, EyeOff, ClipboardCheck, CheckCircle2,
 } from 'lucide-react'
+import { StudentReviewTable } from '../../components/admin/StudentReviewTable'
 import {
   usePMProgramDetail,
   usePMSessions,
@@ -250,26 +251,62 @@ function SessionsTab({ programId }: { programId: string }) {
 
 // ── Tab: Cohorts & Schedule ──────────────────────────────────────────
 
+type CohortView = 'schedule' | 'review'
+
 function CohortsTab({ programId }: { programId: string }) {
   const { cohorts, loading, updateCohort, upsertScheduleRow } = usePMCohorts(programId)
   const [selectedCohort, setSelectedCohort] = useState<CohortWithSchedule | null>(null)
+  const [cohortView, setCohortView] = useState<CohortView>('schedule')
+  const [graduatedMsg, setGraduatedMsg] = useState<string | null>(null)
   const { sessions } = usePMSessions(programId)
+  const { program } = usePMProgramDetail(programId)
+
+  const openView = (c: CohortWithSchedule, view: CohortView) => {
+    setSelectedCohort(c)
+    setCohortView(view)
+    setGraduatedMsg(null)
+  }
+
+  const handleBack = () => {
+    setSelectedCohort(null)
+    setGraduatedMsg(null)
+  }
 
   if (loading) return <Skeleton />
 
-  if (selectedCohort) {
+  if (selectedCohort && cohortView === 'schedule') {
     return (
       <ScheduleEditor
         cohort={selectedCohort}
         sessions={sessions}
-        onBack={() => setSelectedCohort(null)}
+        onBack={handleBack}
         onUpsert={upsertScheduleRow}
+      />
+    )
+  }
+
+  if (selectedCohort && cohortView === 'review') {
+    const programName = program ? program.name_en : 'Program'
+    return (
+      <StudentReviewTable
+        cohortId={selectedCohort.id}
+        cohortName={selectedCohort.name}
+        courseTitle={programName}
+        onBack={handleBack}
+        onGraduated={count => setGraduatedMsg(`${count} certificate${count !== 1 ? 's' : ''} issued successfully.`)}
       />
     )
   }
 
   return (
     <div className="space-y-4">
+      {graduatedMsg && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20 text-sm text-green-400">
+          <CheckCircle2 size={15} />
+          {graduatedMsg}
+        </div>
+      )}
+
       {cohorts.length === 0 && (
         <p className="text-center py-12 text-gray-500 text-sm">No cohorts for this program yet.</p>
       )}
@@ -307,11 +344,18 @@ function CohortsTab({ programId }: { programId: string }) {
                   {c.is_published ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
                 <button
-                  onClick={() => setSelectedCohort(c)}
+                  onClick={() => openView(c, 'schedule')}
                   className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-white/[0.08] text-gray-300 hover:bg-white/[0.06] transition-colors"
                 >
                   <CalendarDays size={12} />
                   Schedule
+                </button>
+                <button
+                  onClick={() => openView(c, 'review')}
+                  className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-primary-500/30 text-primary-400 hover:bg-primary-500/10 transition-colors"
+                >
+                  <ClipboardCheck size={12} />
+                  Review Students
                 </button>
               </div>
             </div>

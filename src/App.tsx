@@ -27,6 +27,8 @@ const ProgramManagerPage       = lazy(() => import('./pages/program-manager/Prog
 const ProfilePage              = lazy(() => import('./pages/ProfilePage'))
 const DemoPage                 = lazy(() => import('./pages/DemoPage'))
 const PitchPage                = lazy(() => import('./pages/PitchPage'))
+const VerifyPage               = lazy(() => import('./pages/VerifyPage'))
+const CertificatePrintPage     = lazy(() => import('./pages/CertificatePrintPage'))
 const NotFound                 = lazy(() => import('./pages/NotFound'))
 
 // ── Route guards ──────────────────────────────────────────────
@@ -155,6 +157,14 @@ function AppRoutes() {
 
           {/* Standalone pitch deck — direct URL only: #/pitch */}
           <Route path="/pitch" element={<PitchPage />} />
+
+          {/* Public certificate verification — no auth required */}
+          <Route path="/verify/:certId" element={<VerifyPage />} />
+
+          {/* Certificate print/PDF page — protected */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/certificate/:certId" element={<CertificatePrintPage />} />
+          </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>

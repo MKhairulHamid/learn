@@ -5,14 +5,22 @@ import { useProgress } from '../hooks/useProgress'
 import { useCohort } from '../hooks/useCohort'
 import { supabase } from '../lib/supabase'
 import { Button } from '../components/ui/Button'
-import { User, Mail, Globe, Lock, CheckCircle2, Edit2, Save, X } from 'lucide-react'
+import { useUserCertificates } from '../hooks/useCohortReview'
+import {
+  User, Mail, Globe, Lock, CheckCircle2, Edit2, Save, X,
+  Award, ExternalLink, Printer, Loader2, GraduationCap,
+} from 'lucide-react'
+
+type ProfileTab = 'profile' | 'certificates'
 
 export default function ProfilePage() {
   const { t, i18n } = useTranslation('common')
   const { user, profile, refreshProfile } = useAuth()
   const { completedCount } = useProgress()
   const { schedule } = useCohort()
+  const { certificates, loading: certsLoading } = useUserCertificates(user?.id)
 
+  const [activeTab, setActiveTab] = useState<ProfileTab>('profile')
   const [editing, setEditing] = useState(false)
   const [newName, setNewName] = useState(profile?.full_name ?? '')
   const [savingName, setSavingName] = useState(false)
@@ -78,6 +86,110 @@ export default function ProfilePage() {
         <h1 className="text-xl font-bold text-gray-900">{t('profile.title')}</h1>
         <p className="text-sm text-gray-500 mt-0.5">{t('profile.subtitle')}</p>
       </div>
+
+      {/* Tab switcher */}
+      <div className="flex gap-1 border-b border-gray-800">
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'profile'
+              ? 'border-primary-500 text-primary-500'
+              : 'border-transparent text-gray-500 hover:text-gray-300'
+          }`}
+        >
+          <User size={14} />
+          Profile
+        </button>
+        <button
+          onClick={() => setActiveTab('certificates')}
+          className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'certificates'
+              ? 'border-primary-500 text-primary-500'
+              : 'border-transparent text-gray-500 hover:text-gray-300'
+          }`}
+        >
+          <Award size={14} />
+          My Certificates
+          {certificates.length > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full text-xs font-semibold bg-primary-900 text-primary-300">
+              {certificates.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Certificates tab */}
+      {activeTab === 'certificates' && (
+        <div className="space-y-3">
+          {certsLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 size={20} className="animate-spin text-gray-600" />
+            </div>
+          ) : certificates.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center mb-4">
+                <GraduationCap size={24} className="text-gray-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-400">No certificates yet</p>
+              <p className="text-xs text-gray-600 mt-1">Complete a program and get reviewed to earn your certificate.</p>
+            </div>
+          ) : (
+            certificates.map(cert => (
+              <div
+                key={cert.id}
+                className="bg-gray-900 border border-gray-800 rounded-2xl p-5 flex items-start justify-between gap-4"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                    <Award size={18} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">{cert.course_title}</div>
+                    {cert.cohort && (
+                      <div className="text-xs text-gray-500 mt-0.5">{cert.cohort.name}</div>
+                    )}
+                    <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                      <span>
+                        Issued {new Date(cert.issued_at).toLocaleDateString('en-GB', {
+                          day: 'numeric', month: 'long', year: 'numeric',
+                        })}
+                      </span>
+                      {cert.score != null && (
+                        <span className="px-1.5 py-0.5 rounded bg-green-500/10 text-green-400 font-medium">
+                          {cert.score}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={`#/verify/${cert.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors"
+                  >
+                    <ExternalLink size={12} />
+                    View
+                  </a>
+                  <a
+                    href={`#/certificate/${cert.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                  >
+                    <Printer size={12} />
+                    Print / PDF
+                  </a>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Profile tab */}
+      {activeTab === 'profile' && (<>
 
       {/* Avatar + Name + Email + Role */}
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
@@ -239,6 +351,7 @@ export default function ProfilePage() {
           </>
         )}
       </div>
+      </>)}
     </div>
   )
 }

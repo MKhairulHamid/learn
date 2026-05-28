@@ -211,3 +211,39 @@ export interface CohortSessionProgress {
   completed_at: string | null
   score: number
 }
+
+// ── Certificate system ─────────────────────────────────────────────────
+
+export interface CertificateTemplate {
+  id: string
+  name: string
+  html_template: string
+  is_default: boolean
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ReviewStatus = 'pending' | 'pass' | 'fail'
+
+export interface CohortStudentReview {
+  id: string
+  cohort_id: string
+  user_id: string
+  reviewed_by: string | null
+  status: ReviewStatus
+  notes: string | null
+  reviewed_at: string | null
+  created_at: string
+}
+
+export interface Certificate {
+  id: string
+  user_id: string
+  cohort_id: string
+  template_id: string | null
+  course_title: string
+  recipient_name: string
+  score: number | null
+  issued_at: string
+}
