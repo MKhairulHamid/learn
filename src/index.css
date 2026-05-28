@@ -72,6 +72,10 @@
 .tippy-box { background: transparent; box-shadow: none; padding: 0; }
 .tippy-content { padding: 0; }
 
+/* ── iOS safe-area utilities ─────────────────────────────────────── */
+.safe-area-pt { padding-top: env(safe-area-inset-top); }
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
+
 @layer base {
   html {
     scroll-behavior: smooth;
