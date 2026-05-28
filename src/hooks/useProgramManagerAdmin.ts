@@ -10,7 +10,8 @@ export interface PMUser {
 
 export interface ProgramRow {
   id: string
-  title: string
+  name_en: string
+  name_id: string
   is_published: boolean
 }
 
@@ -40,7 +41,7 @@ export function useProgramManagerAdmin() {
       { data: assignData, error: assignErr },
     ] = await Promise.all([
       supabase.from('profiles').select('id, full_name, username, role').order('full_name'),
-      supabase.from('programs').select('id, title, is_published').order('order_num'),
+      supabase.from('programs').select('id, name_en, name_id, is_published').order('order_num'),
       supabase.from('program_manager_assignments')
         .select('id, user_id, program_id, assigned_at')
         .order('assigned_at', { ascending: false }),

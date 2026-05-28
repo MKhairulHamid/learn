@@ -135,7 +135,7 @@ export function ProgramManagerAdminPanel() {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-100">{program.title}</h3>
+                    <h3 className="text-sm font-semibold text-gray-100">{program.name_en}</h3>
                     {!program.is_published && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded border border-gray-700 text-gray-500">
                         draft
