@@ -81,11 +81,16 @@ export function CohortProvider({ children }: { children: ReactNode }) {
         .maybeSingle()
 
       if (open) {
-        await supabase.from('cohort_enrollments').insert({
+        const { error: insertError } = await supabase.from('cohort_enrollments').insert({
           cohort_id: open.id,
           user_id: user.id,
           status: 'pending',
         })
+        if (insertError) {
+          // Could be a duplicate (race between two tabs) — reload regardless
+          // so we pick up any existing enrollment rather than staying empty.
+          console.warn('[CohortProvider] auto-enroll insert failed:', insertError.message)
+        }
         const reload = await loadEnrollments()
         data = reload.data
         rows = (data as EnrollmentWithCohort[] | null) ?? []

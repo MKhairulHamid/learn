@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { useProgress } from '../hooks/useProgress'
+import { useCohort } from '../hooks/useCohort'
 import { supabase } from '../lib/supabase'
 import { Button } from '../components/ui/Button'
 import { User, Mail, Globe, Lock, CheckCircle2, Edit2, Save, X } from 'lucide-react'
@@ -10,6 +11,7 @@ export default function ProfilePage() {
   const { t, i18n } = useTranslation('common')
   const { user, profile, refreshProfile } = useAuth()
   const { completedCount } = useProgress()
+  const { schedule } = useCohort()
 
   const [editing, setEditing] = useState(false)
   const [newName, setNewName] = useState(profile?.full_name ?? '')
@@ -28,8 +30,9 @@ export default function ProfilePage() {
     .toUpperCase()
     .slice(0, 2)
 
-  const totalSessions = 12
-  const progressPct = Math.min(100, Math.round((completedCount / totalSessions) * 100))
+  // Derive total from the cohort's actual lesson schedule instead of a hardcoded constant.
+  const totalSessions = schedule.length
+  const progressPct = totalSessions > 0 ? Math.min(100, Math.round((completedCount / totalSessions) * 100)) : 0
 
   async function handleSaveName() {
     if (!user) return

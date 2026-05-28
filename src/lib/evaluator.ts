@@ -137,23 +137,31 @@ async function runSingleTest(
     }
 
     case 'custom': {
-      // Check if query contains required keywords
+      // Check if query contains required SQL clauses/keywords.
+      // We intentionally do NOT reveal which keywords are missing in the error
+      // message — that would give away the answer. Students should figure it out.
       const required = tc.expected_value as string[]
       if (!Array.isArray(required)) {
         return { test_id: tc.id, passed: true, message_en: `✓ ${desc}`, message_id: `✓ ${desc}` }
       }
       const upperQuery = query.toUpperCase()
-      const missing = required.filter(k => !upperQuery.includes(k.toUpperCase()))
-      const passed = missing.length === 0
+      const passed = required.every(k => upperQuery.includes(k.toUpperCase()))
       return {
         test_id: tc.id,
         passed,
-        message_en: passed ? `✓ ${desc}` : `✗ ${desc} — missing: ${missing.join(', ')}`,
-        message_id: passed ? `✓ ${desc}` : `✗ ${desc} — kurang: ${missing.join(', ')}`,
+        message_en: passed ? `✓ ${desc}` : `✗ ${desc} — check that your query uses the right SQL clauses`,
+        message_id: passed ? `✓ ${desc}` : `✗ ${desc} — periksa apakah query-mu sudah menggunakan klausa SQL yang tepat`,
       }
     }
 
     default:
-      return { test_id: tc.id, passed: true, message_en: `✓ ${desc}`, message_id: `✓ ${desc}` }
+      // Unknown validation_type — fail loudly so misconfigured exercises are
+      // caught during content authoring rather than silently passing for everyone.
+      return {
+        test_id: tc.id,
+        passed: false,
+        message_en: `✗ ${desc} — unknown validation type: "${tc.validation_type}"`,
+        message_id: `✗ ${desc} — tipe validasi tidak dikenal: "${tc.validation_type}"`,
+      }
   }
 }
