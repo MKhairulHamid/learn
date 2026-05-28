@@ -487,11 +487,12 @@ export default function SessionPage() {
         </div>
       </div>
 
-      {/* Report content — subtle link between CTA and discussion */}
-      <div className="flex justify-center mb-4">
+      {/* Report content */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-3 mb-4 flex items-center justify-between gap-4">
+        <p className="text-xs text-gray-400">{t('report.cta_hint')}</p>
         <button
           onClick={() => setReportOpen(true)}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-xs font-medium text-red-500 hover:bg-red-50 transition-colors shrink-0"
         >
           <Flag size={12} />
           {t('report.button')}

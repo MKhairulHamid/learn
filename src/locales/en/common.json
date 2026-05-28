@@ -240,6 +240,7 @@
   },
   "report": {
     "button": "Report an issue",
+    "cta_hint": "Something incorrect or missing in this session?",
     "modal_title": "Report Content Issue",
     "reason_label": "What's the issue?",
     "reason_incorrect": "Incorrect or misleading content",
