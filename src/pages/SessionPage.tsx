@@ -23,6 +23,7 @@ import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
 import { ReportContentModal } from '../components/feedback/ReportContentModal'
+import { SQL_SESSIONS, PYTHON_SESSIONS, PROJECT_SESSIONS } from '../lib/constants'
 
 // Long date label for a live session day, e.g. "Saturday, 14 June 2026"
 const fmtLong = (d: string, locale: string) =>
@@ -79,11 +80,9 @@ export default function SessionPage() {
   const content = session ? (lang === 'id' ? session.content_id : session.content_en) : ''
 
   // Determine embedded playground type from session number
-  const sqlSessions = ['04', '05', '06']
-  const pythonSessions = ['10']
   const playgroundType = session
-    ? sqlSessions.includes(session.session_number) ? 'sql'
-      : pythonSessions.includes(session.session_number) ? 'python'
+    ? SQL_SESSIONS.includes(session.session_number) ? 'sql'
+      : PYTHON_SESSIONS.includes(session.session_number) ? 'python'
       : null
     : null
 
@@ -254,7 +253,7 @@ export default function SessionPage() {
               </span>
               <span className="flex items-center gap-1">
                 <BookOpen size={14} />
-                {session.session_number === '11' ? t('session.one_project') : t('session.lesson_exercises')}
+                {PROJECT_SESSIONS.includes(session.session_number) ? t('session.one_project') : t('session.lesson_exercises')}
               </span>
               {mentorName && (
                 <span className="flex items-center gap-1">

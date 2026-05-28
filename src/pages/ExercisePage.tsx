@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Play, Send, BookOpen, CheckCircle2, ChevronRight, Zap, Flame, Skull, RotateCcw, Pencil } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
@@ -22,7 +23,8 @@ export default function ExercisePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { profile } = useAuth()
-  const lang = (localStorage.getItem('i18nextLng') ?? 'en') as 'en' | 'id'
+  const { i18n } = useTranslation()
+  const lang: 'en' | 'id' = i18n.resolvedLanguage === 'id' ? 'id' : 'en'
 
   const { cohortId, status, isEditor } = useCohort()
   const activeCohortId = status === 'active' ? cohortId : null

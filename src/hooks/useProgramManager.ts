@@ -312,7 +312,7 @@ export function useMentorPerformance(programId: string | undefined) {
     type PhaseWithSessions = {
       sessions: (Pick<Session, 'id' | 'mentor_id'> & { mentor: MentorProfile | null })[]
     }
-    for (const phase of (phaseData ?? []) as unknown as PhaseWithSessions[]) {
+    for (const phase of (phaseData as PhaseWithSessions[] | null) ?? []) {
       for (const s of phase.sessions ?? []) {
         if (s.mentor_id && s.mentor) {
           sessionMentorMap.set(s.id, s.mentor)
