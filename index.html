@@ -12,19 +12,6 @@
     <meta name="apple-mobile-web-app-title" content="Learning Platform" />
     <link rel="apple-touch-icon" href="/learn/pwa-192x192.png" />
     <title>Learning Platform</title>
-    <script>
-      // Restore path after GitHub Pages 404 redirect
-      (function () {
-        var redirect = sessionStorage.getItem('spa-redirect')
-        if (redirect) {
-          sessionStorage.removeItem('spa-redirect')
-          var url = new URL(redirect)
-          if (url.pathname !== location.pathname) {
-            history.replaceState(null, '', url.pathname + url.search + url.hash)
-          }
-        }
-      })()
-    </script>
   </head>
   <body>
     <div id="root"></div>

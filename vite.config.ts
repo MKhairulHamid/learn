@@ -42,19 +42,19 @@ export default defineConfig({
           {
             name: 'Dashboard',
             short_name: 'Dashboard',
-            url: '/learn/dashboard',
+            url: '/learn/#/dashboard',
             icons: [{ src: '/learn/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Curriculum',
             short_name: 'Curriculum',
-            url: '/learn/curriculum',
+            url: '/learn/#/curriculum',
             icons: [{ src: '/learn/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Playground',
             short_name: 'Playground',
-            url: '/learn/playground',
+            url: '/learn/#/playground',
             icons: [{ src: '/learn/pwa-192x192.png', sizes: '192x192' }],
           },
         ],
