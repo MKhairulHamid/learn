@@ -7,12 +7,16 @@ import type { ReactNode } from 'react'
    high-density, instructor-led slides.
 ───────────────────────────────────────────────────────────────────────────── */
 
+// Talentiv brand assets are bundled locally (in public/brand) because the live
+// talentiv.id images are hotlink-protected (403 / ORB) from other origins.
+const ASSET = import.meta.env.BASE_URL // '/learn/' in prod, '/' in dev
+
 export const BRAND = {
   teal: '#1FA79B',
   mint: '#6DC4AA',
   light: '#D1EDE5',
-  heroImage: 'https://talentiv.id/wp-content/uploads/2026/05/Hero-Image.png',
-  logoWhite: 'https://talentiv.id/wp-content/uploads/2024/06/talentiv-logo-white.webp',
+  heroImage: `${ASSET}brand/talentiv-hero.png`,
+  logoWhite: `${ASSET}brand/talentiv-logo-white.webp`,
   logoColor: 'https://talentiv.id/wp-content/uploads/2026/01/Desain-tanpa-judul-11-e1735010249654.png',
 }
 
@@ -23,7 +27,7 @@ export function Glow({ className }: { className: string }) {
 /** Full-bleed centered slide shell with a subtle teal glow backdrop. */
 export function Shell({ children }: { children: ReactNode }) {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center px-5 sm:px-10 lg:px-16 py-8 sm:py-14 pb-20 relative overflow-hidden">
+    <div className="w-full min-h-full flex flex-col items-center justify-center px-5 sm:px-8 lg:px-12 py-6 sm:py-9 pb-16 relative overflow-hidden">
       <Glow className="top-0 right-0 w-[520px] h-[360px] bg-[#1FA79B]/12" />
       <Glow className="bottom-0 left-0 w-[460px] h-[320px] bg-[#6DC4AA]/8" />
       {children}
@@ -68,6 +72,47 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
       {children}
     </div>
   )
+}
+
+/** Card with an icon + title header. */
+export function Panel({
+  icon, title, children, className = '',
+}: { icon?: ReactNode; title?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 sm:p-5 ${className}`}>
+      {(icon || title) && (
+        <div className="flex items-center gap-2.5 mb-3">
+          {icon && (
+            <div className="w-8 h-8 rounded-lg bg-[#1FA79B]/15 border border-[#1FA79B]/20 flex items-center justify-center text-[#6DC4AA] shrink-0">
+              {icon}
+            </div>
+          )}
+          {title && <h3 className="font-semibold text-white text-sm sm:text-[15px]">{title}</h3>}
+        </div>
+      )}
+      {children}
+    </div>
+  )
+}
+
+/** Inline callout / note box. */
+export function Note({
+  tone = 'info', children, className = '',
+}: { tone?: 'info' | 'warn' | 'danger'; children: ReactNode; className?: string }) {
+  const tones: Record<string, string> = {
+    info: 'border-[#1FA79B]/25 bg-[#1FA79B]/[0.06] text-gray-300',
+    warn: 'border-amber-500/25 bg-amber-500/[0.07] text-amber-100/90',
+    danger: 'border-red-500/25 bg-red-500/[0.07] text-gray-200',
+  }
+  return (
+    <div className={`rounded-xl border ${tones[tone]} px-3.5 py-2.5 text-xs leading-relaxed ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+export function SectionLabel({ children }: { children: ReactNode }) {
+  return <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-2">{children}</p>
 }
 
 /* ── SQL syntax highlighter ──────────────────────────────────────────────────── */
