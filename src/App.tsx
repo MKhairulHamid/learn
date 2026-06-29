@@ -27,6 +27,8 @@ const ProgramManagerPage       = lazy(() => import('./pages/program-manager/Prog
 const ProfilePage              = lazy(() => import('./pages/ProfilePage'))
 const DemoPage                 = lazy(() => import('./pages/DemoPage'))
 const PitchPage                = lazy(() => import('./pages/PitchPage'))
+const PresentationsIndex       = lazy(() => import('./pages/PresentationsIndex'))
+const PresentationViewer       = lazy(() => import('./pages/PresentationViewer'))
 const VerifyPage               = lazy(() => import('./pages/VerifyPage'))
 const CertificatePrintPage     = lazy(() => import('./pages/CertificatePrintPage'))
 const NotFound                 = lazy(() => import('./pages/NotFound'))
@@ -157,6 +159,10 @@ function AppRoutes() {
 
           {/* Standalone pitch deck — direct URL only: #/pitch */}
           <Route path="/pitch" element={<PitchPage />} />
+
+          {/* Standalone class presentations — direct URL only, no auth, not in nav */}
+          <Route path="/present" element={<PresentationsIndex />} />
+          <Route path="/present/:id" element={<PresentationViewer />} />
 
           {/* Public certificate verification — no auth required */}
           <Route path="/verify/:certId" element={<VerifyPage />} />
