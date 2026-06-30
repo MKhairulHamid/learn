@@ -185,7 +185,7 @@ export default function PresentationViewer() {
 
   if (!deck) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-[#06302c] text-white flex flex-col items-center justify-center gap-4">
         <p className="text-gray-400">Presentasi tidak ditemukan.</p>
         <button onClick={() => navigate('/present')} className="text-[#6DC4AA] underline">Kembali ke daftar</button>
       </div>
@@ -204,7 +204,7 @@ export default function PresentationViewer() {
 
   return (
     <div
-      className="w-screen h-screen overflow-hidden bg-gray-950 text-white relative"
+      className="w-screen h-screen overflow-hidden bg-[#06302c] text-white relative"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onMouseMove={nudgeControls}

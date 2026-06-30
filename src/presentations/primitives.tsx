@@ -68,7 +68,7 @@ export function Bullet({ children, tone = 'good' }: { children: ReactNode; tone?
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 ${className}`}>
+    <div className={`rounded-2xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.06] p-5 ${className}`}>
       {children}
     </div>
   )
@@ -79,7 +79,7 @@ export function Panel({
   icon, title, children, className = '',
 }: { icon?: ReactNode; title?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 sm:p-5 ${className}`}>
+    <div className={`rounded-2xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.06] p-4 sm:p-5 ${className}`}>
       {(icon || title) && (
         <div className="flex items-center gap-2.5 mb-3">
           {icon && (
@@ -142,7 +142,7 @@ function highlightSql(code: string): ReactNode[] {
 
 export function Sql({ children, className = '' }: { children: string; className?: string }) {
   return (
-    <pre className={`bg-[#0b1220] border border-white/[0.08] rounded-xl p-3.5 overflow-x-auto font-mono text-[11px] sm:text-[13px] leading-relaxed text-gray-200 ${className}`}>
+    <pre className={`bg-[#0b1220] border border-[#6DC4AA]/20 rounded-xl p-3.5 overflow-x-auto font-mono text-[11px] sm:text-[13px] leading-relaxed text-gray-200 ${className}`}>
       <code>{highlightSql(children.trim())}</code>
     </pre>
   )
@@ -162,15 +162,15 @@ export function DataTable({
   highlightCol?: number
 }) {
   return (
-    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+    <div className="rounded-xl border border-[#6DC4AA]/20 overflow-hidden">
       {caption && (
-        <div className="bg-white/[0.04] px-3 py-1.5 text-[10px] font-mono font-semibold text-[#6DC4AA] uppercase tracking-wider">
+        <div className="bg-[#6DC4AA]/[0.08] px-3 py-1.5 text-[10px] font-mono font-semibold text-[#6DC4AA] uppercase tracking-wider">
           {caption}
         </div>
       )}
       <table className="w-full text-[10px] sm:text-xs">
         <thead>
-          <tr className="bg-white/[0.03] text-gray-400">
+          <tr className="bg-[#6DC4AA]/[0.06] text-gray-400">
             {columns.map((c, i) => (
               <th key={c} className={`text-left font-semibold px-2.5 py-1.5 font-mono ${i === highlightCol ? 'text-[#1FA79B]' : ''}`}>
                 {c}
@@ -180,7 +180,7 @@ export function DataTable({
         </thead>
         <tbody>
           {rows.map((r, ri) => (
-            <tr key={ri} className="border-t border-white/[0.05]">
+            <tr key={ri} className="border-t border-[#6DC4AA]/12">
               {r.map((cell, ci) => (
                 <td key={ci} className={`px-2.5 py-1.5 text-gray-300 ${ci === highlightCol ? 'text-[#6DC4AA] font-medium bg-[#1FA79B]/[0.06]' : ''}`}>
                   {cell}

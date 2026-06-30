@@ -9,7 +9,7 @@ import { BRAND } from '../presentations/primitives'
 
 export default function PresentationsIndex() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[#06302c] text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[600px] h-[400px] bg-[#1FA79B]/12 blur-[140px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[350px] bg-[#6DC4AA]/8 blur-[140px] pointer-events-none" />
 
@@ -30,7 +30,7 @@ export default function PresentationsIndex() {
             <Link
               key={p.id}
               to={`/present/${p.id}`}
-              className="group block rounded-2xl border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#1FA79B]/40 transition-all p-5 sm:p-6"
+              className="group block rounded-2xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.06] hover:bg-[#6DC4AA]/[0.10] hover:border-[#1FA79B]/40 transition-all p-5 sm:p-6"
             >
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1FA79B] to-[#6DC4AA] flex items-center justify-center shrink-0">

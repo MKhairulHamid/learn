@@ -30,8 +30,8 @@ function HeroVisual() {
     )
   }
   return (
-    <div className="max-w-[440px] mx-auto rounded-2xl border border-white/10 bg-[#0b1220]/80 shadow-2xl shadow-black/50 overflow-hidden">
-      <div className="bg-white/[0.04] px-4 py-2 flex items-center gap-2 border-b border-white/[0.06]">
+    <div className="max-w-[440px] mx-auto rounded-2xl border border-[#6DC4AA]/20 bg-[#0b1220]/80 shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="bg-[#6DC4AA]/[0.08] px-4 py-2 flex items-center gap-2 border-b border-[#6DC4AA]/15">
         <Database size={13} className="text-[#6DC4AA]" />
         <span className="text-[11px] font-mono text-gray-400">query_pertamamu.sql</span>
       </div>
@@ -82,7 +82,7 @@ const S01 = (
             ['Filter', 'WHERE · BETWEEN · IN · LIKE'],
             ['Agregasi', 'GROUP BY · HAVING'],
           ].map(([k, v]) => (
-            <div key={k} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+            <div key={k} className="rounded-xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.08] px-3 py-2">
               <div className="text-[10px] uppercase tracking-widest text-[#6DC4AA]">{k}</div>
               <div className="text-xs text-gray-300 mt-0.5">{v}</div>
             </div>
@@ -131,8 +131,8 @@ const S02 = (
         </Panel>
       </div>
       <div className="grid sm:grid-cols-2 gap-4 mt-4">
-        <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
-          <div className="grid grid-cols-3 bg-white/[0.04] text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
+        <div className="rounded-2xl border border-[#6DC4AA]/20 overflow-hidden">
+          <div className="grid grid-cols-3 bg-[#6DC4AA]/[0.08] text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
             <div className="px-3 py-2">Aspek</div>
             <div className="px-3 py-2">Excel</div>
             <div className="px-3 py-2 text-[#6DC4AA]">Database</div>
@@ -143,7 +143,7 @@ const S02 = (
             ['Aturan data', 'tidak ada', 'ditegakkan'],
             ['Relasi', 'manual (VLOOKUP)', 'lewat key'],
           ].map((r) => (
-            <div key={r[0]} className="grid grid-cols-3 border-t border-white/[0.05] text-xs">
+            <div key={r[0]} className="grid grid-cols-3 border-t border-[#6DC4AA]/12 text-xs">
               <div className="px-3 py-2 text-gray-400">{r[0]}</div>
               <div className="px-3 py-2 text-gray-500">{r[1]}</div>
               <div className="px-3 py-2 text-gray-200">{r[2]}</div>
@@ -243,7 +243,7 @@ const S04 = (
           <p className="text-xs text-gray-400 mb-2">Hampir semua perusahaan teknologi di dunia. Semua bicara SQL dengan sedikit beda sintaks:</p>
           <div className="flex flex-wrap gap-1.5">
             {['PostgreSQL', 'MySQL', 'SQL Server', 'SQLite', 'BigQuery', 'Snowflake', 'Redshift'].map(d => (
-              <span key={d} className="text-[10px] font-mono border border-white/10 bg-white/[0.04] rounded px-1.5 py-0.5 text-gray-400">{d}</span>
+              <span key={d} className="text-[10px] font-mono border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.08] rounded px-1.5 py-0.5 text-gray-400">{d}</span>
             ))}
           </div>
         </Panel>
@@ -254,11 +254,11 @@ const S04 = (
       <div className="grid sm:grid-cols-2 gap-4">
         <Panel title="Deklaratif vs Imperatif">
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-3">
+            <div className="rounded-lg bg-[#6DC4AA]/[0.06] border border-[#6DC4AA]/15 p-3">
               <div className="text-[#6DC4AA] font-semibold mb-1">SQL (deklaratif)</div>
               <p className="text-gray-400">"Beri aku pelanggan Jakarta." Kamu sebut <span className="text-gray-200">tujuan</span>.</p>
             </div>
-            <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-3">
+            <div className="rounded-lg bg-[#6DC4AA]/[0.06] border border-[#6DC4AA]/15 p-3">
               <div className="text-gray-300 font-semibold mb-1">Pemrograman (imperatif)</div>
               <p className="text-gray-400">"Buka file, loop tiap baris, cek kota…" Kamu sebut <span className="text-gray-200">langkah</span>.</p>
             </div>
@@ -292,9 +292,9 @@ const S05 = (
             <Sql>{`SELECT kolom1, kolom2, kolom3
 FROM nama_tabel;`}</Sql>
             <div className="grid grid-cols-3 gap-2 mt-2 text-[10px] text-center">
-              <div className="rounded bg-white/[0.04] border border-white/[0.06] py-1.5"><span className="text-[#6DC4AA] font-mono">SELECT</span><div className="text-gray-500">kolom apa</div></div>
-              <div className="rounded bg-white/[0.04] border border-white/[0.06] py-1.5"><span className="text-[#6DC4AA] font-mono">FROM</span><div className="text-gray-500">tabel mana</div></div>
-              <div className="rounded bg-white/[0.04] border border-white/[0.06] py-1.5"><span className="text-[#6DC4AA] font-mono">;</span><div className="text-gray-500">akhir query</div></div>
+              <div className="rounded bg-[#6DC4AA]/[0.08] border border-[#6DC4AA]/15 py-1.5"><span className="text-[#6DC4AA] font-mono">SELECT</span><div className="text-gray-500">kolom apa</div></div>
+              <div className="rounded bg-[#6DC4AA]/[0.08] border border-[#6DC4AA]/15 py-1.5"><span className="text-[#6DC4AA] font-mono">FROM</span><div className="text-gray-500">tabel mana</div></div>
+              <div className="rounded bg-[#6DC4AA]/[0.08] border border-[#6DC4AA]/15 py-1.5"><span className="text-[#6DC4AA] font-mono">;</span><div className="text-gray-500">akhir query</div></div>
             </div>
           </div>
           <div>
@@ -399,7 +399,7 @@ WHERE city = 'Jakarta';`}</Sql>
         </div>
         <div>
           <SectionLabel>Operator perbandingan</SectionLabel>
-          <div className="rounded-xl border border-white/[0.08] overflow-hidden text-xs">
+          <div className="rounded-xl border border-[#6DC4AA]/20 overflow-hidden text-xs">
             {[
               ['=', 'Sama dengan', "city = 'Jakarta'"],
               ['!=  <>', 'Tidak sama dengan', "city != 'Jakarta'"],
@@ -408,7 +408,7 @@ WHERE city = 'Jakarta';`}</Sql>
               ['>=', 'Lebih besar / sama', 'price >= 100000'],
               ['<=', 'Lebih kecil / sama', 'price <= 100000'],
             ].map((r, i) => (
-              <div key={i} className="grid grid-cols-[78px_1fr] gap-2 px-3 py-2 border-t border-white/[0.05] first:border-0 items-center">
+              <div key={i} className="grid grid-cols-[78px_1fr] gap-2 px-3 py-2 border-t border-[#6DC4AA]/12 first:border-0 items-center">
                 <span className="font-mono text-[#6DC4AA] font-semibold">{r[0]}</span>
                 <span className="text-gray-400">{r[1]} <span className="text-gray-600 font-mono">— {r[2]}</span></span>
               </div>
@@ -487,14 +487,14 @@ LIKE '_____'`}</Sql></div>
         </div>
         <div>
           <SectionLabel>Pola → yang cocok</SectionLabel>
-          <div className="rounded-xl border border-white/[0.08] overflow-hidden text-xs">
+          <div className="rounded-xl border border-[#6DC4AA]/20 overflow-hidden text-xs">
             {[
               ["'a%'", 'diawali huruf a'],
               ["'%a'", 'diakhiri huruf a'],
               ["'%abc%'", 'mengandung "abc" di mana saja'],
               ["'a_c'", '3 huruf: a, apa saja, c'],
             ].map((r, i) => (
-              <div key={i} className="grid grid-cols-[90px_1fr] gap-2 px-3 py-2 border-t border-white/[0.05] first:border-0">
+              <div key={i} className="grid grid-cols-[90px_1fr] gap-2 px-3 py-2 border-t border-[#6DC4AA]/12 first:border-0">
                 <span className="font-mono text-[#6DC4AA]">{r[0]}</span>
                 <span className="text-gray-400">{r[1]}</span>
               </div>
@@ -536,8 +536,8 @@ WHERE shipped_date IS NOT NULL;`}</Sql>
           <Note>💡 Untuk mengganti NULL dengan nilai default, pakai <span className="font-mono text-[#6DC4AA]">COALESCE(phone, 'belum ada')</span>.</Note>
         </div>
         <div className="space-y-3">
-          <div className="rounded-xl border border-white/[0.08] overflow-hidden text-xs">
-            <div className="grid grid-cols-2 bg-white/[0.04] text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
+          <div className="rounded-xl border border-[#6DC4AA]/20 overflow-hidden text-xs">
+            <div className="grid grid-cols-2 bg-[#6DC4AA]/[0.08] text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
               <div className="px-3 py-2">Nilai</div><div className="px-3 py-2">Artinya</div>
             </div>
             {[
@@ -545,7 +545,7 @@ WHERE shipped_date IS NOT NULL;`}</Sql>
               ['0', 'angka nol (ada nilainya)'],
               ["''", 'string kosong (ada nilainya)'],
             ].map((r) => (
-              <div key={r[0]} className="grid grid-cols-2 border-t border-white/[0.05]">
+              <div key={r[0]} className="grid grid-cols-2 border-t border-[#6DC4AA]/12">
                 <div className="px-3 py-2 font-mono text-[#6DC4AA]">{r[0]}</div>
                 <div className="px-3 py-2 text-gray-400">{r[1]}</div>
               </div>
@@ -589,9 +589,9 @@ const S11 = (
         </div>
         <div>
           <SectionLabel>Tabel kebenaran</SectionLabel>
-          <table className="w-full text-xs rounded-xl overflow-hidden border border-white/[0.08]">
+          <table className="w-full text-xs rounded-xl overflow-hidden border border-[#6DC4AA]/20">
             <thead>
-              <tr className="bg-white/[0.04] text-gray-400">
+              <tr className="bg-[#6DC4AA]/[0.08] text-gray-400">
                 <th className="px-3 py-2 text-left font-semibold">A</th>
                 <th className="px-3 py-2 text-left font-semibold">B</th>
                 <th className="px-3 py-2 font-semibold text-[#6DC4AA]">A AND B</th>
@@ -605,7 +605,7 @@ const S11 = (
                 ['FALSE', 'TRUE', false, true],
                 ['FALSE', 'FALSE', false, false],
               ].map((r, i) => (
-                <tr key={i} className="border-t border-white/[0.05]">
+                <tr key={i} className="border-t border-[#6DC4AA]/12">
                   <td className="px-3 py-2 text-gray-400">{r[0] as string}</td>
                   <td className="px-3 py-2 text-gray-400">{r[1] as string}</td>
                   <td className={`px-3 py-2 text-center ${r[2] ? 'text-[#6DC4AA]' : 'text-gray-600'}`}>{r[2] ? 'TRUE' : 'FALSE'}</td>
@@ -725,7 +725,7 @@ LIMIT 10 OFFSET 10;`}</Sql>
             ['Butuh waktu lama', 'Query bisa berjalan bermenit-menit', 'bad'],
             ['Dengan LIMIT', '"Tunjukkan sampelnya dulu" — cepat & aman', 'good'],
           ].map(([t, d, tone]) => (
-            <div key={t as string} className={`rounded-xl border p-4 ${tone === 'good' ? 'border-[#1FA79B]/25 bg-[#1FA79B]/[0.06]' : 'border-white/[0.08] bg-white/[0.02]'}`}>
+            <div key={t as string} className={`rounded-xl border p-4 ${tone === 'good' ? 'border-[#1FA79B]/25 bg-[#1FA79B]/[0.06]' : 'border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.04]'}`}>
               <p className={`text-sm font-semibold mb-0.5 ${tone === 'good' ? 'text-[#6DC4AA]' : 'text-gray-300'}`}>{t as string}</p>
               <p className="text-xs text-gray-400">{d as string}</p>
             </div>
@@ -754,7 +754,7 @@ const S15 = (
           ['MIN', 'nilai terkecil'],
           ['MAX', 'nilai terbesar'],
         ].map(([f, d]) => (
-          <div key={f} className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 text-center">
+          <div key={f} className="rounded-xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.06] p-3 text-center">
             <p className="font-mono text-[#6DC4AA] font-semibold text-sm">{f}</p>
             <p className="text-[11px] text-gray-500 mt-0.5">{d}</p>
           </div>
@@ -850,8 +850,8 @@ const S17 = (
               <Sql>{`HAVING COUNT(*) > 100`}</Sql>
             </Card>
           </div>
-          <div className="rounded-xl border border-white/[0.08] overflow-hidden text-xs">
-            <div className="grid grid-cols-3 bg-white/[0.04] text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
+          <div className="rounded-xl border border-[#6DC4AA]/20 overflow-hidden text-xs">
+            <div className="grid grid-cols-3 bg-[#6DC4AA]/[0.08] text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
               <div className="px-3 py-2">&nbsp;</div><div className="px-3 py-2">WHERE</div><div className="px-3 py-2 text-[#6DC4AA]">HAVING</div>
             </div>
             {[
@@ -859,7 +859,7 @@ const S17 = (
               ['Menyaring', 'baris', 'kelompok'],
               ['Fungsi agregat', 'tidak boleh', 'boleh'],
             ].map((r) => (
-              <div key={r[0]} className="grid grid-cols-3 border-t border-white/[0.05]">
+              <div key={r[0]} className="grid grid-cols-3 border-t border-[#6DC4AA]/12">
                 <div className="px-3 py-2 text-gray-400">{r[0]}</div>
                 <div className="px-3 py-2 text-gray-500">{r[1]}</div>
                 <div className="px-3 py-2 text-gray-200">{r[2]}</div>
@@ -890,7 +890,7 @@ const S18 = (
       <SlideTitle sub="Kamu MENULIS dengan urutan satu — tapi database MENGEKSEKUSI dengan urutan berbeda.">
         Urutan eksekusi SQL
       </SlideTitle>
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 mb-4 font-mono text-xs text-center text-gray-400">
+      <div className="rounded-xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.04] p-3 mb-4 font-mono text-xs text-center text-gray-400">
         SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY … LIMIT
         <span className="block text-[10px] text-gray-600 mt-1">↑ urutan menulis</span>
       </div>
@@ -941,7 +941,7 @@ const S19 = (
             ['must appear in GROUP BY', 'Ada kolom non-agregat di SELECT yang lupa dimasukkan ke GROUP BY.'],
             ['0 baris (tanpa error)', 'WHERE terlalu ketat — menyaring semuanya. Longgarkan kondisinya.'],
           ].map(([e, d]) => (
-            <div key={e as string} className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3.5">
+            <div key={e as string} className="rounded-xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.04] p-3.5">
               <div className="flex items-center gap-2 mb-1">
                 <AlertTriangle size={14} className="text-amber-400 shrink-0" />
                 <span className="font-mono text-xs text-amber-300">{e as string}</span>
@@ -988,7 +988,7 @@ const S20 = (
           'WHERE menyaring baris · HAVING menyaring kelompok',
           'SQL dieksekusi: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT',
         ].map(t => (
-          <div key={t} className="flex items-start gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+          <div key={t} className="flex items-start gap-2.5 rounded-xl border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.06] px-4 py-3">
             <CheckCircle2 size={15} className="text-[#6DC4AA] mt-0.5 shrink-0" />
             <span className="text-sm text-gray-300">{t}</span>
           </div>
@@ -999,7 +999,7 @@ const S20 = (
           <Table2 size={15} className="text-[#6DC4AA]" />
           <span className="text-sm text-[#D1EDE5] font-medium">Sesi berikutnya: JOIN &amp; CTE — menggabungkan tabel</span>
         </div>
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#6DC4AA]/20 bg-[#6DC4AA]/[0.08] px-5 py-2.5">
           <Code2 size={15} className="text-[#6DC4AA]" />
           <span className="text-sm text-gray-300">Lanjut ke latihan SQL (auto-graded) di platform</span>
         </div>
