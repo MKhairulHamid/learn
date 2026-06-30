@@ -503,6 +503,10 @@ const PROGRAM_PLAYGROUNDS: Record<string, PgTab[]> = {
     { id: 'sql',    labelKey: 'playground.tab_sql',    icon: Code2,    activeColor: 'text-blue-400 border-blue-400' },
     { id: 'python', labelKey: 'playground.tab_python', icon: Terminal, activeColor: 'text-yellow-400 border-yellow-400' },
   ],
+  'data-analyst-fast-track': [
+    { id: 'sql',        labelKey: 'playground.tab_sql',     icon: Code2,  activeColor: 'text-blue-400 border-blue-400' },
+    { id: 'hr-xlookup', labelKey: 'playground.tab_xlookup', icon: Search, activeColor: 'text-emerald-600 border-emerald-600' },
+  ],
   'hr-fast-track': [
     { id: 'hr-salary',   labelKey: 'playground.tab_net_salary', icon: Calculator, activeColor: 'text-rose-600 border-rose-600' },
     { id: 'hr-overtime', labelKey: 'playground.tab_overtime',   icon: Clock,      activeColor: 'text-orange-500 border-orange-500' },

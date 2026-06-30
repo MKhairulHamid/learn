@@ -69,6 +69,36 @@ const PROGRAMS = [
     ],
     tools: ['Excel', 'Looker Studio', 'Mekari Talenta', 'HRIS', 'PPh 21', 'BPJS'],
   },
+  {
+    slug: 'data-analyst-fast-track',
+    icon: '⚡',
+    gradient: 'from-cyan-500 to-blue-600',
+    lightBg: 'bg-cyan-50',
+    accentText: 'text-cyan-700',
+    accentBorder: 'border-cyan-200',
+    name_en: 'Data Analyst Fast Track',
+    name_id: 'Data Analyst Fast Track',
+    tagline_en: '3-week intensive — spreadsheets, EDA, dashboards, Power BI, SQL & BNSP prep.',
+    tagline_id: 'Intensif 3 pekan — spreadsheet, EDA, dashboard, Power BI, SQL & persiapan BNSP.',
+    badge: 'Data Analytics',
+    stats: [
+      { value: '11', label_en: 'Sessions', label_id: 'Sesi' },
+      { value: '3', label_en: 'Weeks', label_id: 'Pekan' },
+      { value: 'Live', label_en: 'Online', label_id: 'Online' },
+      { value: 'BNSP', label_en: 'Prep', label_id: 'Persiapan' },
+    ],
+    modules_en: [
+      'Data Foundations & Core Formulas',
+      'Advanced Analysis & Visualization',
+      'SQL, Portfolio & BNSP Prep',
+    ],
+    modules_id: [
+      'Fondasi Data & Formula Dasar',
+      'Analisis & Visualisasi Lanjutan',
+      'SQL, Portofolio & Persiapan BNSP',
+    ],
+    tools: ['Excel', 'Pivot Table', 'XLOOKUP', 'Power BI', 'SQL', 'Looker Studio'],
+  },
 ]
 
 const LIFECYCLE_STEPS = [
