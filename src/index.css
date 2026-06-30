@@ -2,17 +2,18 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-primary-50: #ecfeff;
-  --color-primary-100: #cffafe;
-  --color-primary-200: #a5f3fc;
-  --color-primary-300: #67e8f9;
-  --color-primary-400: #22d3ee;
-  --color-primary-500: #06b6d4;
-  --color-primary-600: #0891b2;
-  --color-primary-700: #0e7490;
-  --color-primary-800: #155e75;
-  --color-primary-900: #164e63;
-  --color-primary-950: #083344;
+  /* Brand: Teal #1FA79B (primary-600) · Mint #6DC4AA (primary-300) */
+  --color-primary-50: #f1faf8;
+  --color-primary-100: #d8f3ed;
+  --color-primary-200: #b0e6db;
+  --color-primary-300: #6dc4aa;
+  --color-primary-400: #46b8a5;
+  --color-primary-500: #25b0a2;
+  --color-primary-600: #1fa79b;
+  --color-primary-700: #178a80;
+  --color-primary-800: #166e66;
+  --color-primary-900: #155952;
+  --color-primary-950: #06302c;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -50,8 +51,8 @@
 
 /* Mention node */
 .mention {
-  background-color: #ecfeff;
-  color: #0891b2;
+  background-color: #d8f3ed;
+  color: #178a80;
   font-weight: 500;
   border-radius: 4px;
   padding: 0 4px;
@@ -59,8 +60,8 @@
 
 /* Discussion post highlight flash */
 @keyframes post-highlight {
-  0%   { box-shadow: 0 0 0 3px #06b6d4, 0 0 0 6px rgba(6,182,212,0.25); background-color: #ecfeff; }
-  70%  { box-shadow: 0 0 0 3px rgba(6,182,212,0.3), 0 0 0 6px rgba(6,182,212,0.08); background-color: #f0fdff; }
+  0%   { box-shadow: 0 0 0 3px #1fa79b, 0 0 0 6px rgba(31,167,155,0.25); background-color: #d8f3ed; }
+  70%  { box-shadow: 0 0 0 3px rgba(31,167,155,0.3), 0 0 0 6px rgba(31,167,155,0.08); background-color: #f1faf8; }
   100% { box-shadow: none; background-color: transparent; }
 }
 .post-highlight {

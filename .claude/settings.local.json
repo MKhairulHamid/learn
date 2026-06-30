@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl -s \"https://api.github.com/repos/MKhairulHamid/learn/actions/runs/25844570926/jobs\")"
+      "Bash(curl -s \"https://api.github.com/repos/MKhairulHamid/learn/actions/runs/25844570926/jobs\")",
+      "mcp__c4b86c67-8fb7-4cbc-9142-b6ad2693d6b0__execute_sql",
+      "WebFetch(domain:talentiv.id)"
     ]
   }
 }
