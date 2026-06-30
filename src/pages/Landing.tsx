@@ -101,6 +101,10 @@ const PROGRAMS = [
   },
 ]
 
+// Only surface these programs on the landing page for now. Others stay defined
+// above (just hidden) so they're easy to re-enable later.
+const VISIBLE_PROGRAMS = PROGRAMS.filter((p) => p.slug === 'data-analyst-fast-track')
+
 const LIFECYCLE_STEPS = [
   {
     step: '01',
@@ -257,8 +261,8 @@ const CURRENT_FEATURES = [
     icon: Award,
     title_en: 'BNSP Certification',
     title_id: 'Sertifikasi BNSP',
-    desc_en: 'Both programs lead to nationally recognized BNSP certification — the professional competency standard.',
-    desc_id: 'Kedua program mengantarmu ke sertifikasi BNSP yang diakui secara nasional — standar kompetensi profesional.',
+    desc_en: 'The program leads to nationally recognized BNSP certification — the professional competency standard.',
+    desc_id: 'Program ini mengantarmu ke sertifikasi BNSP yang diakui secara nasional — standar kompetensi profesional.',
     gradient: 'from-amber-500 to-yellow-500',
   },
   {
@@ -310,8 +314,8 @@ const FUTURE_FEATURES = [
 ]
 
 const STATS = [
-  { value: '2', label_en: 'Active Programs', label_id: 'Program Aktif' },
-  { value: '37+', label_en: 'Live Sessions', label_id: 'Sesi Live' },
+  { value: '11', label_en: 'Live Sessions', label_id: 'Sesi Live' },
+  { value: '3', label_en: 'Weeks', label_id: 'Pekan' },
   { value: '40+', label_en: 'Exercises', label_id: 'Latihan' },
   { value: 'BNSP', label_en: 'Certified', label_id: 'Bersertifikat' },
 ]
@@ -323,7 +327,7 @@ export default function Landing() {
   const navigate = useNavigate()
   const lang = i18n.language === 'id' ? 'id' : 'en'
   const [activeProg, setActiveProg] = useState(0)
-  const prog = PROGRAMS[activeProg]
+  const prog = VISIBLE_PROGRAMS[activeProg]
 
   const s = <T extends string>(en: T, id: T) => lang === 'id' ? id : en
 
@@ -345,7 +349,7 @@ export default function Landing() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pt-28 md:pb-32">
           <div className="max-w-3xl mx-auto text-center">
             <Badge variant="primary" size="md">
-              <Zap size={12} className="mr-1" /> {s('Learning Platform — Live & Self Learning', 'Platform Belajar — Live & Mandiri')}
+              <Zap size={12} className="mr-1" /> {s('Talentiv Learning — Live & Self Learning', 'Platform Belajar — Live & Mandiri')}
             </Badge>
             <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1]">
               {lang === 'id' ? (
@@ -386,19 +390,21 @@ export default function Landing() {
 
           {/* Program switcher + preview */}
           <div className="mt-14">
-            <div className="flex justify-center gap-3 flex-wrap mb-5">
-              {PROGRAMS.map((p, i) => (
-                <button key={p.slug} onClick={() => setActiveProg(i)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium border transition-all ${
-                    activeProg === i
-                      ? 'bg-white text-gray-900 border-white shadow-lg scale-[1.03]'
-                      : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                  }`}>
-                  <span>{p.icon}</span>
-                  {lang === 'id' ? p.name_id : p.name_en}
-                </button>
-              ))}
-            </div>
+            {VISIBLE_PROGRAMS.length > 1 && (
+              <div className="flex justify-center gap-3 flex-wrap mb-5">
+                {VISIBLE_PROGRAMS.map((p, i) => (
+                  <button key={p.slug} onClick={() => setActiveProg(i)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium border transition-all ${
+                      activeProg === i
+                        ? 'bg-white text-gray-900 border-white shadow-lg scale-[1.03]'
+                        : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                    }`}>
+                    <span>{p.icon}</span>
+                    {lang === 'id' ? p.name_id : p.name_en}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="max-w-3xl mx-auto bg-white/8 backdrop-blur border border-white/12 rounded-2xl p-6">
               <div className="flex items-start gap-4 flex-wrap">
@@ -441,8 +447,8 @@ export default function Landing() {
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
               {s(
-                'From scheduling to certification — every part of the learning cycle is managed inside Learning Platform.',
-                'Dari penjadwalan hingga sertifikasi — setiap bagian siklus belajar dikelola di dalam Learning Platform.'
+                'From scheduling to certification — every part of the learning cycle is managed inside Talentiv Learning.',
+                'Dari penjadwalan hingga sertifikasi — setiap bagian siklus belajar dikelola di dalam Talentiv Learning.'
               )}
             </p>
           </div>
@@ -478,8 +484,8 @@ export default function Landing() {
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
               {s(
-                "Learning Platform isn't just a video platform. It's a complete learning environment built around live instruction.",
-                'Learning Platform bukan sekadar platform video. Ini adalah lingkungan belajar lengkap yang dibangun di sekitar instruksi live.'
+                "Talentiv Learning isn't just a video platform. It's a complete learning environment built around live instruction.",
+                'Talentiv Learning bukan sekadar platform video. Ini adalah lingkungan belajar lengkap yang dibangun di sekitar instruksi live.'
               )}
             </p>
           </div>
@@ -508,8 +514,8 @@ export default function Landing() {
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
               {s(
-                'Most platforms give you one or the other. Learning Platform combines both — scheduled live sessions and on-demand self-study in a single workspace.',
-                'Kebanyakan platform hanya menawarkan satu. Learning Platform menggabungkan keduanya — sesi live terjadwal dan belajar mandiri on-demand dalam satu ruang kerja.'
+                'Most platforms give you one or the other. Talentiv Learning combines both — scheduled live sessions and on-demand self-study in a single workspace.',
+                'Kebanyakan platform hanya menawarkan satu. Talentiv Learning menggabungkan keduanya — sesi live terjadwal dan belajar mandiri on-demand dalam satu ruang kerja.'
               )}
             </p>
           </div>
@@ -632,20 +638,20 @@ export default function Landing() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <Badge variant="gray" size="md">{s('Programs', 'Program')}</Badge>
+            <Badge variant="gray" size="md">{s('Program', 'Program')}</Badge>
             <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-gray-900">
-              {s('Choose your career path', 'Pilih jalur karirmu')}
+              {s('Our flagship program', 'Program unggulan kami')}
             </h2>
             <p className="mt-3 text-gray-500 max-w-xl mx-auto">
               {s(
-                'Two structured programs — both with live sessions, structured materials, hands-on practice, and BNSP certification.',
-                'Dua program terstruktur — keduanya dengan sesi live, materi terstruktur, latihan langsung, dan sertifikasi BNSP.'
+                'A structured program with live sessions, structured materials, hands-on practice, and BNSP certification.',
+                'Program terstruktur dengan sesi live, materi terstruktur, latihan langsung, dan sertifikasi BNSP.'
               )}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {PROGRAMS.map((p) => {
+          <div className={`grid gap-8 ${VISIBLE_PROGRAMS.length > 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 max-w-xl mx-auto'}`}>
+            {VISIBLE_PROGRAMS.map((p) => {
               const modules = lang === 'id' && 'modules_id' in p ? p.modules_id! : p.modules ?? (p as { modules_en?: string[] }).modules_en ?? []
               return (
                 <div key={p.slug}
@@ -716,8 +722,8 @@ export default function Landing() {
               </h2>
               <p className="mt-4 text-gray-500 leading-relaxed">
                 {s(
-                  'No more switching between email, Zoom, Google Drive, and Notion. Learning Platform puts your schedule, Zoom links, recordings, materials, exercises, and survey forms in a single interface your cohort shares together.',
-                  'Tidak perlu lagi berpindah antara email, Zoom, Google Drive, dan Notion. Learning Platform menyatukan jadwal, tautan Zoom, rekaman, materi, latihan, dan formulir survei dalam satu antarmuka yang digunakan cohort-mu bersama.'
+                  'No more switching between email, Zoom, Google Drive, and Notion. Talentiv Learning puts your schedule, Zoom links, recordings, materials, exercises, and survey forms in a single interface your cohort shares together.',
+                  'Tidak perlu lagi berpindah antara email, Zoom, Google Drive, dan Notion. Talentiv Learning menyatukan jadwal, tautan Zoom, rekaman, materi, latihan, dan formulir survei dalam satu antarmuka yang digunakan cohort-mu bersama.'
                 )}
               </p>
               <ul className="mt-6 space-y-3">
@@ -902,7 +908,7 @@ export default function Landing() {
               {
                 quote_en: 'The mix of live instruction and self-paced materials fits perfectly around my work schedule.',
                 quote_id: 'Kombinasi instruksi live dan materi mandiri sangat cocok dengan jadwal kerja saya.',
-                name: 'Cohort Batch 1 · HR Fast Track',
+                name: 'Cohort Batch 1 · Data Analyst Fast Track',
               },
             ].map(({ quote_en, quote_id, name }, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
@@ -931,7 +937,7 @@ export default function Landing() {
         </div>
         <div className="relative max-w-2xl mx-auto px-4 text-center">
           <Badge variant="primary" size="md">
-            <Zap size={12} className="mr-1" /> Learning Platform
+            <Zap size={12} className="mr-1" /> Talentiv Learning
           </Badge>
           <h2 className="mt-5 text-3xl sm:text-4xl font-bold leading-tight">
             {lang === 'id' ? (

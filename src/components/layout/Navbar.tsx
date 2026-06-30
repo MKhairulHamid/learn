@@ -64,11 +64,15 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 text-primary-700 font-bold text-lg shrink-0">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <BookOpen size={18} className="text-white" />
-            </div>
-            <span>Learning Platform</span>
+          <Link to="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
+            <span className="inline-flex items-center h-8 px-2.5 bg-primary-600 rounded-lg">
+              <img
+                src={`${import.meta.env.BASE_URL}brand/talentiv-logo-white.webp`}
+                alt="Talentiv"
+                className="h-4 w-auto"
+              />
+            </span>
+            <span className="text-primary-700">Learning</span>
           </Link>
 
           {/* Desktop nav links */}
