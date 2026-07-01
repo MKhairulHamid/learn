@@ -5,12 +5,12 @@
   <title>DataLearn Platform</title>
   <script>
     // GitHub Pages has no server-side routing. This app uses HashRouter, so the
-    // only real file is /learn/index.html and the route lives in the URL hash
-    // (e.g. /learn/#/dashboard). Any non-hash deep link — an old bookmark, a PWA
-    // shortcut, or a shared /learn/dashboard URL — 404s and lands here.
+    // only real file is /index.html and the route lives in the URL hash
+    // (e.g. /#/dashboard). Any non-hash deep link — an old bookmark, a PWA
+    // shortcut, or a shared /dashboard URL — 404s and lands here.
     // Translate the path into the equivalent hash route and redirect.
     (function () {
-      var base = '/learn/'
+      var base = '/'
       var path = location.pathname
       var sub = path.indexOf(base) === 0 ? path.slice(base.length) : ''
       var hash = (location.hash && location.hash.indexOf('#/') === 0)

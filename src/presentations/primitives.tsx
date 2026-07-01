@@ -9,7 +9,7 @@ import type { ReactNode } from 'react'
 
 // Talentiv brand assets are bundled locally (in public/brand) because the live
 // talentiv.id images are hotlink-protected (403 / ORB) from other origins.
-const ASSET = import.meta.env.BASE_URL // '/learn/' in prod, '/' in dev
+const ASSET = import.meta.env.BASE_URL
 
 export const BRAND = {
   teal: '#1FA79B',

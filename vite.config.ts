@@ -18,20 +18,20 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         display_override: ['window-controls-overlay', 'standalone', 'browser'],
-        scope: '/learn/',
-        start_url: '/learn/',
+        scope: '/',
+        start_url: '/',
         orientation: 'portrait-primary',
         categories: ['education', 'productivity'],
         screenshots: [
           {
-            src: '/learn/screenshots/desktop.png',
+            src: '/screenshots/desktop.png',
             sizes: '1280x720',
             type: 'image/png',
             form_factor: 'wide',
             label: 'Learning Platform — desktop view',
           },
           {
-            src: '/learn/screenshots/mobile.png',
+            src: '/screenshots/mobile.png',
             sizes: '390x844',
             type: 'image/png',
             form_factor: 'narrow',
@@ -42,35 +42,35 @@ export default defineConfig({
           {
             name: 'Dashboard',
             short_name: 'Dashboard',
-            url: '/learn/#/dashboard',
-            icons: [{ src: '/learn/pwa-192x192.png', sizes: '192x192' }],
+            url: '/#/dashboard',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Curriculum',
             short_name: 'Curriculum',
-            url: '/learn/#/curriculum',
-            icons: [{ src: '/learn/pwa-192x192.png', sizes: '192x192' }],
+            url: '/#/curriculum',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Playground',
             short_name: 'Playground',
-            url: '/learn/#/playground',
-            icons: [{ src: '/learn/pwa-192x192.png', sizes: '192x192' }],
+            url: '/#/playground',
+            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
         ],
         icons: [
           {
-            src: '/learn/pwa-192x192.png',
+            src: '/pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/learn/pwa-512x512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/learn/pwa-512x512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -79,8 +79,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        navigateFallback: '/learn/index.html',
-        navigateFallbackDenylist: [/^\/learn\/api/],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\//,
@@ -94,5 +94,5 @@ export default defineConfig({
       },
     }),
   ],
-  base: '/learn/',
+  base: '/',
 })
