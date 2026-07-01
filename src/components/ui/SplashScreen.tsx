@@ -1,14 +1,16 @@
-import { BookOpen } from 'lucide-react'
-
 export function SplashScreen() {
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center gap-8">
       {/* Logo */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-900/40">
-          <BookOpen size={24} className="text-white" />
-        </div>
-        <span className="text-2xl font-bold text-white tracking-tight">Learning Platform</span>
+        <span className="inline-flex items-center h-12 px-3 bg-primary-600 rounded-2xl shadow-lg shadow-primary-900/40">
+          <img
+            src={`${import.meta.env.BASE_URL}brand/talentiv-logo-white.webp`}
+            alt="Talentiv"
+            className="h-6 w-auto"
+          />
+        </span>
+        <span className="text-2xl font-bold text-white tracking-tight">Learning</span>
       </div>
 
       {/* Indeterminate progress bar */}
