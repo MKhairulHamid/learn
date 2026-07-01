@@ -1,0 +1,124 @@
+{
+  "tour": {
+    "next": "Next",
+    "prev": "Back",
+    "done": "Finish",
+    "close": "Skip",
+    "progress_of": "of",
+    "welcome": {
+      "title": "Welcome to Talentiv Learning 👋",
+      "body": "Let's take a quick tour of the features available for your role. It only takes a minute — you can replay it anytime from your profile menu."
+    },
+    "dashboard": {
+      "title": "Your Dashboard",
+      "body": "This is your home base. See your enrolled programs, track progress, and jump back into your next lesson."
+    },
+    "curriculum": {
+      "title": "Lessons",
+      "body": "Browse the full curriculum here. Each session includes learning materials, a live class, and hands-on exercises."
+    },
+    "playground": {
+      "title": "Playground",
+      "body": "Practice freely without grading — run SQL and Python on real datasets, or try the calculators and simulators."
+    },
+    "programs": {
+      "title": "Program Management",
+      "body": "Manage cohorts, schedule sessions, assign mentors, review students, and monitor mentor performance."
+    },
+    "admin": {
+      "title": "Admin Console",
+      "body": "The command center: overview stats, cohorts, analytics, feedback, content reports, and program-manager assignments."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "body": "Mentions and updates from discussions show up here. The badge tells you how many are unread."
+    },
+    "user": {
+      "title": "Profile & Menu",
+      "body": "Manage your profile, switch language, and find quick links. You can restart this tour or open the full feature guide from here anytime."
+    },
+    "finish": {
+      "title": "You're all set! 🎉",
+      "body": "That's the tour. Want the details? Open the full feature guide for a page that explains everything available to you."
+    }
+  },
+  "guide": {
+    "title": "Feature Guide",
+    "subtitle": "Everything available for your role, in one place.",
+    "replay_tour": "Replay the walkthrough",
+    "role_label": "Your role",
+    "roles": {
+      "student": "Student",
+      "mentor": "Mentor",
+      "program_manager": "Program Manager",
+      "admin": "Admin"
+    },
+    "sections": {
+      "dashboard": {
+        "title": "Dashboard",
+        "desc": "Your landing page after signing in. Shows the programs you're enrolled in, your progress through each cohort, your next lesson, and prompts to give feedback on live sessions.",
+        "where": "Top nav → Dashboard"
+      },
+      "curriculum": {
+        "title": "Lessons & Sessions",
+        "desc": "The full curriculum, organized into phases and sessions. Open a session to read the materials, join or watch the live class, and complete its exercises. Lessons unlock on their scheduled dates.",
+        "where": "Top nav → Lessons"
+      },
+      "exercises": {
+        "title": "Exercises",
+        "desc": "Graded hands-on tasks inside each session — SQL queries, quizzes, multiple-choice, and matching. Submit to get instant test feedback, hints, and a score.",
+        "where": "Inside any session"
+      },
+      "playground": {
+        "title": "Playground",
+        "desc": "A no-stakes sandbox to practice. Run SQL and Python on sample datasets, and use the extra tools — net salary calculator, overtime calculator, XLOOKUP simulator, and OKR builder.",
+        "where": "Top nav → Playground"
+      },
+      "discussion": {
+        "title": "Discussion & Notifications",
+        "desc": "Ask questions and reply within sessions. Mention classmates or mentors with @, and get notified in the bell menu when someone responds to you.",
+        "where": "Inside sessions · bell icon in nav"
+      },
+      "feedback": {
+        "title": "Session Feedback",
+        "desc": "After each live session you'll be prompted to rate the materials, the mentor, and your overall experience. Your input shapes future sessions.",
+        "where": "Dashboard prompt · session page"
+      },
+      "certificates": {
+        "title": "Certificates",
+        "desc": "Once you complete a program and pass review, your certificate appears here. View it, share the public verification link, or print it as a PDF.",
+        "where": "Profile → My Certificates"
+      },
+      "profile": {
+        "title": "Profile & Settings",
+        "desc": "Update your name, switch between English and Indonesian, reset your password, and restart this walkthrough whenever you need a refresher.",
+        "where": "Avatar menu → Profile & Settings"
+      },
+      "content_editing": {
+        "title": "Content Editing",
+        "desc": "As a mentor you can edit lesson materials and exercises directly from the session page, keeping content accurate and up to date.",
+        "where": "Session page → Edit lesson"
+      },
+      "program_management": {
+        "title": "Program Management",
+        "desc": "Manage a program end to end: create and configure cohorts, schedule sessions with Zoom links and recordings, assign mentors, review student pass/fail status, and track mentor performance from feedback.",
+        "where": "Top nav → Programs"
+      },
+      "student_review": {
+        "title": "Student Review",
+        "desc": "Review each student's progress in a cohort and mark them pass or fail. Passing students become eligible for their certificate.",
+        "where": "Programs → Students / Review"
+      },
+      "admin_console": {
+        "title": "Admin Console",
+        "desc": "Platform-wide control: an overview of key stats, cohort management, exercise and feedback analytics, content issue reports, and assigning program managers.",
+        "where": "Top nav → Admin"
+      },
+      "user_management": {
+        "title": "User Management",
+        "desc": "View all users, inspect an individual's activity and progress, and manage roles across the platform.",
+        "where": "Admin → Overview / Users"
+      }
+    }
+  }
+}

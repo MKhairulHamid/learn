@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CohortProvider } from './hooks/useCohort'
 import { FeedbackModalProvider } from './context/FeedbackModalContext'
+import { OnboardingProvider, useOnboarding } from './hooks/useOnboarding'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { MobileNav } from './components/layout/MobileNav'
@@ -25,6 +26,7 @@ const ExerciseAnalyticsPage    = lazy(() => import('./pages/admin/ExerciseAnalyt
 const ProgramManagerDashboard  = lazy(() => import('./pages/program-manager/ProgramManagerDashboard'))
 const ProgramManagerPage       = lazy(() => import('./pages/program-manager/ProgramManagerPage'))
 const ProfilePage              = lazy(() => import('./pages/ProfilePage'))
+const GuidePage                = lazy(() => import('./pages/GuidePage'))
 const DemoPage                 = lazy(() => import('./pages/DemoPage'))
 const PitchPage                = lazy(() => import('./pages/PitchPage'))
 const PresentationsIndex       = lazy(() => import('./pages/PresentationsIndex'))
@@ -89,10 +91,21 @@ function RecoveryRedirect() {
 
 // ── Layout ────────────────────────────────────────────────────
 
+// Fires the first-run product tour once the navbar (tour anchors) is mounted.
+function OnboardingGate() {
+  const { maybeAutoStart } = useOnboarding()
+  const { user, profile, loading } = useAuth()
+  useEffect(() => {
+    if (!loading && user && profile) maybeAutoStart()
+  }, [loading, user, profile, maybeAutoStart])
+  return null
+}
+
 function AppLayout() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <OnboardingGate />
       <main className="flex-1">
         <Outlet />
       </main>
@@ -131,6 +144,7 @@ function AppRoutes() {
               <Route path="/python"       element={<Navigate to="/playground" replace />} />
               <Route path="/exercise/:id" element={<ExercisePage />} />
               <Route path="/profile"      element={<ProfilePage />} />
+              <Route path="/guide"        element={<GuidePage />} />
             </Route>
 
             {/* Admin routes */}
@@ -184,7 +198,9 @@ export default function App() {
     <AuthProvider>
       <CohortProvider>
         <FeedbackModalProvider>
-          <AppRoutes />
+          <OnboardingProvider>
+            <AppRoutes />
+          </OnboardingProvider>
         </FeedbackModalProvider>
       </CohortProvider>
     </AuthProvider>

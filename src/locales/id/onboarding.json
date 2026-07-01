@@ -1,0 +1,124 @@
+{
+  "tour": {
+    "next": "Lanjut",
+    "prev": "Kembali",
+    "done": "Selesai",
+    "close": "Lewati",
+    "progress_of": "dari",
+    "welcome": {
+      "title": "Selamat datang di Talentiv Learning 👋",
+      "body": "Mari kita lihat sekilas fitur yang tersedia untuk peran Anda. Hanya butuh satu menit — Anda bisa mengulanginya kapan saja dari menu profil."
+    },
+    "dashboard": {
+      "title": "Dashboard Anda",
+      "body": "Ini markas Anda. Lihat program yang Anda ikuti, pantau progres, dan lanjutkan ke pelajaran berikutnya."
+    },
+    "curriculum": {
+      "title": "Pelajaran",
+      "body": "Jelajahi seluruh kurikulum di sini. Setiap sesi memuat materi belajar, kelas langsung, dan latihan praktik."
+    },
+    "playground": {
+      "title": "Playground",
+      "body": "Berlatih bebas tanpa penilaian — jalankan SQL dan Python pada dataset nyata, atau coba kalkulator dan simulator."
+    },
+    "programs": {
+      "title": "Manajemen Program",
+      "body": "Kelola cohort, jadwalkan sesi, tugaskan mentor, tinjau peserta, dan pantau performa mentor."
+    },
+    "admin": {
+      "title": "Konsol Admin",
+      "body": "Pusat kendali: ringkasan statistik, cohort, analitik, umpan balik, laporan konten, dan penugasan program manager."
+    },
+    "notifications": {
+      "title": "Notifikasi",
+      "body": "Sebutan dan pembaruan dari diskusi muncul di sini. Lencana menunjukkan berapa yang belum dibaca."
+    },
+    "user": {
+      "title": "Profil & Menu",
+      "body": "Kelola profil, ganti bahasa, dan temukan tautan cepat. Anda bisa mengulang tur ini atau membuka panduan fitur lengkap dari sini kapan saja."
+    },
+    "finish": {
+      "title": "Anda siap! 🎉",
+      "body": "Itu tadi turnya. Ingin detail lengkapnya? Buka panduan fitur untuk halaman yang menjelaskan semua yang tersedia untuk Anda."
+    }
+  },
+  "guide": {
+    "title": "Panduan Fitur",
+    "subtitle": "Semua yang tersedia untuk peran Anda, dalam satu halaman.",
+    "replay_tour": "Ulangi walkthrough",
+    "role_label": "Peran Anda",
+    "roles": {
+      "student": "Peserta",
+      "mentor": "Mentor",
+      "program_manager": "Program Manager",
+      "admin": "Admin"
+    },
+    "sections": {
+      "dashboard": {
+        "title": "Dashboard",
+        "desc": "Halaman utama setelah Anda masuk. Menampilkan program yang Anda ikuti, progres di setiap cohort, pelajaran berikutnya, dan ajakan memberi umpan balik untuk sesi langsung.",
+        "where": "Nav atas → Dashboard"
+      },
+      "curriculum": {
+        "title": "Pelajaran & Sesi",
+        "desc": "Seluruh kurikulum, tersusun dalam fase dan sesi. Buka sesi untuk membaca materi, mengikuti atau menonton kelas langsung, dan menyelesaikan latihannya. Pelajaran terbuka sesuai tanggal jadwalnya.",
+        "where": "Nav atas → Pelajaran"
+      },
+      "exercises": {
+        "title": "Latihan",
+        "desc": "Tugas praktik bernilai di setiap sesi — kueri SQL, kuis, pilihan ganda, dan menjodohkan. Kirim untuk mendapat umpan balik uji instan, petunjuk, dan skor.",
+        "where": "Di dalam sesi mana pun"
+      },
+      "playground": {
+        "title": "Playground",
+        "desc": "Ruang latihan tanpa risiko. Jalankan SQL dan Python pada dataset contoh, dan gunakan alat tambahan — kalkulator gaji bersih, kalkulator lembur, simulator XLOOKUP, dan pembuat OKR.",
+        "where": "Nav atas → Playground"
+      },
+      "discussion": {
+        "title": "Diskusi & Notifikasi",
+        "desc": "Ajukan pertanyaan dan balas di dalam sesi. Sebut teman sekelas atau mentor dengan @, dan dapatkan notifikasi di menu lonceng saat ada yang membalas Anda.",
+        "where": "Di dalam sesi · ikon lonceng di nav"
+      },
+      "feedback": {
+        "title": "Umpan Balik Sesi",
+        "desc": "Setelah setiap sesi langsung Anda akan diajak menilai materi, mentor, dan pengalaman Anda secara keseluruhan. Masukan Anda menentukan sesi berikutnya.",
+        "where": "Ajakan di dashboard · halaman sesi"
+      },
+      "certificates": {
+        "title": "Sertifikat",
+        "desc": "Setelah menyelesaikan program dan lulus tinjauan, sertifikat Anda muncul di sini. Lihat, bagikan tautan verifikasi publik, atau cetak sebagai PDF.",
+        "where": "Profil → Sertifikat Saya"
+      },
+      "profile": {
+        "title": "Profil & Pengaturan",
+        "desc": "Perbarui nama, beralih antara Inggris dan Indonesia, atur ulang kata sandi, dan ulangi walkthrough ini kapan pun Anda butuh penyegaran.",
+        "where": "Menu avatar → Profil & Pengaturan"
+      },
+      "content_editing": {
+        "title": "Penyuntingan Konten",
+        "desc": "Sebagai mentor Anda dapat menyunting materi pelajaran dan latihan langsung dari halaman sesi, menjaga konten tetap akurat dan mutakhir.",
+        "where": "Halaman sesi → Edit pelajaran"
+      },
+      "program_management": {
+        "title": "Manajemen Program",
+        "desc": "Kelola program dari awal hingga akhir: buat dan atur cohort, jadwalkan sesi dengan tautan Zoom dan rekaman, tugaskan mentor, tinjau status lulus/gagal peserta, dan pantau performa mentor dari umpan balik.",
+        "where": "Nav atas → Programs"
+      },
+      "student_review": {
+        "title": "Tinjauan Peserta",
+        "desc": "Tinjau progres setiap peserta dalam cohort dan tandai lulus atau gagal. Peserta yang lulus berhak mendapatkan sertifikat.",
+        "where": "Programs → Peserta / Tinjauan"
+      },
+      "admin_console": {
+        "title": "Konsol Admin",
+        "desc": "Kendali seluruh platform: ringkasan statistik utama, manajemen cohort, analitik latihan dan umpan balik, laporan masalah konten, dan penugasan program manager.",
+        "where": "Nav atas → Admin"
+      },
+      "user_management": {
+        "title": "Manajemen Pengguna",
+        "desc": "Lihat semua pengguna, periksa aktivitas dan progres individu, serta kelola peran di seluruh platform.",
+        "where": "Admin → Ringkasan / Pengguna"
+      }
+    }
+  }
+}

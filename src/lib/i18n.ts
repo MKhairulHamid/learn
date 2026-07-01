@@ -4,8 +4,10 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 
 import enCommon from '../locales/en/common.json'
 import enCurriculum from '../locales/en/curriculum.json'
+import enOnboarding from '../locales/en/onboarding.json'
 import idCommon from '../locales/id/common.json'
 import idCurriculum from '../locales/id/curriculum.json'
+import idOnboarding from '../locales/id/onboarding.json'
 
 i18n
   .use(LanguageDetector)
@@ -15,10 +17,12 @@ i18n
       en: {
         common: enCommon,
         curriculum: enCurriculum,
+        onboarding: enOnboarding,
       },
       id: {
         common: idCommon,
         curriculum: idCurriculum,
+        onboarding: idOnboarding,
       },
     },
     defaultNS: 'common',

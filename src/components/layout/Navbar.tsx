@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next'
 import {
   Menu, X, Globe, BookOpen, LogOut,
   LayoutDashboard, Gamepad2, ShieldCheck, Briefcase,
-  User, ChevronDown, Download,
+  User, ChevronDown, Download, PlayCircle, HelpCircle,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useOnboarding } from '../../hooks/useOnboarding'
 import { Button } from '../ui/Button'
 import { NotificationDropdown } from '../discussion/NotificationDropdown'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -14,7 +15,9 @@ import { usePWAInstall } from '../../hooks/usePWAInstall'
 
 export function Navbar() {
   const { t, i18n } = useTranslation('common')
+  const { t: tOnb } = useTranslation('onboarding')
   const { user, profile, signOut } = useAuth()
+  const { startTour } = useOnboarding()
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -81,19 +84,20 @@ export function Navbar() {
           {/* Desktop nav links */}
           {user && (
             <div className="hidden md:flex items-center gap-5">
-              <Link to="/dashboard" className={`text-sm transition-colors ${isActive('/dashboard')}`}>
+              <Link to="/dashboard" data-tour="nav-dashboard" className={`text-sm transition-colors ${isActive('/dashboard')}`}>
                 {t('nav.dashboard')}
               </Link>
-              <Link to="/curriculum" className={`text-sm transition-colors ${isActive('/curriculum')}`}>
+              <Link to="/curriculum" data-tour="nav-curriculum" className={`text-sm transition-colors ${isActive('/curriculum')}`}>
                 {t('nav.curriculum')}
               </Link>
-              <Link to="/playground" className={`text-sm transition-colors flex items-center gap-1 ${isActive('/playground')}`}>
+              <Link to="/playground" data-tour="nav-playground" className={`text-sm transition-colors flex items-center gap-1 ${isActive('/playground')}`}>
                 <Gamepad2 size={14} />
                 {t('nav.playground')}
               </Link>
               {isProgramManager && (
                 <Link
                   to="/program-manager"
+                  data-tour="nav-programs"
                   className={`text-sm transition-colors flex items-center gap-1 ${isActive('/program-manager')}`}
                 >
                   <Briefcase size={14} />
@@ -103,6 +107,7 @@ export function Navbar() {
               {isAdmin && (
                 <Link
                   to="/admin"
+                  data-tour="nav-admin"
                   className={`text-sm transition-colors flex items-center gap-1 ${isActive('/admin')}`}
                 >
                   <ShieldCheck size={14} />
@@ -139,22 +144,25 @@ export function Navbar() {
 
             {/* Notification bell — visible on all screen sizes */}
             {user && (
-              <NotificationDropdown
-                notifications={notifications}
-                unreadCount={unreadCount}
-                loading={notifLoading}
-                open={notifOpen}
-                onToggle={() => { setNotifOpen(o => !o); setUserMenuOpen(false); setMobileOpen(false) }}
-                onClose={() => setNotifOpen(false)}
-                onMarkRead={markRead}
-                onMarkAllRead={markAllRead}
-              />
+              <span data-tour="nav-notifications" className="inline-flex">
+                <NotificationDropdown
+                  notifications={notifications}
+                  unreadCount={unreadCount}
+                  loading={notifLoading}
+                  open={notifOpen}
+                  onToggle={() => { setNotifOpen(o => !o); setUserMenuOpen(false); setMobileOpen(false) }}
+                  onClose={() => setNotifOpen(false)}
+                  onMarkRead={markRead}
+                  onMarkAllRead={markAllRead}
+                />
+              </span>
             )}
 
             {user ? (
               /* ── User avatar + dropdown ── */
               <div className="relative" ref={menuRef}>
                 <button
+                  data-tour="nav-user"
                   onClick={() => { setUserMenuOpen(o => !o); setNotifOpen(false) }}
                   className="hidden md:flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
                 >
@@ -185,6 +193,23 @@ export function Navbar() {
                       <User size={15} className="text-gray-400" />
                       {t('nav.profile_settings')}
                     </Link>
+
+                    <Link
+                      to="/guide"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <HelpCircle size={15} className="text-gray-400" />
+                      {tOnb('guide.title')}
+                    </Link>
+
+                    <button
+                      onClick={() => { setUserMenuOpen(false); startTour() }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <PlayCircle size={15} className="text-gray-400" />
+                      {tOnb('guide.replay_tour')}
+                    </button>
 
                     {isProgramManager && (
                       <Link
@@ -262,6 +287,14 @@ export function Navbar() {
               <MobileLink to="/curriculum" icon={<BookOpen size={16} />}        label={t('nav.curriculum')}  onClick={() => setMobileOpen(false)} />
               <MobileLink to="/playground" icon={<Gamepad2 size={16} />}         label={t('nav.playground')}          onClick={() => setMobileOpen(false)} />
               <MobileLink to="/profile"    icon={<User size={16} />}            label={t('nav.profile_settings')}   onClick={() => setMobileOpen(false)} />
+              <MobileLink to="/guide"      icon={<HelpCircle size={16} />}      label={tOnb('guide.title')}         onClick={() => setMobileOpen(false)} />
+              <button
+                onClick={() => { setMobileOpen(false); startTour() }}
+                className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <PlayCircle size={16} />
+                {tOnb('guide.replay_tour')}
+              </button>
 
               {isProgramManager && (
                 <MobileLink to="/program-manager" icon={<Briefcase size={16} className="text-violet-500" />} label="Program Manager" onClick={() => setMobileOpen(false)} />

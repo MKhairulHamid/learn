@@ -17,6 +17,7 @@ export interface Profile {
   avatar_url: string | null
   preferred_language: Language
   role: UserRole
+  onboarding_completed_at: string | null
   created_at: string
 }
 
