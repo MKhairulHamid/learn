@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   GraduationCap, Plus, ChevronRight, ArrowLeft, Users, Clock,
   CheckCircle2, XCircle, UserX, CalendarDays, Trash2, Eye, EyeOff,
-  DoorOpen, DoorClosed, Loader2, UserPlus, MessageSquarePlus, MessageSquare,
+  DoorOpen, DoorClosed, Zap, ZapOff, Loader2, UserPlus, MessageSquarePlus, MessageSquare,
 } from 'lucide-react'
 import {
   useCohortAdmin, useCohortDetail, useAllProfiles,
@@ -370,6 +370,12 @@ function CohortDetail({ cohortId, onBack }: { cohortId: string; onBack: () => vo
               onLabel="Admission open" offLabel="Admission closed"
               onClick={() => d.setAdmissionOpen(!c.admission_open)}
             />
+            <ToggleButton
+              on={c.auto_approve_signups}
+              onIcon={<Zap size={14} />} offIcon={<ZapOff size={14} />}
+              onLabel="Auto-active signups" offLabel="Signups need approval"
+              onClick={() => d.updateCohort({ auto_approve_signups: !c.auto_approve_signups })}
+            />
           </div>
         </div>
         {c.description && (
@@ -377,7 +383,10 @@ function CohortDetail({ cohortId, onBack }: { cohortId: string; onBack: () => vo
         )}
         {c.admission_open && (
           <p className="text-[11px] text-green-400 mt-2">
-            New registrations auto-apply to this cohort while admission is open.
+            New registrations auto-apply to this cohort while admission is open
+            {c.auto_approve_signups
+              ? ' and are activated instantly.'
+              : ', pending your approval.'}
           </p>
         )}
       </div>
@@ -705,7 +714,7 @@ function EnrollmentManager({ d }: { d: DetailHook }) {
           <EnrollRow key={e.id} e={e}>
             <button onClick={() => d.setEnrollmentStatus(e.id, 'removed')}
               className="cursor-pointer flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-red-300">
-              <UserX size={13} /> Remove
+              <UserX size={13} /> Deactivate
             </button>
           </EnrollRow>
         ))}

@@ -4,7 +4,7 @@ import {
 import type { ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { deriveStatus, isSessionAccessibleFor } from '../lib/cohortAccess'
+import { addMonths, deriveStatus, isSessionAccessibleFor } from '../lib/cohortAccess'
 import type { CohortStatus } from '../lib/cohortAccess'
 import type { Cohort, CohortEnrollment, CohortLessonSchedule, Session } from '../types'
 
@@ -75,16 +75,21 @@ export function CohortProvider({ children }: { children: ReactNode }) {
     if (rows.length === 0 && !isEditor) {
       const { data: open } = await supabase
         .from('cohorts')
-        .select('id')
+        .select('id, auto_approve_signups, course_start_at, access_duration_months')
         .eq('admission_open', true)
         .limit(1)
         .maybeSingle()
 
       if (open) {
+        const autoActive = open.auto_approve_signups
         const { error: insertError } = await supabase.from('cohort_enrollments').insert({
           cohort_id: open.id,
           user_id: user.id,
-          status: 'pending',
+          status: autoActive ? 'active' : 'pending',
+          ...(autoActive && {
+            approved_at: new Date().toISOString(),
+            access_expires_at: addMonths(open.course_start_at, open.access_duration_months),
+          }),
         })
         if (insertError) {
           // Could be a duplicate (race between two tabs) — reload regardless

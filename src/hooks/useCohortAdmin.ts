@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { addMonths } from '../lib/cohortAccess'
 import type {
   Cohort, CohortEnrollment, CohortLessonSchedule, EnrollmentStatus,
 } from '../types'
@@ -38,13 +39,6 @@ export interface CohortDraft {
   course_close_at: string
   access_duration_months: number
   max_seats: number | null
-}
-
-// Add `months` calendar months to an ISO timestamp.
-function addMonths(iso: string, months: number): string {
-  const d = new Date(iso)
-  d.setMonth(d.getMonth() + months)
-  return d.toISOString()
 }
 
 // ── Cohort list (admin) ─────────────────────────────────────────────

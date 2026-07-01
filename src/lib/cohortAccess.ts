@@ -12,6 +12,13 @@ export type CohortStatus =
 // Local date as yyyy-mm-dd (matches the schedule `date` column for lexical compare).
 export const todayStr = () => new Date().toLocaleDateString('en-CA')
 
+// Add `months` calendar months to an ISO timestamp.
+export function addMonths(iso: string, months: number): string {
+  const d = new Date(iso)
+  d.setMonth(d.getMonth() + months)
+  return d.toISOString()
+}
+
 export function deriveStatus(e: Pick<CohortEnrollment, 'status' | 'access_expires_at'>): CohortStatus {
   if (e.status === 'active') {
     if (e.access_expires_at && new Date(e.access_expires_at) < new Date()) return 'expired'

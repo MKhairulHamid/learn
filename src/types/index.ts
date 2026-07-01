@@ -155,6 +155,7 @@ export interface Cohort {
   access_duration_months: number
   max_seats: number | null
   admission_open: boolean
+  auto_approve_signups: boolean
   is_published: boolean
   created_by: string | null
   created_at: string
