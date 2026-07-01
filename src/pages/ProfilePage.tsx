@@ -82,7 +82,7 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       {/* Header */}
-      <div>
+      <div data-tour="profile-header">
         <h1 className="text-xl font-bold text-gray-900">{t('profile.title')}</h1>
         <p className="text-sm text-gray-500 mt-0.5">{t('profile.subtitle')}</p>
       </div>

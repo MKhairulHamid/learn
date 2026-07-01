@@ -18,7 +18,7 @@ export default function ProgramManagerDashboard() {
       {/* Header */}
       <div className="border-b border-white/[0.06] bg-[#0d1221]/80 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-14 flex items-center gap-3">
+          <div data-tour="pm-header" className="h-14 flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
               <Briefcase size={14} className="text-violet-400" />
             </div>

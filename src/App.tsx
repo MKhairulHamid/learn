@@ -125,6 +125,7 @@ function AppRoutes() {
 
   return (
     <HashRouter>
+      <OnboardingProvider>
       <RecoveryRedirect />
       <Suspense fallback={<SplashScreen />}>
         <Routes>
@@ -189,6 +190,7 @@ function AppRoutes() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </OnboardingProvider>
     </HashRouter>
   )
 }
@@ -198,9 +200,7 @@ export default function App() {
     <AuthProvider>
       <CohortProvider>
         <FeedbackModalProvider>
-          <OnboardingProvider>
-            <AppRoutes />
-          </OnboardingProvider>
+          <AppRoutes />
         </FeedbackModalProvider>
       </CohortProvider>
     </AuthProvider>

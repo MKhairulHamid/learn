@@ -7,46 +7,63 @@
     "progress_of": "of",
     "welcome": {
       "title": "Welcome to Talentiv Learning 👋",
-      "body": "Let's take a quick tour of the features available for your role. It only takes a minute — you can replay it anytime from your profile menu."
+      "body": "Let's walk through the platform together. This quick tour will actually open each page so you can see where everything is. You can replay it anytime from your profile menu."
     },
     "dashboard": {
       "title": "Your Dashboard",
-      "body": "This is your home base. See your enrolled programs, track progress, and jump back into your next lesson."
+      "body": "This is your home base every time you sign in. It greets you and gathers everything that needs your attention in one place."
+    },
+    "my_programs": {
+      "title": "My Programs",
+      "body": "Here are the programs you're enrolled in. Each card shows your progress and a shortcut straight to your next lesson."
     },
     "curriculum": {
       "title": "Lessons",
-      "body": "Browse the full curriculum here. Each session includes learning materials, a live class, and hands-on exercises."
+      "body": "This is the full curriculum. Pick a program to see its phases and sessions — each session has materials, a live class, and exercises."
+    },
+    "exercises": {
+      "title": "Hands-on Exercises",
+      "body": "Inside every session you'll find graded exercises — SQL queries, quizzes, and more — with instant feedback, hints, and a score."
     },
     "playground": {
       "title": "Playground",
-      "body": "Practice freely without grading — run SQL and Python on real datasets, or try the calculators and simulators."
-    },
-    "programs": {
-      "title": "Program Management",
-      "body": "Manage cohorts, schedule sessions, assign mentors, review students, and monitor mentor performance."
-    },
-    "admin": {
-      "title": "Admin Console",
-      "body": "The command center: overview stats, cohorts, analytics, feedback, content reports, and program-manager assignments."
+      "body": "A free practice zone with no grading. Switch between SQL, Python, and the calculators using these tabs, and run everything right in the browser."
     },
     "notifications": {
       "title": "Notifications",
-      "body": "Mentions and updates from discussions show up here. The badge tells you how many are unread."
+      "body": "When someone mentions or replies to you in a discussion, it shows up here. The badge counts what's unread."
+    },
+    "program_mgmt": {
+      "title": "Program Management",
+      "body": "Your console for running programs: manage cohorts, schedule sessions, assign mentors, review students, and track mentor performance."
+    },
+    "admin": {
+      "title": "Admin Console",
+      "body": "The platform command center — overview stats, cohorts, analytics, feedback, content reports, and program-manager assignments live in these tabs."
+    },
+    "profile": {
+      "title": "Profile & Settings",
+      "body": "Update your name, switch language, reset your password, and view your certificates. This is also where you can restart this tour."
     },
     "user": {
-      "title": "Profile & Menu",
-      "body": "Manage your profile, switch language, and find quick links. You can restart this tour or open the full feature guide from here anytime."
+      "title": "Your Menu",
+      "body": "Open this menu anytime for quick links, to replay this walkthrough, or to open the full Feature Guide."
     },
     "finish": {
       "title": "You're all set! 🎉",
-      "body": "That's the tour. Want the details? Open the full feature guide for a page that explains everything available to you."
+      "body": "That's the tour. For a complete reference of every feature — written like a handbook — open the Feature Guide from your profile menu."
     }
   },
   "guide": {
     "title": "Feature Guide",
-    "subtitle": "Everything available for your role, in one place.",
+    "subtitle": "A complete handbook for everything available to you.",
     "replay_tour": "Replay the walkthrough",
     "role_label": "Your role",
+    "toc_title": "On this page",
+    "open_label": "Open",
+    "capabilities_label": "What you can do",
+    "where_label": "Where to find it",
+    "intro": "Welcome to your handbook. This page explains every feature available for your role — what it's for, what you can do with it, and how to get there. Use the list on the left to jump to a section, or take the guided walkthrough to see each page in action.",
     "roles": {
       "student": "Student",
       "mentor": "Mentor",
@@ -56,67 +73,145 @@
     "sections": {
       "dashboard": {
         "title": "Dashboard",
-        "desc": "Your landing page after signing in. Shows the programs you're enrolled in, your progress through each cohort, your next lesson, and prompts to give feedback on live sessions.",
-        "where": "Top nav → Dashboard"
+        "body": "Your landing page after signing in. It brings together the programs you're enrolled in, your progress through each cohort, your next lesson, and any live sessions still waiting for your feedback — so you always know what to do next.",
+        "points": [
+          "See every program you're enrolled in at a glance",
+          "Track your completion progress per cohort",
+          "Jump straight to your next unlocked lesson",
+          "Respond to feedback prompts for recent live sessions"
+        ],
+        "where": "Top navigation → Dashboard"
       },
       "curriculum": {
         "title": "Lessons & Sessions",
-        "desc": "The full curriculum, organized into phases and sessions. Open a session to read the materials, join or watch the live class, and complete its exercises. Lessons unlock on their scheduled dates.",
-        "where": "Top nav → Lessons"
+        "body": "The full curriculum, organized into phases and sessions. Open a session to read the materials, join or rewatch the live class, and work through its exercises. Lessons unlock on their scheduled dates so the class stays in sync.",
+        "points": [
+          "Browse phases and sessions for each program",
+          "Read bilingual (EN/ID) written materials for every session",
+          "Join the live Zoom class or watch the recording later",
+          "See exactly when upcoming lessons unlock"
+        ],
+        "where": "Top navigation → Lessons"
       },
       "exercises": {
         "title": "Exercises",
-        "desc": "Graded hands-on tasks inside each session — SQL queries, quizzes, multiple-choice, and matching. Submit to get instant test feedback, hints, and a score.",
-        "where": "Inside any session"
+        "body": "Graded, hands-on tasks inside each session — SQL queries, quizzes, multiple-choice, and matching. Submit your answer to get instant test feedback and a score, and reveal hints whenever you get stuck.",
+        "points": [
+          "Practice SQL against a real sample database",
+          "Get instant pass/fail feedback on every test case",
+          "Reveal step-by-step hints when you're stuck",
+          "Earn a score that counts toward your review"
+        ],
+        "where": "Inside any lesson session"
       },
       "playground": {
         "title": "Playground",
-        "desc": "A no-stakes sandbox to practice. Run SQL and Python on sample datasets, and use the extra tools — net salary calculator, overtime calculator, XLOOKUP simulator, and OKR builder.",
-        "where": "Top nav → Playground"
+        "body": "A no-stakes sandbox to experiment. Run SQL and Python on sample datasets, or use the extra tools — net salary calculator, overtime calculator, XLOOKUP simulator, and OKR builder. Nothing here is graded.",
+        "points": [
+          "Run SQL queries on a live in-browser database",
+          "Write and execute Python with pandas and charts",
+          "Try HR calculators (net salary, overtime)",
+          "Experiment freely — no grading, no limits"
+        ],
+        "where": "Top navigation → Playground"
       },
       "discussion": {
         "title": "Discussion & Notifications",
-        "desc": "Ask questions and reply within sessions. Mention classmates or mentors with @, and get notified in the bell menu when someone responds to you.",
-        "where": "Inside sessions · bell icon in nav"
+        "body": "Ask questions and reply to classmates within each session. Mention people with @ to loop them in, and get notified in the bell menu whenever someone responds to you.",
+        "points": [
+          "Post questions and answers under each session",
+          "Mention classmates or mentors with @",
+          "Get notified when someone replies or mentions you",
+          "Keep the whole conversation attached to its lesson"
+        ],
+        "where": "Inside sessions · bell icon in the navbar"
       },
       "feedback": {
         "title": "Session Feedback",
-        "desc": "After each live session you'll be prompted to rate the materials, the mentor, and your overall experience. Your input shapes future sessions.",
+        "body": "After each live session you'll be prompted to rate the materials, the mentor, and your overall experience. It only takes a moment, and your input directly shapes how future sessions run.",
+        "points": [
+          "Rate materials, mentor, and overall experience",
+          "Add written highlights and suggestions",
+          "Prompted right from your dashboard after each class",
+          "Helps mentors and program managers improve"
+        ],
         "where": "Dashboard prompt · session page"
       },
       "certificates": {
         "title": "Certificates",
-        "desc": "Once you complete a program and pass review, your certificate appears here. View it, share the public verification link, or print it as a PDF.",
+        "body": "Once you complete a program and pass review, your certificate appears in your profile. View it, share the public verification link so anyone can confirm it's genuine, or print it as a PDF.",
+        "points": [
+          "Earn a certificate after completing and passing review",
+          "Share a public verification link",
+          "Print or export your certificate as a PDF",
+          "Keep all your certificates in one place"
+        ],
         "where": "Profile → My Certificates"
       },
       "profile": {
         "title": "Profile & Settings",
-        "desc": "Update your name, switch between English and Indonesian, reset your password, and restart this walkthrough whenever you need a refresher.",
+        "body": "Manage your account: update your name, switch between English and Indonesian, and reset your password. You can also restart the guided walkthrough here whenever you'd like a refresher.",
+        "points": [
+          "Edit your display name",
+          "Switch language between English and Indonesian",
+          "Send yourself a password reset link",
+          "Replay the onboarding walkthrough"
+        ],
         "where": "Avatar menu → Profile & Settings"
       },
       "content_editing": {
         "title": "Content Editing",
-        "desc": "As a mentor you can edit lesson materials and exercises directly from the session page, keeping content accurate and up to date.",
+        "body": "As a mentor you can edit lesson materials and exercises directly from the session page. Fix a typo, clarify an explanation, or update an example — changes go live for your cohort immediately.",
+        "points": [
+          "Edit lesson content inline from the session page",
+          "Create and adjust exercises and test cases",
+          "Keep materials accurate and up to date",
+          "Changes apply to your cohort right away"
+        ],
         "where": "Session page → Edit lesson"
       },
       "program_management": {
         "title": "Program Management",
-        "desc": "Manage a program end to end: create and configure cohorts, schedule sessions with Zoom links and recordings, assign mentors, review student pass/fail status, and track mentor performance from feedback.",
-        "where": "Top nav → Programs"
+        "body": "Run a program from end to end. Create and configure cohorts, schedule sessions with Zoom links and recordings, assign mentors to each session, and keep the whole timeline organized.",
+        "points": [
+          "Create and configure cohorts and their schedules",
+          "Add Zoom links and recordings to each session",
+          "Assign mentors to sessions",
+          "Monitor mentor performance from feedback data"
+        ],
+        "where": "Top navigation → Programs"
       },
       "student_review": {
         "title": "Student Review",
-        "desc": "Review each student's progress in a cohort and mark them pass or fail. Passing students become eligible for their certificate.",
+        "body": "Review each student's progress within a cohort and mark them as pass or fail. Passing a student makes them eligible to receive their certificate for the program.",
+        "points": [
+          "See each student's progress and scores",
+          "Mark students as pass or fail",
+          "Unlock certificates for students who pass",
+          "Keep review notes for your records"
+        ],
         "where": "Programs → Students / Review"
       },
       "admin_console": {
         "title": "Admin Console",
-        "desc": "Platform-wide control: an overview of key stats, cohort management, exercise and feedback analytics, content issue reports, and assigning program managers.",
-        "where": "Top nav → Admin"
+        "body": "Platform-wide control in one place. Get an overview of key stats, manage cohorts, dig into exercise and feedback analytics, handle content-issue reports, and assign program managers.",
+        "points": [
+          "See platform-wide stats and recent activity",
+          "Manage all cohorts across programs",
+          "Review exercise and feedback analytics",
+          "Handle content reports and assign program managers"
+        ],
+        "where": "Top navigation → Admin"
       },
       "user_management": {
         "title": "User Management",
-        "desc": "View all users, inspect an individual's activity and progress, and manage roles across the platform.",
+        "body": "View everyone on the platform, open an individual user to inspect their activity and progress, and manage roles so the right people have the right access.",
+        "points": [
+          "Browse and search all users",
+          "Inspect an individual's activity and progress",
+          "Manage roles and access across the platform",
+          "Spot inactive or at-risk learners early"
+        ],
         "where": "Admin → Overview / Users"
       }
     }

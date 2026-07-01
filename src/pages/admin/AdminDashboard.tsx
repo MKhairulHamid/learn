@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       {/* ── Page header ── */}
       <div className="border-b border-white/[0.06] bg-[#0d1221]/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-14 flex items-center gap-3">
+          <div data-tour="admin-header" className="h-14 flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-primary-500/10 border border-primary-500/20 flex items-center justify-center">
               <LayoutDashboard size={14} className="text-primary-400" />
             </div>
