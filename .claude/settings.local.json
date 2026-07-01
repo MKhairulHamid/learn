@@ -5,7 +5,18 @@
       "mcp__c4b86c67-8fb7-4cbc-9142-b6ad2693d6b0__execute_sql",
       "WebFetch(domain:talentiv.id)",
       "Bash(~/.nvm/versions/node/v20.20.2/bin/node ./node_modules/.bin/tsc --noEmit)",
-      "Bash(echo \"exit:$?\")"
+      "Bash(echo \"exit:$?\")",
+      "Bash(sips -g pixelWidth -g pixelHeight public/brand/talentiv-hero.png public/brand/talentiv-logo-white.webp public/pwa-512x512.png)",
+      "Bash(sips -s format png /Users/hamid/Learn/public/favicon.svg --out test-sips.png)",
+      "Bash(sips -s format png -Z 128 /Users/hamid/Learn/public/favicon.svg --out favicon-preview.png)",
+      "Bash(sips -s format png -Z 192 public/favicon.svg --out public/pwa-192x192.png)",
+      "Bash(sips -s format png -Z 512 public/favicon.svg --out public/pwa-512x512.png)",
+      "Bash(sips -g pixelWidth -g pixelHeight public/pwa-192x192.png public/pwa-512x512.png)",
+      "Bash(sips -s format png -Z 1200 og-image.svg --out og-image-preview.png)",
+      "Bash(sips -g pixelWidth -g pixelHeight /Users/hamid/Learn/public/brand/og-image.png)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
