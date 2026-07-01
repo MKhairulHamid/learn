@@ -4,10 +4,9 @@ import { useTranslation } from 'react-i18next'
 import {
   Menu, X, Globe, BookOpen, LogOut,
   LayoutDashboard, Gamepad2, ShieldCheck, Briefcase,
-  User, ChevronDown, Download, PlayCircle, HelpCircle,
+  User, ChevronDown, Download, HelpCircle,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { useOnboarding } from '../../hooks/useOnboarding'
 import { Button } from '../ui/Button'
 import { NotificationDropdown } from '../discussion/NotificationDropdown'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -17,7 +16,6 @@ export function Navbar() {
   const { t, i18n } = useTranslation('common')
   const { t: tOnb } = useTranslation('onboarding')
   const { user, profile, signOut } = useAuth()
-  const { startTour } = useOnboarding()
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -203,14 +201,6 @@ export function Navbar() {
                       {tOnb('guide.title')}
                     </Link>
 
-                    <button
-                      onClick={() => { setUserMenuOpen(false); startTour() }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <PlayCircle size={15} className="text-gray-400" />
-                      {tOnb('guide.replay_tour')}
-                    </button>
-
                     {isProgramManager && (
                       <Link
                         to="/program-manager"
@@ -288,13 +278,6 @@ export function Navbar() {
               <MobileLink to="/playground" icon={<Gamepad2 size={16} />}         label={t('nav.playground')}          onClick={() => setMobileOpen(false)} />
               <MobileLink to="/profile"    icon={<User size={16} />}            label={t('nav.profile_settings')}   onClick={() => setMobileOpen(false)} />
               <MobileLink to="/guide"      icon={<HelpCircle size={16} />}      label={tOnb('guide.title')}         onClick={() => setMobileOpen(false)} />
-              <button
-                onClick={() => { setMobileOpen(false); startTour() }}
-                className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <PlayCircle size={16} />
-                {tOnb('guide.replay_tour')}
-              </button>
 
               {isProgramManager && (
                 <MobileLink to="/program-manager" icon={<Briefcase size={16} className="text-violet-500" />} label="Program Manager" onClick={() => setMobileOpen(false)} />
