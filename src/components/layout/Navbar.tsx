@@ -73,6 +73,9 @@ export function Navbar() {
               />
             </span>
             <span className="text-primary-700">Learning</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-primary-600 bg-primary-50 border border-primary-200 rounded-full px-1.5 py-0.5">
+              Beta
+            </span>
           </Link>
 
           {/* Desktop nav links */}
