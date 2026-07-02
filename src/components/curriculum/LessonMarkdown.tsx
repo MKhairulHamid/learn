@@ -143,7 +143,7 @@ function CodeBlock({ children, className }: ComponentPropsWithoutRef<'code'>) {
   )
 }
 
-const PROSE = `prose prose-sm sm:prose max-w-none
+const PROSE = `prose prose-sm sm:prose-base max-w-none
   prose-headings:text-gray-900 prose-headings:font-bold
   prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:first:mt-0
   prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3

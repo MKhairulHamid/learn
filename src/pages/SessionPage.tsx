@@ -180,7 +180,7 @@ export default function SessionPage() {
   const nextSession = currentIdx >= 0 && currentIdx < allSessions.length - 1 ? allSessions[currentIdx + 1] : null
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
+    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
       {/* Back nav */}
       <button
         onClick={() => navigate(curriculumPath)}
