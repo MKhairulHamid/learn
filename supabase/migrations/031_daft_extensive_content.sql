@@ -15,7 +15,7 @@
 
 -- ── F01 — Cleaning and Shaping Incoming Data ───────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Sabtu, 4 Juli 2026 · 09.00 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Sabtu, 4 Juli 2026 · 09.00 WIB
 
 # Sesi 1 — Membersihkan dan Merapihkan Data yang Diterima
 
@@ -243,7 +243,7 @@ WHERE session_number = 'F01';
 
 -- ── F02 — Presenting Data to Stakeholder Needs ─────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Sabtu, 4 Juli 2026 · 13.00 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Sabtu, 4 Juli 2026 · 13.00 WIB
 
 # Sesi 2 — Menyajikan Data Sesuai Kebutuhan Stakeholder
 
@@ -463,7 +463,7 @@ WHERE session_number = 'F02';
 
 -- ── F03 — Joining & Highlighting Datasets ──────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Minggu, 5 Juli 2026 · 09.00 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Minggu, 5 Juli 2026 · 09.00 WIB
 
 # Sesi 3 — Menggabungkan & Highlight Dataset
 
@@ -661,7 +661,7 @@ WHERE session_number = 'F03';
 
 -- ── F04 — Pivot Tables for Insight ─────────────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Minggu, 5 Juli 2026 · 13.00 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Minggu, 5 Juli 2026 · 13.00 WIB
 
 # Sesi 4 — Pivot Table untuk Dapatkan Insight
 
@@ -849,7 +849,7 @@ WHERE session_number = 'F04';
 
 -- ── F05 — Exploratory Data Analysis (EDA) ──────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Kamis, 9 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Kamis, 9 Juli 2026 · 19.30 WIB
 
 # Sesi 5 — Exploratory Data Analysis (EDA)
 
@@ -1037,7 +1037,7 @@ WHERE session_number = 'F05';
 
 -- ── F06 — Data Visualization ───────────────────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Selasa, 14 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Selasa, 14 Juli 2026 · 19.30 WIB
 
 # Sesi 6 — Visualisasi Data
 
@@ -1195,7 +1195,7 @@ WHERE session_number = 'F06';
 
 -- ── F07 — Introduction to Power BI ─────────────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Kamis, 16 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Kamis, 16 Juli 2026 · 19.30 WIB
 
 # Sesi 7 — Introduce Power BI
 
@@ -1361,7 +1361,7 @@ WHERE session_number = 'F07';
 
 -- ── F08 — Introduction to SQL ──────────────────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Senin, 20 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Senin, 20 Juli 2026 · 19.30 WIB
 
 # Sesi 8 — Introduce SQL: SELECT, Filter, & Agregasi
 
@@ -1665,7 +1665,7 @@ WHERE session_number = 'F08';
 
 -- ── F09 — Final Project & Portfolio ────────────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Selasa, 21 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Selasa, 21 Juli 2026 · 19.30 WIB
 
 # Sesi 9 — Final Project dan Portofolio
 
@@ -1821,7 +1821,7 @@ WHERE session_number = 'F09';
 
 -- ── F10 — BNSP Prep: Identifying Business Process ──────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Rabu, 22 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Rabu, 22 Juli 2026 · 19.30 WIB
 
 # Sesi 10 — Kelas Persiapan BNSP: Mengidentifikasi Business Process
 
@@ -1949,7 +1949,7 @@ WHERE session_number = 'F10';
 
 -- ── F11 — BNSP Prep: Portfolio Mentoring ───────────────────
 UPDATE public.sessions SET
-content_id = $da_id$> 🗓️ **Jadwal Live Session (Angkatan Juli 2026):** Kamis, 23 Juli 2026 · 19.30 WIB
+content_id = $da_id$> 🗓️ **Jadwal Live Session (Batch Juli 2026):** Kamis, 23 Juli 2026 · 19.30 WIB
 
 # Sesi 11 — Kelas Persiapan BNSP: Mentoring Portofolio
 
