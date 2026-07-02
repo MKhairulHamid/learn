@@ -8,6 +8,7 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { MobileNav } from './components/layout/MobileNav'
 import { SplashScreen } from './components/ui/SplashScreen'
+import { ReloadPrompt } from './components/ui/ReloadPrompt'
 import './lib/i18n'
 
 const Landing          = lazy(() => import('./pages/Landing'))
@@ -201,6 +202,7 @@ export default function App() {
       <CohortProvider>
         <FeedbackModalProvider>
           <AppRoutes />
+          <ReloadPrompt />
         </FeedbackModalProvider>
       </CohortProvider>
     </AuthProvider>

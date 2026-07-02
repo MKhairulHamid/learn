@@ -246,6 +246,12 @@
     "tab_xlookup": "Simulator XLOOKUP",
     "tab_okr": "OKR Builder"
   },
+  "update": {
+    "title": "Versi baru tersedia",
+    "desc": "Muat ulang untuk mendapatkan fitur dan perbaikan terbaru.",
+    "reload": "Muat Ulang",
+    "dismiss": "Nanti"
+  },
   "report": {
     "button": "Laporkan masalah",
     "cta_title": "Bantu kami tingkatkan sesi ini",

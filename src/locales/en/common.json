@@ -246,6 +246,12 @@
     "tab_xlookup": "XLOOKUP Simulator",
     "tab_okr": "OKR Builder"
   },
+  "update": {
+    "title": "A new version is available",
+    "desc": "Reload to get the latest features and fixes.",
+    "reload": "Reload",
+    "dismiss": "Later"
+  },
   "report": {
     "button": "Report an issue",
     "cta_title": "Help us improve this session",
