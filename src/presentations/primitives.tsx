@@ -195,6 +195,126 @@ export function DataTable({
   )
 }
 
+/* ── Chart primitives ──────────────────────────────────────────────────────────
+   Hand-rolled (no chart lib dependency). Emphasis pattern: one accent hue for
+   the point of the chart, a desaturated gray for context/baseline, and amber
+   reserved for a genuine "this is the gap/problem" status signal. Colors
+   validated for ≥3:1 contrast and CVD-safe separation against this deck's
+   dark surface (#06302c). Every mark carries a direct label — no hover-only
+   values, since these render inside a click-through slide, not a dashboard.
+───────────────────────────────────────────────────────────────────────────── */
+
+const CHART_ACCENT = '#6DC4AA'
+const CHART_MUTED = '#94A3B8'
+const CHART_WARNING = '#F59E0B'
+
+/** Thin horizontal bar: square at the baseline, 4px-rounded at the data end. */
+function Bar({ pct, tone }: { pct: number; tone: 'accent' | 'muted' | 'warning' }) {
+  const color = tone === 'accent' ? CHART_ACCENT : tone === 'warning' ? CHART_WARNING : CHART_MUTED
+  return (
+    <div className="flex-1 h-2 sm:h-2.5 rounded-[3px] bg-white/[0.06] overflow-hidden">
+      <div className="h-full rounded-r-[4px]" style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
+    </div>
+  )
+}
+
+/** Ranking / emphasis bar list — one row highlighted, the rest recede to gray. */
+export function RankBars({
+  items,
+}: {
+  items: { label: string; value: number; display: string; emphasis?: boolean }[]
+}) {
+  const max = Math.max(...items.map(i => i.value))
+  return (
+    <div className="space-y-2.5">
+      {items.map(it => (
+        <div key={it.label}>
+          <div className="flex items-center justify-between text-xs mb-1 gap-2">
+            <span className={`flex items-center gap-1.5 ${it.emphasis ? 'text-white font-semibold' : 'text-gray-400'}`}>
+              {it.emphasis && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: CHART_ACCENT }} />}
+              {it.label}
+            </span>
+            <span className={`font-mono tabular-nums shrink-0 ${it.emphasis ? 'text-white font-semibold' : 'text-gray-500'}`}>{it.display}</span>
+          </div>
+          <Bar pct={(it.value / max) * 100} tone={it.emphasis ? 'accent' : 'muted'} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** 2–3 stat tiles with a proportional bar underneath each — for headline comparisons. */
+export function StatBars({
+  items, note,
+}: {
+  items: { value: number; display: string; label: string; tone?: 'accent' | 'muted' | 'warning' }[]
+  note?: ReactNode
+}) {
+  const max = Math.max(...items.map(i => i.value))
+  const textTone: Record<string, string> = {
+    accent: 'text-white', muted: 'text-gray-400', warning: 'text-white',
+  }
+  const labelTone: Record<string, string> = {
+    accent: 'text-[#6DC4AA] font-medium', muted: 'text-gray-500', warning: 'text-amber-400 font-medium',
+  }
+  return (
+    <div className="rounded-2xl border border-[#6DC4AA]/20 bg-white/[0.02] p-5">
+      <div className="grid gap-6" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0,1fr))` }}>
+        {items.map(it => {
+          const tone = it.tone ?? 'accent'
+          return (
+            <div key={it.label}>
+              <div className={`text-3xl sm:text-4xl font-bold tabular-nums ${textTone[tone]}`}>{it.display}</div>
+              <div className={`text-xs mt-1 ${labelTone[tone]}`}>{it.label}</div>
+              <div className="mt-3"><Bar pct={(it.value / max) * 100} tone={tone} /></div>
+            </div>
+          )
+        })}
+      </div>
+      {note && <p className="text-[10px] text-gray-500 mt-4 pt-3 border-t border-white/5 leading-relaxed">{note}</p>}
+    </div>
+  )
+}
+
+/** Multi-row before/after paired bars, with a shared legend (2 series → legend required). */
+export function ComparePairs({
+  legend, rows,
+}: {
+  legend: [string, string]
+  rows: { label: string; before: number; after: number; beforeDisplay: string; afterDisplay: string }[]
+}) {
+  const max = Math.max(...rows.flatMap(r => [r.before, r.after]))
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-3 text-[10px] uppercase tracking-widest">
+        <span className="flex items-center gap-1.5 text-gray-400">
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: CHART_MUTED }} />{legend[0]}
+        </span>
+        <span className="flex items-center gap-1.5 font-semibold" style={{ color: CHART_ACCENT }}>
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: CHART_ACCENT }} />{legend[1]}
+        </span>
+      </div>
+      <div className="space-y-3">
+        {rows.map(r => (
+          <div key={r.label}>
+            <div className="text-xs text-gray-300 mb-1.5">{r.label}</div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Bar pct={(r.before / max) * 100} tone="muted" />
+                <span className="text-[10px] text-gray-500 font-mono tabular-nums w-16 text-right shrink-0">{r.beforeDisplay}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Bar pct={(r.after / max) * 100} tone="accent" />
+                <span className="text-[10px] font-mono tabular-nums font-semibold w-16 text-right shrink-0" style={{ color: CHART_ACCENT }}>{r.afterDisplay}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export interface Slide {
   /** Short label shown in the presenter view + progress tooltip. */
   label: string
