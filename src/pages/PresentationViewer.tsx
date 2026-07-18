@@ -26,16 +26,21 @@ function buildPresenterHtml(deckTitle: string, channel: string) {
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: 'Inter', system-ui, sans-serif; background:#0a0e14; color:#e5e7eb; padding:20px; }
-  .bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  html, body { height: 100%; }
+  body { margin:0; font-family: 'Inter', system-ui, sans-serif; background:#0a0e14; color:#e5e7eb; padding:20px; display:flex; flex-direction:column; }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-shrink:0; }
   .badge { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:#6DC4AA; font-weight:600; }
-  .pos { font-size:13px; color:#9ca3af; font-variant-numeric:tabular-nums; }
+  .pos { font-size:13px; color:#9ca3af; font-variant-numeric:tabular-nums; flex-shrink:0; }
   .clock { font-size:13px; color:#6b7280; font-variant-numeric:tabular-nums; }
-  h1 { font-size:22px; margin:0 0 4px; color:#fff; }
-  .next { font-size:12px; color:#6b7280; margin-bottom:18px; }
+  h1 { font-size:22px; margin:0 0 4px; color:#fff; flex-shrink:0; }
+  .next { font-size:12px; color:#6b7280; margin-bottom:14px; flex-shrink:0; }
   .next b { color:#9ca3af; font-weight:600; }
-  .notes { background:#10151f; border:1px solid rgba(31,167,155,.25); border-radius:14px; padding:18px 20px; font-size:16px; line-height:1.7; white-space:pre-wrap; }
-  .hint { margin-top:16px; font-size:11px; color:#4b5563; }
+  .section-label { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#6DC4AA; font-weight:600; margin:0 0 6px; flex-shrink:0; }
+  .notes { background:#10151f; border:1px solid rgba(31,167,155,.25); border-radius:14px; padding:14px 16px; font-size:14px; line-height:1.6; white-space:pre-wrap; flex-shrink:0; max-height:22vh; overflow-y:auto; }
+  .script-wrap { flex:1; min-height:0; display:flex; flex-direction:column; margin-top:16px; }
+  .script { background:#10151f; border:1px solid rgba(31,167,155,.25); border-radius:14px; padding:18px 20px; font-size:17px; line-height:1.75; white-space:pre-wrap; flex:1; overflow-y:auto; }
+  .script.empty { color:#6b7280; font-style:italic; font-size:14px; }
+  .hint { margin-top:14px; font-size:11px; color:#4b5563; flex-shrink:0; }
   kbd { background:rgba(255,255,255,.08); border-radius:4px; padding:1px 5px; font-family:monospace; }
 </style></head>
 <body>
@@ -46,7 +51,12 @@ function buildPresenterHtml(deckTitle: string, channel: string) {
   <div class="pos" id="pos">—</div>
   <h1 id="label">Menunggu slide…</h1>
   <div class="next" id="next"></div>
+  <p class="section-label">Catatan</p>
   <div class="notes" id="notes">Jaga jendela ini di layar yang TIDAK kamu bagikan. Navigasikan slide di jendela utama — catatan akan ikut berpindah.</div>
+  <div class="script-wrap">
+    <p class="section-label">Naskah lengkap</p>
+    <div class="script" id="script"></div>
+  </div>
   <div class="hint">Navigasi tetap di jendela presentasi utama. Tutup jendela ini kapan saja.</div>
 <script>
   var ch = new BroadcastChannel(${JSON.stringify(channel)});
@@ -59,6 +69,9 @@ function buildPresenterHtml(deckTitle: string, channel: string) {
     document.getElementById('label').textContent = m.label || '';
     document.getElementById('next').innerHTML = m.nextLabel ? 'Berikutnya: <b>'+m.nextLabel+'</b>' : 'Slide terakhir';
     document.getElementById('notes').textContent = m.notes || '(tidak ada catatan)';
+    var scriptEl = document.getElementById('script');
+    scriptEl.textContent = m.script || '(naskah lengkap belum ditulis untuk slide ini)';
+    scriptEl.classList.toggle('empty', !m.script);
     document.title = 'Presenter · ' + (m.index+1) + '. ' + (m.label||'');
   };
   ch.postMessage({ type:'ready' });
@@ -112,6 +125,7 @@ export default function PresentationViewer() {
         total: deck.slides.length,
         label: deck.slides[index]?.label,
         notes: deck.slides[index]?.notes,
+        script: deck.slides[index]?.script,
         nextLabel: deck.slides[index + 1]?.label ?? '',
       })
     },
@@ -306,7 +320,7 @@ export default function PresentationViewer() {
               <div className="flex items-center gap-2 text-[#6DC4AA] text-xs font-semibold uppercase tracking-widest">
                 <StickyNote size={13} /> Catatan instruktur · {slide.label}
               </div>
-              <span className="text-[10px] text-amber-400/80">⚠ terlihat jika kamu share seluruh layar</span>
+              <span className="text-[10px] text-amber-400/80">⚠ ikut ke-share dalam mode apa pun — pakai jendela presenter (P)</span>
             </div>
             <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap max-h-[34vh] overflow-y-auto">{slide.notes}</p>
           </div>
@@ -339,7 +353,7 @@ export default function PresentationViewer() {
             )}
           </div>
           <div className="px-5 py-3 border-t border-white/10 text-[10px] text-amber-400/80 shrink-0">
-            ⚠ terlihat jika kamu share seluruh layar — sama seperti catatan instruktur
+            ⚠ ikut ke-share dalam mode apa pun — window, tab, atau layar penuh. Pakai jendela presenter (P) untuk versi yang aman.
           </div>
         </div>
       )}
@@ -370,7 +384,7 @@ export default function PresentationViewer() {
               ))}
             </div>
             <div className="mt-5 rounded-xl border border-[#1FA79B]/20 bg-[#1FA79B]/[0.07] p-3 text-xs text-gray-300">
-              💡 Untuk menyembunyikan catatan dari peserta saat share screen: tekan <kbd className="px-1 rounded bg-white/10 font-mono">P</kbd>, lalu di Zoom/Meet pilih <b>Share Window</b> dan bagikan <b>hanya jendela presentasi ini</b> — bukan seluruh layar. Jendela presenter tetap di layarmu.
+              💡 Overlay Catatan (<kbd className="px-1 rounded bg-white/10 font-mono">N</kbd>) dan Naskah (<kbd className="px-1 rounded bg-white/10 font-mono">S</kbd>) ikut ke-share dalam mode apa pun — window, tab, atau layar penuh — karena keduanya bagian dari jendela yang sama. Yang benar-benar aman cuma jendela presenter: tekan <kbd className="px-1 rounded bg-white/10 font-mono">P</kbd> untuk membukanya di jendela terpisah, lalu di Zoom/Meet pilih <b>Share Window</b> dan bagikan <b>jendela utama ini saja</b>. Jendela presenter tidak akan muncul di daftar pilihan karena baru saja terbuka — jadi otomatis tidak ikut dibagikan.
             </div>
           </div>
         </div>
