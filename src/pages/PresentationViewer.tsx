@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ChevronLeft, ChevronRight, Maximize, Minimize, X,
-  StickyNote, MonitorPlay, Keyboard,
+  StickyNote, MonitorPlay, Keyboard, ScrollText, FileDown,
 } from 'lucide-react'
 import { getPresentation } from '../presentations/registry'
 
@@ -75,6 +75,7 @@ export default function PresentationViewer() {
   const [current, setCurrent] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
+  const [showScript, setShowScript] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
   const [showHelp, setShowHelp] = useState(false)
   const touchStartX = useRef<number | null>(null)
@@ -133,6 +134,16 @@ export default function PresentationViewer() {
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
 
+  // ── PDF export (native print → "Save as PDF") ───────────────────────────────
+  // Rasterizing via html2canvas is unreliable for this deck specifically: gradient
+  // text (bg-clip-text) and blurred glows are known trouble spots for canvas
+  // re-implementations of CSS. Printing lets the real rendering engine draw every
+  // slide, so gradients/blur/animation-end-states come out pixel-correct. The
+  // print stylesheet below re-flows the normally-stacked slides into one page each.
+  const downloadPdf = useCallback(() => {
+    window.print()
+  }, [])
+
   // ── Presenter window ─────────────────────────────────────────────────────────
   const openPresenter = useCallback(() => {
     if (!deck) return
@@ -163,14 +174,21 @@ export default function PresentationViewer() {
         case 'End': setCurrent(total - 1); break
         case 'f': case 'F': toggleFullscreen(); break
         case 'n': case 'N': setShowNotes(s => !s); break
-        case 'p': case 'P': openPresenter(); break
+        case 's': case 'S': setShowScript(s => !s); break
+        case 'p': case 'P':
+          if (e.metaKey || e.ctrlKey) { e.preventDefault(); downloadPdf() }
+          else openPresenter()
+          break
         case '?': setShowHelp(s => !s); break
-        case 'Escape': if (showHelp) setShowHelp(false); break
+        case 'Escape':
+          if (showHelp) setShowHelp(false)
+          else if (showScript) setShowScript(false)
+          break
       }
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
-  }, [go, total, toggleFullscreen, openPresenter, showHelp])
+  }, [go, total, toggleFullscreen, openPresenter, downloadPdf, showHelp, showScript])
 
   // ── Auto-hide controls ───────────────────────────────────────────────────────
   const nudgeControls = useCallback(() => {
@@ -204,16 +222,16 @@ export default function PresentationViewer() {
 
   return (
     <div
-      className="w-screen h-screen overflow-hidden bg-[#06302c] text-white relative"
+      className="presentation-root w-screen h-screen overflow-hidden bg-[#06302c] text-white relative"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onMouseMove={nudgeControls}
     >
-      {/* Slides (crossfade) */}
+      {/* Slides (crossfade on screen; re-flowed to one-per-page by the print stylesheet) */}
       {deck.slides.map((s, i) => (
         <div
           key={i}
-          className="absolute inset-0 overflow-y-auto"
+          className="slide-page absolute inset-0 overflow-y-auto"
           style={{
             opacity: i === current ? 1 : 0,
             transition: 'opacity 0.4s ease',
@@ -230,21 +248,21 @@ export default function PresentationViewer() {
       <button
         onClick={() => go(-1)}
         disabled={current === 0}
-        className={`fixed left-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full border border-white/10 bg-black/30 backdrop-blur-sm hidden sm:flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 disabled:opacity-0 transition-all ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`no-print fixed left-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full border border-white/10 bg-black/30 backdrop-blur-sm hidden sm:flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 disabled:opacity-0 transition-all ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
       >
         <ChevronLeft size={20} />
       </button>
       <button
         onClick={() => go(1)}
         disabled={current === total - 1}
-        className={`fixed right-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full border border-white/10 bg-black/30 backdrop-blur-sm hidden sm:flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 disabled:opacity-0 transition-all ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`no-print fixed right-4 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full border border-white/10 bg-black/30 backdrop-blur-sm hidden sm:flex items-center justify-center text-gray-400 hover:text-white hover:border-white/30 disabled:opacity-0 transition-all ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}
       >
         <ChevronRight size={20} />
       </button>
 
       {/* Bottom control bar */}
       <div
-        className={`fixed bottom-0 inset-x-0 z-40 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+        className={`no-print fixed bottom-0 inset-x-0 z-40 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
       >
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-t from-black/60 to-transparent">
           <button
@@ -269,7 +287,9 @@ export default function PresentationViewer() {
           <div className="flex items-center gap-1">
             <span className="text-[11px] text-gray-500 font-mono mr-2 tabular-nums">{current + 1}/{total}</span>
             <CtrlBtn active={showNotes} onClick={() => setShowNotes(s => !s)} title="Catatan (N)"><StickyNote size={16} /></CtrlBtn>
+            <CtrlBtn active={showScript} onClick={() => setShowScript(s => !s)} title="Naskah lengkap (S)"><ScrollText size={16} /></CtrlBtn>
             <CtrlBtn onClick={openPresenter} title="Jendela presenter (P)"><MonitorPlay size={16} /></CtrlBtn>
+            <CtrlBtn onClick={downloadPdf} title="Unduh semua slide sebagai PDF (Ctrl+P)"><FileDown size={16} /></CtrlBtn>
             <CtrlBtn onClick={() => setShowHelp(true)} title="Bantuan (?)"><Keyboard size={16} /></CtrlBtn>
             <CtrlBtn onClick={toggleFullscreen} title="Layar penuh (F)">
               {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
@@ -280,7 +300,7 @@ export default function PresentationViewer() {
 
       {/* Inline notes overlay (instructor's local screen) */}
       {showNotes && (
-        <div className="fixed bottom-16 inset-x-0 z-30 px-4 sm:px-6">
+        <div className="no-print fixed bottom-16 inset-x-0 z-30 px-4 sm:px-6">
           <div className="max-w-3xl mx-auto rounded-2xl border border-[#1FA79B]/30 bg-[#0a0e14]/95 backdrop-blur-md shadow-2xl shadow-black/60 p-4 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 text-[#6DC4AA] text-xs font-semibold uppercase tracking-widest">
@@ -293,10 +313,41 @@ export default function PresentationViewer() {
         </div>
       )}
 
+      {/* Full-script side panel (instructor's local screen) — verbatim narration,
+          distinct from the short reminder bullets in the notes overlay above. */}
+      {showScript && (
+        <div className="no-print fixed inset-y-0 right-0 z-40 w-full sm:w-[420px] lg:w-[460px] bg-[#0a0e14]/98 backdrop-blur-md border-l border-[#1FA79B]/25 shadow-2xl shadow-black/60 flex flex-col">
+          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-white/10 shrink-0">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-[#6DC4AA] text-xs font-semibold uppercase tracking-widest">
+                <ScrollText size={13} /> Naskah lengkap
+              </div>
+              <div className="text-sm text-white font-medium mt-0.5 truncate">{current + 1}. {slide.label}</div>
+            </div>
+            <button
+              onClick={() => setShowScript(false)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 shrink-0"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            {slide.script ? (
+              <p className="text-[15px] text-gray-200 leading-[1.8] whitespace-pre-wrap">{slide.script}</p>
+            ) : (
+              <p className="text-sm text-gray-500 italic">Naskah lengkap belum ditulis untuk slide ini — pakai catatan instruktur (N) sebagai gantinya.</p>
+            )}
+          </div>
+          <div className="px-5 py-3 border-t border-white/10 text-[10px] text-amber-400/80 shrink-0">
+            ⚠ terlihat jika kamu share seluruh layar — sama seperti catatan instruktur
+          </div>
+        </div>
+      )}
+
       {/* Help overlay */}
       {showHelp && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
+          className="no-print fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
           onClick={() => setShowHelp(false)}
         >
           <div className="rounded-2xl border border-white/10 bg-[#0d1119] p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
@@ -307,7 +358,9 @@ export default function PresentationViewer() {
                 ['←', 'Slide sebelumnya'],
                 ['F', 'Layar penuh'],
                 ['N', 'Catatan instruktur (di layar ini)'],
+                ['S', 'Naskah lengkap (di layar ini)'],
                 ['P', 'Buka jendela presenter (aman, tidak ikut dibagikan)'],
+                ['Ctrl/⌘ + P', 'Unduh semua slide sebagai PDF'],
                 ['? ', 'Bantuan ini'],
               ].map(([k, d]) => (
                 <div key={k} className="flex items-center justify-between gap-4">
@@ -322,6 +375,32 @@ export default function PresentationViewer() {
           </div>
         </div>
       )}
+
+      {/* Print stylesheet — re-flows the absolutely-stacked slides into one printed
+          page each, so "Unduh PDF" (window.print → Save as PDF) captures every
+          slide instead of just the one currently on screen. */}
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          html, body, #root { background: #06302c !important; height: auto !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .presentation-root { width: auto !important; height: auto !important; overflow: visible !important; }
+          .slide-page {
+            position: static !important;
+            opacity: 1 !important;
+            inset: auto !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            overflow: visible !important;
+            pointer-events: auto !important;
+            break-after: page;
+            page-break-after: always;
+          }
+          .slide-page:last-child { break-after: auto; page-break-after: auto; }
+          .chart-bar-fill { animation: none !important; }
+          @page { size: landscape; margin: 0; }
+        }
+      `}</style>
     </div>
   )
 }

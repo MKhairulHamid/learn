@@ -356,6 +356,10 @@ export interface Slide {
   render: ReactNode
   /** Instructor-only talking points (markdown-ish plain text, shown in presenter window). */
   notes: string
+  /** Optional full spoken-word script for this slide — verbatim narration an
+   *  instructor can read to explain it completely, as opposed to `notes`'
+   *  short reminder bullets. Decks that don't author one simply omit it. */
+  script?: string
 }
 
 export interface Presentation {
