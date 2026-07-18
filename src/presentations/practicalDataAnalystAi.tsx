@@ -122,27 +122,33 @@ const S01b = (
       <SlideTitle sub="Delapan tahun terakhir saya berpindah dari satu masalah data ke masalah data lain, di tiga negara berbeda. Ini bukan slide riwayat kerja — ini dari mana setiap contoh di webinar ini benar-benar berasal.">
         Rekam jejak yang <span className="text-[#6DC4AA]">membawa saya ke sini</span>
       </SlideTitle>
-      <div className="flex flex-col sm:flex-row items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-center gap-2.5">
         <ExperienceCard
           src={BRAND.experience3}
           eyebrow="Sekarang · Melbourne, Australia"
-          stat="35.000+ venue, 3 region, 120 juta+ transaksi/tahun"
+          stat="35.000+ venue, 3 region, nilai transaksi USD 120 juta+/tahun"
         />
-        <ArrowRight size={20} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
+        <ArrowRight size={18} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
         <ExperienceCard
           src={BRAND.experience2}
           eyebrow="Sebelum itu · Singapura"
           stat="650.000+ pengguna, HRMS di 170+ pasar"
         />
-        <ArrowRight size={20} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
+        <ArrowRight size={18} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
         <ExperienceCard
           src={BRAND.experience1}
           eyebrow="Awal karier BI saya · Jakarta"
           stat="600+ rumah sakit mitra, BI dibangun dari nol"
         />
+        <ArrowRight size={18} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
+        <ExperienceCard
+          src={BRAND.degree}
+          eyebrow="Titik awal · Bahkan bukan lulusan IT"
+          stat="S.E. Manajemen, Universitas Indonesia"
+        />
       </div>
       <Note tone="info" className="mt-5">
-        Pola yang sama berulang tiga kali: masuk saat perusahaan butuh fondasi data dari nol, lalu membangunnya sampai benar-benar dipakai sehari-hari oleh tim yang sebenarnya. Studi kasus di slide berikutnya datang langsung dari pengalaman di Jakarta itu.
+        Pola yang sama berulang tiga kali: masuk saat perusahaan butuh fondasi data dari nol, lalu membangunnya sampai benar-benar dipakai sehari-hari oleh tim yang sebenarnya. Dan titik mulainya mungkin mengejutkan — bukan almet Ilmu Komputer, tapi gelar Manajemen. Kalau kamu juga tidak datang dari latar belakang IT, cerita ini seharusnya terasa lebih dekat. Studi kasus di slide berikutnya datang langsung dari pengalaman di Jakarta itu.
       </Note>
     </div>
   </Shell>
@@ -976,8 +982,8 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Rekam jejak', render: S01b,
-      notes: `KREDIBILITAS — bangun trust sebelum masuk materi.\n• Bacakan urutan mundur: mulai dari Nomni (sekarang), lalu BIPO, baru Boogie Medical.\n• Ini BUKAN membacakan CV — ceritakan SATU detail konkret di tiap kartu (integrasi M&A di Nomni, skala 650rb user di BIPO, membangun BI dari nol di Boogie Medical).\n• Tutup dengan menjembatani ke studi kasus dashboard di slide berikutnya.\n⏱️ ~2-3 menit.`,
-      script: `Sebelum masuk ke materi, saya mau kasih konteks singkat kenapa saya yang bicara soal ini hari ini.\n\nSaat ini saya kerja di Nomni, platform teknologi hospitality yang berbasis di Melbourne, Australia. Saya ikut membangun lapisan integrasi yang menyatukan data pembayaran dan pesanan dari puluhan ribu venue — restoran, hotel, tempat hiburan — di tiga region berbeda, hasil dari beberapa akuisisi perusahaan.\n\nSebelum itu, saya di BIPO, perusahaan HR dan payroll asal Singapura. Di sana saya ikut membangun sistem dan dashboard yang dipakai lebih dari 650 ribu karyawan di 170 lebih negara.\n\nDan sebelum itu lagi — ini yang paling relevan buat materi hari ini — saya jadi Director of Business Intelligence di Boogie Medical, distributor alat kesehatan di Jakarta. Di sanalah saya membangun fungsi BI dari nol, untuk melayani lebih dari 600 rumah sakit mitra.\n\nPola yang sama berulang tiga kali: masuk saat perusahaan butuh fondasi data dari nol, lalu membangunnya sampai benar-benar dipakai. Studi kasus yang akan saya tunjukkan di slide berikutnya datang langsung dari pengalaman di Jakarta itu.`,
+      notes: `KREDIBILITAS — bangun trust sebelum masuk materi.\n• Bacakan urutan mundur: mulai dari Nomni (sekarang), lalu BIPO, Boogie Medical, baru gelar S1.\n• Ini BUKAN membacakan CV — ceritakan SATU detail konkret di tiap kartu (integrasi M&A di Nomni, skala 650rb user di BIPO, membangun BI dari nol di Boogie Medical).\n• PUNCHLINE di kartu terakhir: gelar S1-nya Manajemen, bukan IT — ini yang bikin cerita relatable buat peserta yang juga bukan dari latar belakang teknis.\n• Tutup dengan menjembatani ke studi kasus dashboard di slide berikutnya.\n⏱️ ~2-3 menit.`,
+      script: `Sebelum masuk ke materi, saya mau kasih konteks singkat kenapa saya yang bicara soal ini hari ini.\n\nSaat ini saya kerja di Nomni, platform teknologi hospitality yang berbasis di Melbourne, Australia. Saya ikut membangun lapisan integrasi yang menyatukan data pembayaran dan pesanan dari puluhan ribu venue — restoran, hotel, tempat hiburan — di tiga region berbeda, hasil dari beberapa akuisisi perusahaan, dengan nilai transaksi lebih dari 120 juta dolar AS per tahun.\n\nSebelum itu, saya di BIPO, perusahaan HR dan payroll asal Singapura. Di sana saya ikut membangun sistem dan dashboard yang dipakai lebih dari 650 ribu karyawan di 170 lebih negara.\n\nDan sebelum itu lagi — ini yang paling relevan buat materi hari ini — saya jadi Director of Business Intelligence di Boogie Medical, distributor alat kesehatan di Jakarta. Di sanalah saya membangun fungsi BI dari nol, untuk melayani lebih dari 600 rumah sakit mitra.\n\nDan kalau ditelusuri lebih jauh lagi, ke titik paling awal — gelar S1 saya bukan dari Ilmu Komputer atau jurusan teknis lain. Saya lulusan Manajemen, dari Universitas Indonesia. Jadi kalau kalian yang menonton webinar ini juga tidak datang dari latar belakang IT, cerita ini seharusnya terasa dekat.\n\nPola yang sama berulang: masuk saat perusahaan butuh fondasi data dari nol, lalu membangunnya sampai benar-benar dipakai. Studi kasus yang akan saya tunjukkan di slide berikutnya datang langsung dari pengalaman di Jakarta itu.`,
     },
     {
       label: 'Bukti kerja · Dashboard RFM', render: S01c,

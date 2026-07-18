@@ -22,6 +22,7 @@ export const BRAND = {
   experience1: `${ASSET}brand/experience-1.png`,
   experience2: `${ASSET}brand/experience-2.png`,
   experience3: `${ASSET}brand/experience-3.png`,
+  degree: `${ASSET}brand/degree.png`,
 }
 
 export function Glow({ className }: { className: string }) {
