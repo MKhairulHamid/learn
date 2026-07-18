@@ -18,7 +18,7 @@ export const BRAND = {
   heroImage: `${ASSET}brand/talentiv-hero.png`,
   logoWhite: `${ASSET}brand/talentiv-logo-white.webp`,
   logoColor: 'https://talentiv.id/wp-content/uploads/2026/01/Desain-tanpa-judul-11-e1735010249654.png',
-  logoDitekindo: `${ASSET}brand/ditekindo-logo.png`,
+  logoDitekindo: `${ASSET}brand/ditekindo-logo.webp`,
 }
 
 export function Glow({ className }: { className: string }) {
