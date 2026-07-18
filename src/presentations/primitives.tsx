@@ -208,12 +208,40 @@ const CHART_ACCENT = '#6DC4AA'
 const CHART_MUTED = '#94A3B8'
 const CHART_WARNING = '#F59E0B'
 
-/** Thin horizontal bar: square at the baseline, 4px-rounded at the data end. */
-function Bar({ pct, tone }: { pct: number; tone: 'accent' | 'muted' | 'warning' }) {
+/** Thin horizontal bar: square at the baseline, 4px-rounded at the data end.
+ *  Grows in from zero width each time its slide becomes active (`barIndex`
+ *  staggers the start so a multi-bar chart cascades instead of popping at once). */
+function Bar({ pct, tone, barIndex = 0 }: { pct: number; tone: 'accent' | 'muted' | 'warning'; barIndex?: number }) {
   const color = tone === 'accent' ? CHART_ACCENT : tone === 'warning' ? CHART_WARNING : CHART_MUTED
   return (
     <div className="flex-1 h-2 sm:h-2.5 rounded-[3px] bg-white/[0.06] overflow-hidden">
-      <div className="h-full rounded-r-[4px]" style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
+      <div
+        className="chart-bar-fill h-full rounded-r-[4px]"
+        style={{ width: `${Math.max(pct, 2)}%`, background: color, '--bar-i': barIndex } as React.CSSProperties}
+      />
+    </div>
+  )
+}
+
+/** Small pill calling out the one relationship a comparison chart is about
+ *  ("8,5× lipat") — the direct label the marks spec asks for on the series
+ *  that's the actual point, so the reader doesn't have to do the division.
+ *  `warning` tone drops the growth arrow (a gap has no "up", so no arrow). */
+function DeltaBadge({ label, tone = 'accent' }: { label: string; tone?: 'accent' | 'warning' }) {
+  const color = tone === 'warning' ? CHART_WARNING : CHART_ACCENT
+  return (
+    <div className="flex justify-center mt-4">
+      <span
+        className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold"
+        style={{ borderColor: `${color}40`, background: `${color}14`, color }}
+      >
+        {tone === 'accent' && (
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2 8L8 2M8 2H3.5M8 2V6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+        {label}
+      </span>
     </div>
   )
 }
@@ -227,7 +255,7 @@ export function RankBars({
   const max = Math.max(...items.map(i => i.value))
   return (
     <div className="space-y-2.5">
-      {items.map(it => (
+      {items.map((it, i) => (
         <div key={it.label}>
           <div className="flex items-center justify-between text-xs mb-1 gap-2">
             <span className={`flex items-center gap-1.5 ${it.emphasis ? 'text-white font-semibold' : 'text-gray-400'}`}>
@@ -236,23 +264,29 @@ export function RankBars({
             </span>
             <span className={`font-mono tabular-nums shrink-0 ${it.emphasis ? 'text-white font-semibold' : 'text-gray-500'}`}>{it.display}</span>
           </div>
-          <Bar pct={(it.value / max) * 100} tone={it.emphasis ? 'accent' : 'muted'} />
+          <Bar pct={(it.value / max) * 100} tone={it.emphasis ? 'accent' : 'muted'} barIndex={i} />
         </div>
       ))}
     </div>
   )
 }
 
-/** 2–3 stat tiles with a proportional bar underneath each — for headline comparisons. */
+/** 2–3 stat tiles with a proportional bar underneath each — for headline comparisons.
+ *  Pass `delta` to surface the one relationship between exactly two stats
+ *  ("8,5× lipat") as a direct-labeled callout instead of making the reader do the math. */
 export function StatBars({
-  items, note,
+  items, note, delta, deltaTone = 'accent',
 }: {
   items: { value: number; display: string; label: string; tone?: 'accent' | 'muted' | 'warning' }[]
   note?: ReactNode
+  delta?: string
+  deltaTone?: 'accent' | 'warning'
 }) {
   const max = Math.max(...items.map(i => i.value))
   const textTone: Record<string, string> = {
-    accent: 'text-white', muted: 'text-gray-400', warning: 'text-white',
+    accent: 'bg-gradient-to-r from-[#1FA79B] to-[#D1EDE5] bg-clip-text text-transparent',
+    muted: 'text-gray-400',
+    warning: 'text-white',
   }
   const labelTone: Record<string, string> = {
     accent: 'text-[#6DC4AA] font-medium', muted: 'text-gray-500', warning: 'text-amber-400 font-medium',
@@ -260,17 +294,18 @@ export function StatBars({
   return (
     <div className="rounded-2xl border border-[#6DC4AA]/20 bg-white/[0.02] p-5">
       <div className="grid gap-6" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0,1fr))` }}>
-        {items.map(it => {
+        {items.map((it, i) => {
           const tone = it.tone ?? 'accent'
           return (
             <div key={it.label}>
               <div className={`text-3xl sm:text-4xl font-bold tabular-nums ${textTone[tone]}`}>{it.display}</div>
               <div className={`text-xs mt-1 ${labelTone[tone]}`}>{it.label}</div>
-              <div className="mt-3"><Bar pct={(it.value / max) * 100} tone={tone} /></div>
+              <div className="mt-3"><Bar pct={(it.value / max) * 100} tone={tone} barIndex={i} /></div>
             </div>
           )
         })}
       </div>
+      {delta && <DeltaBadge label={delta} tone={deltaTone} />}
       {note && <p className="text-[10px] text-gray-500 mt-4 pt-3 border-t border-white/5 leading-relaxed">{note}</p>}
     </div>
   )
@@ -295,16 +330,16 @@ export function ComparePairs({
         </span>
       </div>
       <div className="space-y-3">
-        {rows.map(r => (
+        {rows.map((r, i) => (
           <div key={r.label}>
             <div className="text-xs text-gray-300 mb-1.5">{r.label}</div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Bar pct={(r.before / max) * 100} tone="muted" />
+                <Bar pct={(r.before / max) * 100} tone="muted" barIndex={i * 2} />
                 <span className="text-[10px] text-gray-500 font-mono tabular-nums w-16 text-right shrink-0">{r.beforeDisplay}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Bar pct={(r.after / max) * 100} tone="accent" />
+                <Bar pct={(r.after / max) * 100} tone="accent" barIndex={i * 2 + 1} />
                 <span className="text-[10px] font-mono tabular-nums font-semibold w-16 text-right shrink-0" style={{ color: CHART_ACCENT }}>{r.afterDisplay}</span>
               </div>
             </div>

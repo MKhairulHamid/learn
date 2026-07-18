@@ -123,6 +123,7 @@ const S03 = (
           { value: 34, display: '+34%', label: 'Data Scientist (proyeksi BLS 2024–2034)', tone: 'accent' },
           { value: 4, display: '~4%', label: 'Rata-rata seluruh profesi di AS', tone: 'muted' },
         ]}
+        delta="~8,5× lipat dari rata-rata"
         note="Rata-rata seluruh profesi adalah kisaran tipikal proyeksi BLS untuk 10 tahun ke depan, dipakai sebagai pembanding kasar — bukan angka tunggal resmi untuk satu tahun tertentu."
       />
       <div className="grid sm:grid-cols-2 gap-4 mt-4">
@@ -289,6 +290,8 @@ const S09 = (
           { value: 90, display: '~90%', label: 'Perusahaan sudah memakai AI', tone: 'accent' },
           { value: 6, display: '~6%', label: 'Melihat nilai signifikan dari AI', tone: 'warning' },
         ]}
+        delta="gap 84 poin antara mencoba dan berhasil"
+        deltaTone="warning"
         note="94% perusahaan yang mengadopsi AI belum melihat nilai signifikan darinya — sisanya, sekitar 6%, yang sudah merasakan dampak nyata."
       />
       <Panel icon={<Building2 size={16} />} title="Kenapa gap ini terjadi" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06] mt-4">
@@ -317,7 +320,8 @@ const S10 = (
           { value: 25, display: '25%', label: 'Premi upah tahun sebelumnya', tone: 'muted' },
           { value: 56, display: '56%', label: 'Premi upah tahun ini', tone: 'accent' },
         ]}
-        note="Premi upah untuk pekerja dengan skill AI, dibanding rekan sejawat tanpanya — lebih dari dua kali lipat dalam setahun."
+        delta="2,2× lipat dalam setahun"
+        note="Premi upah untuk pekerja dengan skill AI, dibanding rekan sejawat tanpanya."
       />
       <Note tone="info" className="mt-4">
         <b className="text-[#6DC4AA]">So-what:</b> skill Data + AI bukan pelengkap CV — ini keunggulan yang harganya terukur secara finansial, dan tren-nya sedang menajam.
@@ -561,6 +565,7 @@ const S18 = (
           { value: 45, display: '~45 mnt', label: 'Dari pertanyaan sampai rekomendasi, dengan AI', tone: 'accent' },
           { value: 960, display: '~1–2 hari', label: 'Estimasi cara manual sepenuhnya', tone: 'muted' },
         ]}
+        delta="~16× lebih cepat"
         note="Skala waktu bar disederhanakan agar kedua batang tetap terbaca — bukan proporsi menit-ke-menit yang presisi."
       />
       <Note tone="info" className="mt-4">

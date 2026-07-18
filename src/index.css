@@ -77,6 +77,26 @@
 .safe-area-pt { padding-top: env(safe-area-inset-top); }
 .safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
 
+/* ── Presentation chart bars: grow in from the baseline each time the
+   slide holding them becomes active (PresentationViewer stamps
+   data-slide-active on the active slide's wrapper). ─────────────────── */
+@keyframes chart-bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.chart-bar-fill {
+  transform-origin: left;
+}
+[data-slide-active="true"] .chart-bar-fill {
+  animation: chart-bar-grow 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--bar-i, 0) * 70ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-slide-active="true"] .chart-bar-fill {
+    animation: none;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

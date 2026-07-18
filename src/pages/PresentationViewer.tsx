@@ -220,6 +220,7 @@ export default function PresentationViewer() {
             pointerEvents: i === current ? 'auto' : 'none',
           }}
           aria-hidden={i !== current}
+          data-slide-active={i === current ? 'true' : undefined}
         >
           {s.render}
         </div>
