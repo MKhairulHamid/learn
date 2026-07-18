@@ -5,6 +5,7 @@ import {
   Target, Rocket, MessageSquare,
   Eye, HelpCircle, Quote, Repeat, ListChecks, ScanSearch,
   GitCompare, Send, ExternalLink, RefreshCw,
+  BarChart3, ChevronDown, Star,
 } from 'lucide-react'
 import {
   BRAND, Shell, Glow, Tag, SlideTitle, Bullet, Panel, Note, SectionLabel,
@@ -13,9 +14,9 @@ import {
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Webinar — Practical Data Analyst & AI: Peran Baru di Era Otomatisasi
-   Kolaborasi Talentiv × Ditekindo. 26 slide, storyline McKinsey-style:
-   bukti pertumbuhan → 4 pergeseran → bukti pasar → demo satu studi kasus →
-   peta kompetensi → portofolio → penutup.
+   Kolaborasi Talentiv × Ditekindo. 28 slide, storyline McKinsey-style:
+   kredibilitas pembicara → bukti pertumbuhan → 4 pergeseran → bukti pasar →
+   demo satu studi kasus → peta kompetensi → portofolio → penutup.
 ───────────────────────────────────────────────────────────────────────────── */
 
 const WRAP = 'relative z-10 w-full max-w-6xl mx-auto'
@@ -95,6 +96,167 @@ const S01 = (
       </div>
     </div>
   </div>
+)
+
+/** LinkedIn-style experience screenshot, framed as a physical card since the
+ *  source images carry their own white UI chrome. */
+function ExperienceCard({ src, eyebrow, stat }: { src: string; eyebrow: string; stat: string }) {
+  return (
+    <div className="flex-1 flex flex-col items-center min-w-0 w-full sm:w-auto">
+      <div className="w-full rounded-xl overflow-hidden border-2 border-[#6DC4AA]/30 shadow-2xl shadow-black/40 bg-white">
+        <img src={src} alt="" className="w-full h-auto block" />
+      </div>
+      <div className="mt-3 text-center px-1">
+        <div className="text-[10px] uppercase tracking-widest text-[#6DC4AA] font-semibold">{eyebrow}</div>
+        <div className="text-xs text-gray-300 mt-1">{stat}</div>
+      </div>
+    </div>
+  )
+}
+
+// ── 01b · Kredibilitas: rekam jejak, diceritakan mundur (sekarang → awal) ───────
+const S01b = (
+  <Shell>
+    <div className={WRAP}>
+      <Tag label="Sebelum masuk ke materi" />
+      <SlideTitle sub="Delapan tahun terakhir saya berpindah dari satu masalah data ke masalah data lain, di tiga negara berbeda. Ini bukan slide riwayat kerja — ini dari mana setiap contoh di webinar ini benar-benar berasal.">
+        Rekam jejak yang <span className="text-[#6DC4AA]">membawa saya ke sini</span>
+      </SlideTitle>
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <ExperienceCard
+          src={BRAND.experience3}
+          eyebrow="Sekarang · Melbourne, Australia"
+          stat="35.000+ venue, 3 region, 120 juta+ transaksi/tahun"
+        />
+        <ArrowRight size={20} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
+        <ExperienceCard
+          src={BRAND.experience2}
+          eyebrow="Sebelum itu · Singapura"
+          stat="650.000+ pengguna, HRMS di 170+ pasar"
+        />
+        <ArrowRight size={20} className="text-gray-600 shrink-0 rotate-90 sm:rotate-0" />
+        <ExperienceCard
+          src={BRAND.experience1}
+          eyebrow="Awal karier BI saya · Jakarta"
+          stat="600+ rumah sakit mitra, BI dibangun dari nol"
+        />
+      </div>
+      <Note tone="info" className="mt-5">
+        Pola yang sama berulang tiga kali: masuk saat perusahaan butuh fondasi data dari nol, lalu membangunnya sampai benar-benar dipakai sehari-hari oleh tim yang sebenarnya. Studi kasus di slide berikutnya datang langsung dari pengalaman di Jakarta itu.
+      </Note>
+    </div>
+  </Shell>
+)
+
+/** RFM scatter — illustrative reconstruction, not real hospital data. Frequency
+ *  on X, monetary value on Y (inverted so "high value" sits near the top). */
+function RfmScatter() {
+  const dots: { x: number; y: number; seg: 'champions' | 'loyal' | 'risk' | 'lost' }[] = [
+    { x: 78, y: 12, seg: 'champions' }, { x: 88, y: 20, seg: 'champions' }, { x: 70, y: 8, seg: 'champions' },
+    { x: 92, y: 28, seg: 'champions' }, { x: 82, y: 30, seg: 'champions' }, { x: 75, y: 22, seg: 'champions' },
+    { x: 55, y: 38, seg: 'loyal' }, { x: 62, y: 45, seg: 'loyal' }, { x: 48, y: 42, seg: 'loyal' },
+    { x: 58, y: 52, seg: 'loyal' }, { x: 68, y: 40, seg: 'loyal' }, { x: 52, y: 30, seg: 'loyal' },
+    { x: 15, y: 15, seg: 'risk' }, { x: 25, y: 22, seg: 'risk' }, { x: 10, y: 28, seg: 'risk' },
+    { x: 20, y: 10, seg: 'risk' }, { x: 30, y: 18, seg: 'risk' },
+    { x: 12, y: 78, seg: 'lost' }, { x: 22, y: 85, seg: 'lost' }, { x: 8, y: 65, seg: 'lost' },
+    { x: 18, y: 92, seg: 'lost' }, { x: 28, y: 72, seg: 'lost' }, { x: 15, y: 55, seg: 'lost' },
+  ]
+  const colors: Record<string, string> = { champions: '#1FA79B', loyal: '#5AAEE0', risk: '#F59E0B', lost: '#94A3B8' }
+  return (
+    <div className="relative w-full h-24 sm:h-28 bg-[#F7F8FA] rounded-lg border border-gray-200 overflow-hidden">
+      <div className="absolute top-1.5 left-2 text-[9px] text-gray-400 font-medium">↑ Nilai transaksi tinggi</div>
+      <div className="absolute bottom-1.5 right-2 text-[9px] text-gray-400 font-medium">Sering membeli →</div>
+      {dots.map((d, i) => (
+        <span
+          key={i}
+          className="absolute w-2.5 h-2.5 rounded-full ring-2 ring-white -translate-x-1/2 -translate-y-1/2"
+          style={{ left: `${d.x}%`, top: `${d.y}%`, background: colors[d.seg] }}
+        />
+      ))}
+    </div>
+  )
+}
+
+/** Power BI-styled report mockup — evokes the tool via layout & the signature
+ *  yellow accent rather than reproducing its logo. Illustrative reconstruction. */
+function RfmDashboardMockup() {
+  return (
+    <div className="rounded-2xl overflow-hidden border border-black/10 shadow-2xl shadow-black/50 bg-[#F7F8FA]">
+      <div className="bg-white px-4 sm:px-5 py-1.5 border-b border-gray-200 flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <span className="w-6 h-6 rounded bg-[#F2C811] flex items-center justify-center shrink-0">
+            <BarChart3 size={14} className="text-[#3B3B3B]" />
+          </span>
+          <span className="text-sm font-semibold text-gray-800">RFM Analysis — Hospital Partners</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 text-[10px] text-gray-500 border border-gray-300 rounded px-2 py-1">
+            Region: Semua <ChevronDown size={10} />
+          </span>
+          <span className="inline-flex items-center gap-1 text-[10px] text-gray-500 border border-gray-300 rounded px-2 py-1">
+            Periode: Q4 <ChevronDown size={10} />
+          </span>
+        </div>
+      </div>
+      <div className="p-2.5 sm:p-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+          {[
+            ['600+', 'RS Terlacak', Building2],
+            ['142', 'Champions', Star],
+            ['96', 'Butuh Perhatian', AlertTriangle],
+            ['58', 'Berisiko Hilang', XCircle],
+          ].map(([val, label, Icon]) => (
+            <div key={label as string} className="bg-white rounded-lg border border-gray-200 px-2.5 py-2">
+              <div className="flex items-center gap-1.5 text-gray-400 mb-0.5">
+                {(() => { const I = Icon as typeof Building2; return <I size={12} /> })()}
+                <span className="text-[9px] uppercase tracking-wide font-medium">{label as string}</span>
+              </div>
+              <div className="text-base font-bold text-gray-800">{val as string}</div>
+            </div>
+          ))}
+        </div>
+        <div className="grid sm:grid-cols-[1fr_auto] gap-4 items-start">
+          <RfmScatter />
+          <div className="flex sm:flex-col gap-2.5 flex-wrap">
+            {[['Champions', '#1FA79B'], ['Loyal', '#5AAEE0'], ['Berisiko', '#F59E0B'], ['Hilang', '#94A3B8']].map(([label, color]) => (
+              <span key={label} className="flex items-center gap-1.5 text-[10px] text-gray-600 whitespace-nowrap">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── 01c · Bukti kerja: dashboard RFM & dampaknya ke penjualan ───────────────────
+const S01c = (
+  <Shell>
+    <div className={WRAP}>
+      <Tag label="Bukti kerja, bukan cerita" />
+      <SlideTitle sub="Rekonstruksi ilustratif dashboard RFM di Power BI — angka disederhanakan, bukan data mentah asli perusahaan.">
+        Dashboard yang saya bangun untuk <span className="text-[#6DC4AA]">600+ rumah sakit mitra</span>
+      </SlideTitle>
+      <RfmDashboardMockup />
+      <div className="grid lg:grid-cols-2 gap-2.5 mt-2.5">
+        <Panel icon={<Target size={16} />} title="Bagaimana dashboard ini dipakai" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06]">
+          <p className="text-xs text-gray-300 leading-relaxed">
+            Tim sales berhenti menelepon acak. Segmen <b className="text-[#6DC4AA]">Champions</b> difokuskan untuk upsell, segmen <b className="text-amber-400">Berisiko</b> masuk kampanye win-back sebelum hilang.
+          </p>
+        </Panel>
+        <StatBars
+          items={[
+            { value: 1, display: '1×', label: 'Sebelum dashboard', tone: 'muted' },
+            { value: 2.3, display: '>2×', label: 'Setelah dipakai tim sales', tone: 'accent' },
+          ]}
+          delta="lebih dari 2× lipat penjualan"
+          note="Indeks relatif terhadap baseline sebelum dashboard dipakai — bukan angka rupiah absolut."
+        />
+      </div>
+    </div>
+  </Shell>
 )
 
 // ── 02 · Hook (sengaja kosong — pemantik ketegangan) ────────────────────────────
@@ -230,7 +392,7 @@ const S07 = (
   <Shell>
     <div className={WRAP}>
       <Tag label="Pergeseran 3 dari 4 · Jenis analis yang dicari" />
-      <SlideTitle sub="Pertanyaan perusahaan sudah bergeser. Detail datanya menyusul di slide 9 — hampir semua perusahaan sudah mencoba AI, tapi belum semua memetik hasilnya.">
+      <SlideTitle sub="Pertanyaan perusahaan sudah bergeser. Detail datanya menyusul di slide 11 — hampir semua perusahaan sudah mencoba AI, tapi belum semua memetik hasilnya.">
         Perusahaan tak lagi cari analis biasa, melainkan yang bisa <span className="text-[#6DC4AA]">memakai AI</span>
       </SlideTitle>
       <div className="grid lg:grid-cols-2 gap-4">
@@ -244,7 +406,7 @@ const S07 = (
         </Panel>
       </div>
       <Note tone="info" className="mt-4">
-        Slide berikutnya membedah cara kerja baru itu secara konkret, lalu slide 9 menunjukkan kenapa kemampuan ini langka: adopsi AI di perusahaan sudah tinggi, tapi hasilnya belum.
+        Slide berikutnya membedah cara kerja baru itu secara konkret, lalu slide 11 menunjukkan kenapa kemampuan ini langka: adopsi AI di perusahaan sudah tinggi, tapi hasilnya belum.
       </Note>
     </div>
   </Shell>
@@ -270,7 +432,7 @@ const S08 = (
         </Panel>
       </div>
       <Note tone="warn" className="mt-4">
-        <b className="text-[#6DC4AA]">So-what:</b> skill baru yang paling dicari adalah <b>judgment atas output AI</b>, bukan sekadar kecepatan eksekusi manual. Ini persis kerangka yang dipakai di studi kasus slide 15–18.
+        <b className="text-[#6DC4AA]">So-what:</b> skill baru yang paling dicari adalah <b>judgment atas output AI</b>, bukan sekadar kecepatan eksekusi manual. Ini persis kerangka yang dipakai di studi kasus slide 17–20.
       </Note>
       <Source>InfoWorld, How AI changes the data analyst role · infoworld.com/article/4058946/how-ai-changes-the-data-analyst-role.html</Source>
     </div>
@@ -585,10 +747,10 @@ const S19 = (
       </SlideTitle>
       <div className="grid sm:grid-cols-2 gap-4">
         <Panel icon={<Database size={16} />} title="Lapis 1 · Fondasi teknis">
-          <p className="text-xs text-gray-400">SQL, spreadsheet, visualisasi, statistik dasar — dan yang makin dicari: ETL, cloud, data governance. Dibahas di slide 20.</p>
+          <p className="text-xs text-gray-400">SQL, spreadsheet, visualisasi, statistik dasar — dan yang makin dicari: ETL, cloud, data governance. Dibahas di slide 22.</p>
         </Panel>
         <Panel icon={<Bot size={16} />} title="Lapis 2 · Kemampuan AI" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06]">
-          <p className="text-xs text-gray-300">Prompting, validasi output, integrasi AI ke workflow yang sudah berjalan. Dibahas di slide 21.</p>
+          <p className="text-xs text-gray-300">Prompting, validasi output, integrasi AI ke workflow yang sudah berjalan. Dibahas di slide 23.</p>
         </Panel>
       </div>
     </div>
@@ -680,7 +842,7 @@ const S22 = (
           <Bullet>Masalah bisnis nyata, bukan dataset tutorial (Titanic, Iris)</Bullet>
           <Bullet>Proses lengkap: pertanyaan → prompt AI → validasi → rekomendasi</Bullet>
           <Bullet>Satu bagian &ldquo;di sini AI salah, ini cara saya menangkapnya&rdquo;</Bullet>
-          <Bullet>Workflow AI end-to-end, persis kerangka slide 14–18</Bullet>
+          <Bullet>Workflow AI end-to-end, persis kerangka slide 16–20</Bullet>
         </ul>
       </Panel>
     </div>
@@ -733,7 +895,7 @@ const S24 = (
       <p className="text-center text-gray-400 text-sm mt-6">— Dario Amodei</p>
       <div className="max-w-xl mx-auto mt-8 rounded-2xl border border-[#1FA79B]/25 bg-[#1FA79B]/[0.06] px-5 py-4 text-center">
         <p className="text-sm text-gray-300">
-          AI menggeser dan melipatgandakan pekerjaan — bukan menghapusnya. Tesis yang sama yang kita bahas sejak slide 3: peran berubah, dan nilai seorang analis justru naik.
+          AI menggeser dan melipatgandakan pekerjaan — bukan menghapusnya. Tesis yang sama yang kita bahas sejak slide 5: peran berubah, dan nilai seorang analis justru naik.
         </p>
       </div>
     </div>
@@ -805,12 +967,22 @@ export const practicalDataAnalystAi: Presentation = {
   session: 'Special Session',
   title: 'Practical Data Analyst & AI',
   subtitle: 'Peran Baru di Era Otomatisasi — dari data pertumbuhan lapangan kerja sampai studi kasus workflow AI, langkah demi langkah.',
-  durationMin: 75,
+  durationMin: 80,
   slides: [
     {
       label: 'Pembuka', render: S01,
       notes: `SELAMAT DATANG. Webinar kolaborasi Talentiv × Ditekindo.\n• Sapa peserta, minta sebut kota + role di chat.\n• Perkenalan singkat — kredibilitas sudah ada di slide, tidak perlu diulang panjang.\n⏱️ ~2 menit.`,
       script: `Selamat siang semuanya, terima kasih sudah meluangkan waktu untuk hadir di webinar ini. Saya Hamid, M Khairul Hamid. Sehari-hari saya bekerja sebagai Senior Software Engineer di perusahaan SaaS global, tapi perjalanan saya di dunia data dan teknologi sudah lebih dari delapan tahun, termasuk pernah menjabat sebagai Director of Business Intelligence.\n\nJadi saya bukan cuma bicara teori — materi hari ini lahir dari pengalaman langsung membangun sistem data dari nol, dan juga dari sisi yang harus mengambil keputusan berdasarkan data itu sendiri.\n\nWebinar ini adalah kolaborasi antara Talentiv dan Ditekindo, judulnya Practical Data Analyst dan AI: Peran Baru di Era Otomatisasi. Kita akan bahas kenapa peran data analyst berubah, data-data pendukungnya, satu studi kasus langsung dari awal sampai akhir, sampai bagaimana kalian membangun portofolio yang relevan di era AI ini.`,
+    },
+    {
+      label: 'Rekam jejak', render: S01b,
+      notes: `KREDIBILITAS — bangun trust sebelum masuk materi.\n• Bacakan urutan mundur: mulai dari Nomni (sekarang), lalu BIPO, baru Boogie Medical.\n• Ini BUKAN membacakan CV — ceritakan SATU detail konkret di tiap kartu (integrasi M&A di Nomni, skala 650rb user di BIPO, membangun BI dari nol di Boogie Medical).\n• Tutup dengan menjembatani ke studi kasus dashboard di slide berikutnya.\n⏱️ ~2-3 menit.`,
+      script: `Sebelum masuk ke materi, saya mau kasih konteks singkat kenapa saya yang bicara soal ini hari ini.\n\nSaat ini saya kerja di Nomni, platform teknologi hospitality yang berbasis di Melbourne, Australia. Saya ikut membangun lapisan integrasi yang menyatukan data pembayaran dan pesanan dari puluhan ribu venue — restoran, hotel, tempat hiburan — di tiga region berbeda, hasil dari beberapa akuisisi perusahaan.\n\nSebelum itu, saya di BIPO, perusahaan HR dan payroll asal Singapura. Di sana saya ikut membangun sistem dan dashboard yang dipakai lebih dari 650 ribu karyawan di 170 lebih negara.\n\nDan sebelum itu lagi — ini yang paling relevan buat materi hari ini — saya jadi Director of Business Intelligence di Boogie Medical, distributor alat kesehatan di Jakarta. Di sanalah saya membangun fungsi BI dari nol, untuk melayani lebih dari 600 rumah sakit mitra.\n\nPola yang sama berulang tiga kali: masuk saat perusahaan butuh fondasi data dari nol, lalu membangunnya sampai benar-benar dipakai. Studi kasus yang akan saya tunjukkan di slide berikutnya datang langsung dari pengalaman di Jakarta itu.`,
+    },
+    {
+      label: 'Bukti kerja · Dashboard RFM', render: S01c,
+      notes: `DASHBOARD RFM — bukti kerja nyata, momen paling konkret di seluruh sesi.\n• Jelaskan RFM singkat: Recency-Frequency-Monetary, cara standar segmentasi pelanggan.\n• Tunjuk tiap kuadran: Champions kanan-atas, Berisiko kiri-atas, Hilang kiri-bawah.\n• PUNCHLINE: dashboard ini dipakai tim sales, hasilnya penjualan naik lebih dari 2 kali lipat — baca pelan, ini bukti paling kuat dari seluruh kredensial yang disebutkan.\n• Ingatkan: angka di dashboard ini rekonstruksi ilustratif, bukan data mentah asli.`,
+      script: `Ini salah satu hal paling konkret yang bisa saya tunjukkan dari pengalaman di Boogie Medical — rekonstruksi dari dashboard RFM yang saya bangun di Power BI untuk melacak 600 lebih rumah sakit mitra kami.\n\nRFM itu singkatan dari Recency, Frequency, Monetary — seberapa baru, seberapa sering, dan seberapa besar nilai transaksi tiap pelanggan. Dari situ, rumah sakit dikelompokkan jadi beberapa segmen: Champions di kanan atas, sering beli dengan nilai transaksi besar. Berisiko di kiri atas, dulu nilainya besar tapi frekuensinya mulai turun. Dan Hilang di kiri bawah, sudah lama sekali tidak beli.\n\nYang mengubah cara kerja tim sales adalah ini: mereka berhenti menelepon semua rumah sakit dengan urutan acak. Segmen Champions difokuskan untuk retensi dan upsell. Segmen Berisiko masuk kampanye win-back sebelum benar-benar hilang.\n\nHasilnya, penjualan naik lebih dari dua kali lipat setelah dashboard ini benar-benar dipakai tim sales sehari-hari. Ini bukan klaim kosong — ini yang saya kerjakan sendiri.`,
     },
     {
       label: 'Hook', render: S02,
@@ -839,13 +1011,13 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Pergeseran 3 · Jenis analis', render: S07,
-      notes: `PERGESERAN 3 — jenis analis yang dicari.\n• Kontraskan pertanyaan lama vs baru — biarkan kelas merasakan pergeserannya.\n• Jembatani eksplisit ke slide 9 di akhir.`,
-      script: `Pergeseran ketiga: perusahaan sudah tidak lagi bertanya "apakah kita butuh data analyst". Pertanyaan itu sudah selesai dijawab — hampir semua perusahaan menengah ke atas sudah punya fungsi data.\n\nPertanyaan yang sekarang muncul adalah "analis jenis apa yang kita butuhkan". Dan jawabannya bukan yang paling jago menulis query dari nol, tapi yang bisa mengintegrasikan AI ke dalam alur kerja analisis yang sudah berjalan.\n\nNanti di slide sembilan saya akan tunjukkan data dari McKinsey yang menarik — hampir semua perusahaan sudah mencoba AI, tapi belum semua berhasil memetik hasilnya. Di situlah peluangnya.`,
+      notes: `PERGESERAN 3 — jenis analis yang dicari.\n• Kontraskan pertanyaan lama vs baru — biarkan kelas merasakan pergeserannya.\n• Jembatani eksplisit ke slide 11 di akhir.`,
+      script: `Pergeseran ketiga: perusahaan sudah tidak lagi bertanya "apakah kita butuh data analyst". Pertanyaan itu sudah selesai dijawab — hampir semua perusahaan menengah ke atas sudah punya fungsi data.\n\nPertanyaan yang sekarang muncul adalah "analis jenis apa yang kita butuhkan". Dan jawabannya bukan yang paling jago menulis query dari nol, tapi yang bisa mengintegrasikan AI ke dalam alur kerja analisis yang sudah berjalan.\n\nNanti di slide sebelas saya akan tunjukkan data dari McKinsey yang menarik — hampir semua perusahaan sudah mencoba AI, tapi belum semua berhasil memetik hasilnya. Di situlah peluangnya.`,
     },
     {
       label: 'Pergeseran 4 · Cara kerja', render: S08,
-      notes: `PERGESERAN 4 — cara kerja baru (InfoWorld).\n• Tiga kata kerja: review, validasi, sempurnakan — minta kelas ulangi.\n• So-what paling penting sesi ini: skill baru = judgment, bukan eksekusi. Sambungkan ke demo slide 15-18.`,
-      script: `Pergeseran keempat, dan ini menurut saya yang paling konkret: cara kerja sehari-hari seorang analis berubah. Dulu kita menulis semuanya dari nol. Sekarang, kita mengarahkan AI, lalu mengoreksi hasilnya.\n\nAda tiga aktivitas inti di sini. Mereview — membaca output AI sebelum dipakai, baik itu query, chart, atau narasi, dan menilai apakah logikanya masuk akal. Memvalidasi — mencocokkan angka dengan sumber data asli, memastikan tidak ada kolom atau asumsi yang dikarang AI. Dan menyempurnakan — memperbaiki bagian yang meleset sebelum dibawa ke pengambil keputusan.\n\nIni definisi dari InfoWorld, media teknologi enterprise yang cukup kredibel di bidang ini. Dan skill baru yang paling dicari sekarang adalah judgment atas output AI — bukan sekadar kecepatan eksekusi manual. Ini persis kerangka yang akan kita pakai di studi kasus nanti, slide lima belas sampai delapan belas.`,
+      notes: `PERGESERAN 4 — cara kerja baru (InfoWorld).\n• Tiga kata kerja: review, validasi, sempurnakan — minta kelas ulangi.\n• So-what paling penting sesi ini: skill baru = judgment, bukan eksekusi. Sambungkan ke demo slide 17-20.`,
+      script: `Pergeseran keempat, dan ini menurut saya yang paling konkret: cara kerja sehari-hari seorang analis berubah. Dulu kita menulis semuanya dari nol. Sekarang, kita mengarahkan AI, lalu mengoreksi hasilnya.\n\nAda tiga aktivitas inti di sini. Mereview — membaca output AI sebelum dipakai, baik itu query, chart, atau narasi, dan menilai apakah logikanya masuk akal. Memvalidasi — mencocokkan angka dengan sumber data asli, memastikan tidak ada kolom atau asumsi yang dikarang AI. Dan menyempurnakan — memperbaiki bagian yang meleset sebelum dibawa ke pengambil keputusan.\n\nIni definisi dari InfoWorld, media teknologi enterprise yang cukup kredibel di bidang ini. Dan skill baru yang paling dicari sekarang adalah judgment atas output AI — bukan sekadar kecepatan eksekusi manual. Ini persis kerangka yang akan kita pakai di studi kasus nanti, slide tujuh belas sampai dua puluh.`,
     },
     {
       label: 'McKinsey · Adopsi vs nilai', render: S09,
@@ -869,7 +1041,7 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Jembatan', render: S13,
-      notes: `JEMBATAN — jeda psikologis. Sengaja tanpa poin pendukung.\n• Baca pelan, beri jeda sebelum lanjut ke slide 14.\n• Titik alami untuk cek chat / tanya kesiapan kelas.\n⏱️ Total sampai sini idealnya ~30-35 menit.`,
+      notes: `JEMBATAN — jeda psikologis. Sengaja tanpa poin pendukung.\n• Baca pelan, beri jeda sebelum lanjut ke slide 16.\n• Titik alami untuk cek chat / tanya kesiapan kelas.\n⏱️ Total sampai sini idealnya ~30-35 menit.`,
       script: `Baik. Saya rasa datanya sudah cukup. Cukup teorinya — sekarang mari kita lihat praktiknya.\n\nSaya akan bawa kalian lewat satu studi kasus nyata, dari pertanyaan bisnis sampai insight yang bisa dibawa langsung ke rapat direksi. Ikuti pelan-pelan, karena kerangka ini yang nanti bisa langsung kalian pakai di pekerjaan kalian sendiri.`,
     },
     {
@@ -889,8 +1061,8 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Langkah 3 · Validasi', render: S17,
-      notes: `DEMO LANGKAH 3 — SLIDE PALING PENTING DI DEMO.\n• Kontras AI (eksekusi) vs manusia (judgment) — baca dua panel berdampingan, jangan buru-buru.\n• So-what: ini jawaban paling konkret atas hook di slide 2.`,
-      script: `Ini titik paling penting dari seluruh workflow. AI sudah menulis query, menghitung churn rate, dan menandai SMB sebagai segmen paling bermasalah. Tapi ada tiga hal yang wajib dikerjakan manusia, dan tidak bisa didelegasikan.\n\nPertama, cek akurasi — apakah query-nya benar dan datanya representatif. Kedua, tafsir konteks — kenapa SMB, apakah karena harga, layanan, atau kompetitor baru, dan AI tidak bisa menjawab ini karena butuh pemahaman bisnis. Ketiga, putuskan mana yang relevan dibawa ke rapat direksi.\n\nAI mengeksekusi, manusia menafsirkan dan memutuskan. Dan inilah jawaban paling konkret atas pertanyaan yang saya lontarkan di slide dua tadi — AI tidak bisa mengambil keputusan berbasis nilai dan konteks bisnis. Itu tetap kerja manusia, dan itu alasan kenapa peran ini tidak hilang.`,
+      notes: `DEMO LANGKAH 3 — SLIDE PALING PENTING DI DEMO.\n• Kontras AI (eksekusi) vs manusia (judgment) — baca dua panel berdampingan, jangan buru-buru.\n• So-what: ini jawaban paling konkret atas hook di slide 4.`,
+      script: `Ini titik paling penting dari seluruh workflow. AI sudah menulis query, menghitung churn rate, dan menandai SMB sebagai segmen paling bermasalah. Tapi ada tiga hal yang wajib dikerjakan manusia, dan tidak bisa didelegasikan.\n\nPertama, cek akurasi — apakah query-nya benar dan datanya representatif. Kedua, tafsir konteks — kenapa SMB, apakah karena harga, layanan, atau kompetitor baru, dan AI tidak bisa menjawab ini karena butuh pemahaman bisnis. Ketiga, putuskan mana yang relevan dibawa ke rapat direksi.\n\nAI mengeksekusi, manusia menafsirkan dan memutuskan. Dan inilah jawaban paling konkret atas pertanyaan yang saya lontarkan di slide empat tadi — AI tidak bisa mengambil keputusan berbasis nilai dan konteks bisnis. Itu tetap kerja manusia, dan itu alasan kenapa peran ini tidak hilang.`,
     },
     {
       label: 'Langkah 4-5 · Insight', render: S18,
@@ -899,7 +1071,7 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Peta kompetensi', render: S19,
-      notes: `PETA KOMPETENSI 2 LAPIS.\n• Baca cepat, kerangka untuk slide 20-21.\n• Tekankan: bukan pilih salah satu.`,
+      notes: `PETA KOMPETENSI 2 LAPIS.\n• Baca cepat, kerangka untuk slide 22-23.\n• Tekankan: bukan pilih salah satu.`,
       script: `Sekarang mari bicara soal kompetensi. Berdasarkan semua data yang kita bahas tadi, perusahaan mencari kombinasi dua lapis: fondasi teknis, dan pemahaman AI.\n\nBukan pilih salah satu — mereka mencari orang yang punya keduanya. Saya akan bedah dua lapis ini di slide berikutnya.`,
     },
     {
@@ -924,8 +1096,8 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Kutipan · Dario Amodei', render: S24,
-      notes: `KUTIPAN PENUTUP.\n• Baca pelan-pelan, beri jeda 3 detik sebelum baris kedua.\n• Sebut sumber: Dario Amodei, CEO Anthropic.\n• Sambungkan eksplisit ke tesis dari slide 3: peran berubah, nilai naik.`,
-      script: `Saya mau tutup bagian ini dengan satu kutipan dari Dario Amodei, CEO Anthropic. Dia bilang begini: kalau 90 persen pekerjaan diotomasi, semua orang mengerjakan 10 persen sisanya — dan itu melipatgandakan produktivitas hingga 10 kali.\n\nCoba resapi kalimat ini. Pesannya bukan AI menghapus pekerjaan. Pesannya AI menggeser dan melipatgandakan pekerjaan. Dan ini persis tesis yang kita bahas sejak slide tiga tadi — peran berubah, dan nilai seorang analis justru naik.`,
+      notes: `KUTIPAN PENUTUP.\n• Baca pelan-pelan, beri jeda 3 detik sebelum baris kedua.\n• Sebut sumber: Dario Amodei, CEO Anthropic.\n• Sambungkan eksplisit ke tesis dari slide 5: peran berubah, nilai naik.`,
+      script: `Saya mau tutup bagian ini dengan satu kutipan dari Dario Amodei, CEO Anthropic. Dia bilang begini: kalau 90 persen pekerjaan diotomasi, semua orang mengerjakan 10 persen sisanya — dan itu melipatgandakan produktivitas hingga 10 kali.\n\nCoba resapi kalimat ini. Pesannya bukan AI menghapus pekerjaan. Pesannya AI menggeser dan melipatgandakan pekerjaan. Dan ini persis tesis yang kita bahas sejak slide lima tadi — peran berubah, dan nilai seorang analis justru naik.`,
     },
     {
       label: 'Ajakan bertindak', render: S25,
