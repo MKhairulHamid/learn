@@ -5,7 +5,7 @@ import {
   Target, Rocket, MessageSquare,
   Eye, HelpCircle, Quote, Repeat, ListChecks, ScanSearch,
   GitCompare, Send, ExternalLink, RefreshCw,
-  BarChart3, ChevronDown, Star,
+  BarChart3, ChevronDown, Star, Lock,
 } from 'lucide-react'
 import {
   BRAND, Shell, Glow, Tag, SlideTitle, Bullet, Panel, Note, SectionLabel,
@@ -58,6 +58,38 @@ function Source({ children }: { children: string }) {
     <div className="mt-3 flex items-start gap-1.5 text-[10px] text-gray-500 leading-snug">
       <FileText size={11} className="mt-px shrink-0" />
       <span>{children}</span>
+    </div>
+  )
+}
+
+/** Compact "visited page" chrome for a citation — a generic browser bar plus
+ *  the institution's accent color, domain, and report title. All factual
+ *  bibliographic metadata, not a reproduction of the report's own content —
+ *  keeps the "I actually went and looked" feel without screenshotting
+ *  copyrighted report pages. */
+function ReportCitation({
+  domain, path, org, title, color,
+}: { domain: string; path: string; org: string; title: string; color: string }) {
+  return (
+    <div className="rounded-xl overflow-hidden border border-white/10 bg-[#0b1220] mt-3">
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#161b26] border-b border-white/10">
+        <div className="flex gap-1 shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400/50" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400/50" />
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400/50" />
+        </div>
+        <div className="flex-1 flex items-center gap-1 bg-white/5 rounded px-2 py-0.5 text-[9px] text-gray-400 font-mono min-w-0">
+          <Lock size={8} className="shrink-0" />
+          <span className="truncate">{domain}{path}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2.5 px-3 py-2">
+        <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: color }} />
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold truncate" style={{ color }}>{org}</div>
+          <div className="text-[10px] text-gray-400 truncate">{title}</div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -306,7 +338,11 @@ const S03 = (
           </p>
         </Panel>
       </div>
-      <Source>U.S. Bureau of Labor Statistics, Occupational Outlook Handbook — Data Scientists · bls.gov/ooh/math/data-scientists.htm</Source>
+      <ReportCitation
+        domain="bls.gov" path="/ooh/math/data-scientists.htm"
+        org="U.S. Bureau of Labor Statistics" title="Occupational Outlook Handbook — Data Scientists"
+        color="#5B8DEF"
+      />
     </div>
   </Shell>
 )
@@ -462,15 +498,19 @@ const S09 = (
         deltaTone="warning"
         note="94% perusahaan yang mengadopsi AI belum melihat nilai signifikan darinya — sisanya, sekitar 6%, yang sudah merasakan dampak nyata."
       />
-      <Panel icon={<Building2 size={16} />} title="Kenapa gap ini terjadi" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06] mt-4">
+      <Panel icon={<Building2 size={16} />} title="Kenapa gap ini terjadi" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06] mt-3">
         <p className="text-xs text-gray-400">
           Nilai baru muncul saat <b className="text-gray-200">workflow dirancang ulang</b> di sekitar AI, bukan saat AI ditempelkan begitu saja ke proses lama.
         </p>
       </Panel>
-      <Note tone="info" className="mt-4">
+      <Note tone="info" className="mt-3">
         <b className="text-[#6DC4AA]">So-what:</b> di sinilah celah peluangnya — perusahaan butuh orang yang bisa merancang ulang alur kerja dengan AI, bukan sekadar orang yang tahu satu tool AI.
       </Note>
-      <Source>McKinsey & Company, Where AI will create value—and where it won't — The State of AI 2025</Source>
+      <ReportCitation
+        domain="mckinsey.com" path="/capabilities/strategy-and-corporate-finance/our-insights/where-ai-will-create-value-and-where-it-wont"
+        org="McKinsey & Company" title="Where AI will create value—and where it won't — The State of AI 2025"
+        color="#8B7FD6"
+      />
     </div>
   </Shell>
 )
@@ -494,7 +534,11 @@ const S10 = (
       <Note tone="info" className="mt-4">
         <b className="text-[#6DC4AA]">So-what:</b> skill Data + AI bukan pelengkap CV — ini keunggulan yang harganya terukur secara finansial, dan tren-nya sedang menajam.
       </Note>
-      <Source>PwC, Global AI Jobs Barometer 2025</Source>
+      <ReportCitation
+        domain="pwc.com" path="/gx/en/issues/artificial-intelligence/ai-jobs-barometer.html"
+        org="PwC" title="Global AI Jobs Barometer 2025"
+        color="#FF9142"
+      />
     </div>
   </Shell>
 )
@@ -526,7 +570,11 @@ const S11 = (
       <Note tone="warn" className="mt-4">
         <b className="text-[#6DC4AA]">So-what:</b> arah pasar global sudah jelas — kombinasi Data + AI yang dicari, bukan salah satunya saja.
       </Note>
-      <Source>World Economic Forum, The Future of Jobs Report 2025</Source>
+      <ReportCitation
+        domain="weforum.org" path="/publications/the-future-of-jobs-report-2025/"
+        org="World Economic Forum" title="The Future of Jobs Report 2025"
+        color="#4DD0E1"
+      />
     </div>
   </Shell>
 )
@@ -554,7 +602,11 @@ const S12 = (
       <Note tone="info" className="mt-4">
         <b className="text-[#6DC4AA]">So-what:</b> gap sebesar ini bukan berita buruk kalau dilihat dari sisi yang tepat — ini peluang konkret bagi siapa pun yang mengisinya lebih dulu.
       </Note>
-      <Source>Kementerian Komunikasi dan Digital (Komdigi), Proyeksi Talenta Digital Indonesia 2024–2030 · basis data Badan Pusat Statistik (Sakernas)</Source>
+      <ReportCitation
+        domain="digitalent.komdigi.go.id" path="/additional/proyeksi-ketersediaan-(supply)-dan-kebutuhan-(demand)-talenta-digital-indonesia-2024-2030"
+        org="Kementerian Komunikasi dan Digital (Komdigi)" title="Proyeksi Talenta Digital Indonesia 2024–2030 · basis data BPS"
+        color="#EF5350"
+      />
     </div>
   </Shell>
 )
@@ -607,6 +659,37 @@ const S14 = (
   </Shell>
 )
 
+/** Gated reveal for the sharpened question — lets the instructor ask the
+ *  audience first, then click to show the version used in the case study. */
+function SharpenedQuestionReveal() {
+  const [revealed, setRevealed] = useState(false)
+  const [show, setShow] = useState(false)
+  const handleReveal = () => {
+    setRevealed(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => setShow(true)))
+  }
+  if (!revealed) {
+    return (
+      <Panel icon={<HelpCircle size={16} />} title="Menurutmu, pertanyaan apa yang lebih tajam?" className="border-dashed border-white/20 bg-white/[0.02]">
+        <p className="text-xs text-gray-500 mb-3">Coba rumuskan dulu di kepalamu — atau tulis di chat kalau ada yang membacakan.</p>
+        <button
+          onClick={handleReveal}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#1FA79B]/30 bg-[#1FA79B]/10 px-3 py-1.5 text-xs font-medium text-[#6DC4AA] hover:bg-[#1FA79B]/20 transition-colors"
+        >
+          <Eye size={13} /> Tampilkan pertanyaan yang dipertajam
+        </button>
+      </Panel>
+    )
+  }
+  return (
+    <div className={`transition-all duration-500 ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+      <Panel icon={<Target size={16} />} title="Pertanyaan yang dipertajam" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06]">
+        <p className="text-sm text-gray-200">&ldquo;Segmen mana yang turunnya paling tajam, dan apakah lebih terkait harga, layanan, atau kompetitor baru?&rdquo;</p>
+      </Panel>
+    </div>
+  )
+}
+
 // ── 15 · Langkah 1: pertanyaan bisnis ───────────────────────────────────────────
 const S15 = (
   <Shell>
@@ -628,9 +711,7 @@ const S15 = (
         <Panel icon={<XCircle size={16} />} title="Pertanyaan awal — terlalu kabur" className="border-red-500/20 bg-red-500/[0.05]">
           <p className="text-sm text-gray-300 italic">&ldquo;Kenapa retensi turun?&rdquo;</p>
         </Panel>
-        <Panel icon={<Target size={16} />} title="Pertanyaan yang dipertajam" className="border-[#1FA79B]/25 bg-[#1FA79B]/[0.06]">
-          <p className="text-sm text-gray-200">&ldquo;Segmen mana yang turunnya paling tajam, dan apakah lebih terkait harga, layanan, atau kompetitor baru?&rdquo;</p>
-        </Panel>
+        <SharpenedQuestionReveal />
       </div>
       <div className="mt-4">
         <DataTable
@@ -1057,8 +1138,8 @@ export const practicalDataAnalystAi: Presentation = {
     },
     {
       label: 'Langkah 1 · Pertanyaan', render: S15,
-      notes: `DEMO LANGKAH 1.\n• Baca konteks kasus dengan nada mendesak (deadline hari Jumat) — bangun urgensi.\n• Kontraskan pertanyaan kabur vs dipertajam — minta kelas coba pertajam dulu sebelum kamu tunjukkan.`,
-      script: `Studi kasusnya begini. Bayangkan bos kalian datang dengan masalah: retensi pelanggan bulanan turun dari 82 persen ke 74 persen dalam tiga bulan terakhir, dan dia minta jawabannya sebelum rapat direksi hari Jumat.\n\nLangkah pertama, dan ini yang paling sering dilewatkan orang yang terburu-buru: jangan langsung buka AI. Pertanyaan seperti "kenapa retensi turun" itu masih terlalu kabur — AI akan menjawabnya dengan asumsi sendiri soal periode, region, produk yang dimaksud.\n\nKita perlu mempertajam dulu jadi: "segmen mana yang turunnya paling tajam, dan apakah lebih terkait harga, layanan, atau kompetitor baru". Ini tugas manusia, dan harus selesai sebelum AI dilibatkan sama sekali. Data tanpa pertanyaan yang tajam itu cuma eksplorasi tanpa arah.`,
+      notes: `DEMO LANGKAH 1 — SEKARANG INTERAKTIF.\n• Baca konteks kasus dengan nada mendesak (deadline hari Jumat) — bangun urgensi.\n• Panel kanan sengaja TERSEMBUNYI di balik tombol. Minta kelas jawab dulu di chat/verbal — beri waktu 30-60 detik, baca 2-3 jawaban.\n• Baru klik "Tampilkan pertanyaan yang dipertajam" setelah kelas sempat mencoba sendiri.`,
+      script: `Studi kasusnya begini. Bayangkan bos kalian datang dengan masalah: retensi pelanggan bulanan turun dari 82 persen ke 74 persen dalam tiga bulan terakhir, dan dia minta jawabannya sebelum rapat direksi hari Jumat.\n\nLangkah pertama, dan ini yang paling sering dilewatkan orang yang terburu-buru: jangan langsung buka AI. Pertanyaan seperti "kenapa retensi turun" itu masih terlalu kabur — AI akan menjawabnya dengan asumsi sendiri soal periode, region, produk yang dimaksud.\n\nSebelum saya tunjukkan versi saya, coba dulu kalian sendiri — kalau kalian jadi analisnya, pertanyaan seperti apa yang lebih tajam dari "kenapa retensi turun"? Tulis di chat.\n\n[jeda, baca beberapa jawaban dari peserta]\n\nBagus, beberapa dari kalian sudah di jalur yang tepat. Ini versi yang saya pakai: "segmen mana yang turunnya paling tajam, dan apakah lebih terkait harga, layanan, atau kompetitor baru". Ini tugas manusia, dan harus selesai sebelum AI dilibatkan sama sekali. Data tanpa pertanyaan yang tajam itu cuma eksplorasi tanpa arah.`,
     },
     {
       label: 'Langkah 2 · Eksplorasi AI', render: S16,
