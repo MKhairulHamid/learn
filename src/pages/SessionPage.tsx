@@ -23,6 +23,9 @@ import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
 import { ReportContentModal } from '../components/feedback/ReportContentModal'
+import { LiveCheckpointPanel } from '../components/checkpoints/LiveCheckpointPanel'
+import { CheckpointConsole } from '../components/checkpoints/CheckpointConsole'
+import { CheckpointEditor } from '../components/checkpoints/CheckpointEditor'
 import { SQL_SESSIONS, PYTHON_SESSIONS, PROJECT_SESSIONS } from '../lib/constants'
 
 // Long date label for a live session day, e.g. "Saturday, 14 June 2026"
@@ -141,6 +144,9 @@ export default function SessionPage() {
     const cohortLevelIssue =
       cohort.status === 'none' || cohort.status === 'rejected' ||
       cohort.status === 'removed' || cohort.status === 'expired'
+    // Extension (Upscale) lesson locked because the learner is on the essential tier.
+    const upscaleLocked = session.is_extension && cohort.enrollmentTier !== 'extended'
+      && cohort.status === 'active'
     return (
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
         <button
@@ -160,9 +166,11 @@ export default function SessionPage() {
             </div>
             <h1 className="text-lg font-bold text-gray-900">{title}</h1>
             <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
-              {sched
-                ? t('session.lesson_unlocks_on', { date: fmtLong(sched.scheduled_date, lang) })
-                : t('session.lesson_unlocks_waiting')}
+              {upscaleLocked
+                ? t('session.lesson_upscale_only')
+                : sched
+                  ? t('session.lesson_unlocks_on', { date: fmtLong(sched.scheduled_date, lang) })
+                  : t('session.lesson_unlocks_waiting')}
             </p>
             <Button className="mt-5" onClick={() => navigate(curriculumPath)}>
               {t('session.back_to_curriculum')}
@@ -428,6 +436,14 @@ export default function SessionPage() {
           <SessionPlayground type={playgroundType} lang={lang} />
         </div>
       )}
+
+      {/* Live checkpoints — mentor console + editor for editors, live panel for students */}
+      {id && (cohort.isEditor
+        ? <>
+            <CheckpointConsole sessionId={id} programId={programId} lang={lang} />
+            <CheckpointEditor sessionId={id} />
+          </>
+        : <LiveCheckpointPanel sessionId={id} cohortId={cohort.cohortId} lang={lang} />)}
 
       {/* Exercises for this session */}
       <div ref={exercisesRef} className="mb-8">

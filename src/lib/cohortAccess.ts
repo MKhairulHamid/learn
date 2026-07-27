@@ -1,4 +1,4 @@
-import type { CohortEnrollment, CohortLessonSchedule, Session } from '../types'
+import type { CohortEnrollment, CohortLessonSchedule, EnrollmentTier, Session } from '../types'
 
 // Derived, UI-facing status for a user's relationship to a cohort.
 export type CohortStatus =
@@ -30,18 +30,22 @@ export function deriveStatus(e: Pick<CohortEnrollment, 'status' | 'access_expire
 /**
  * Lesson access rule for one cohort:
  *   - Lesson 0 (orientation) is open to pending + active members
+ *   - Upscale (is_extension) lessons additionally require the 'extended' tier
  *   - every other lesson needs an active (non-expired) enrollment AND the
  *     lesson unlocked — by admin override, else once its scheduled date arrives
  *
  * Editor bypass is applied by callers, not here.
  */
 export function isSessionAccessibleFor(
-  session: Pick<Session, 'id' | 'session_number'>,
+  session: Pick<Session, 'id' | 'session_number'> & { is_extension?: boolean },
   status: CohortStatus,
   schedule: CohortLessonSchedule[],
+  tier: EnrollmentTier = 'essential',
 ): boolean {
   if (session.session_number === '00') return status === 'pending' || status === 'active'
   if (status !== 'active') return false
+  // Extended/Upscale sessions are only for the 'extended' tier.
+  if (session.is_extension && tier !== 'extended') return false
   const sched = schedule.find(s => s.session_id === session.id)
   if (!sched) return false
   if (sched.unlock_override === true) return true

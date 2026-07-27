@@ -63,6 +63,7 @@ export interface Session {
   order_num: number
   estimated_duration_minutes: number
   mentor_id: string | null
+  is_extension: boolean
 }
 
 export interface ProgramManagerAssignment {
@@ -145,6 +146,10 @@ export interface ActivityLog {
 
 export type EnrollmentStatus = 'pending' | 'active' | 'rejected' | 'removed'
 
+// Access tier within a cohort: 'extended' learners also unlock the
+// is_extension (Upscale) sessions; 'essential' learners do not.
+export type EnrollmentTier = 'essential' | 'extended'
+
 export interface Cohort {
   id: string
   program_id: string
@@ -197,6 +202,7 @@ export interface CohortEnrollment {
   cohort_id: string
   user_id: string
   status: EnrollmentStatus
+  enrollment_tier: EnrollmentTier
   applied_at: string
   approved_at: string | null
   approved_by: string | null
@@ -212,6 +218,58 @@ export interface CohortSessionProgress {
   completed: boolean
   completed_at: string | null
   score: number
+}
+
+// ── Live checkpoints ───────────────────────────────────────────────────
+
+export interface CheckpointOption {
+  id: string          // 'a' | 'b' | ...
+  label_id: string
+  label_en: string
+}
+
+export interface CheckpointQuestion {
+  id: string
+  checkpoint_id: string
+  order_num: number   // 1..3
+  prompt_id: string
+  prompt_en: string
+  options: CheckpointOption[]
+}
+
+export interface SessionCheckpoint {
+  id: string
+  session_id: string
+  order_num: number
+  title_id: string
+  title_en: string
+  created_at: string
+  questions?: CheckpointQuestion[]  // hydrated by hooks
+}
+
+export type CheckpointActivationStatus = 'open' | 'closed'
+
+export interface CheckpointActivation {
+  id: string
+  checkpoint_id: string
+  cohort_id: string
+  session_id: string
+  status: CheckpointActivationStatus
+  opened_by: string | null
+  opened_at: string
+  revealed_at: string | null
+  closed_at: string | null
+}
+
+export interface CheckpointResponse {
+  id: string
+  activation_id: string
+  question_id: string
+  cohort_id: string
+  user_id: string
+  selected_option_id: string
+  is_correct: boolean | null
+  responded_at: string
 }
 
 // ── Certificate system ─────────────────────────────────────────────────

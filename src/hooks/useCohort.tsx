@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { addMonths, deriveStatus, isSessionAccessibleFor } from '../lib/cohortAccess'
 import type { CohortStatus } from '../lib/cohortAccess'
-import type { Cohort, CohortEnrollment, CohortLessonSchedule, Session } from '../types'
+import type { Cohort, CohortEnrollment, CohortLessonSchedule, EnrollmentTier, Session } from '../types'
 
 export type { CohortStatus } from '../lib/cohortAccess'
 
@@ -24,10 +24,11 @@ interface CohortContextValue {
   cohortId: string | null
   schedule: CohortLessonSchedule[]
   status: CohortStatus
+  enrollmentTier: EnrollmentTier
   courseStarted: boolean
   activeProgramId: string | null
   setActiveProgram: (programId: string | null) => void
-  isSessionAccessible: (s: Pick<Session, 'id' | 'session_number'>) => boolean
+  isSessionAccessible: (s: Pick<Session, 'id' | 'session_number'> & { is_extension?: boolean }) => boolean
   getScheduleFor: (sessionId: string) => CohortLessonSchedule | undefined
   refetch: () => Promise<void>
 }
@@ -151,6 +152,7 @@ export function CohortProvider({ children }: { children: ReactNode }) {
 
   const cohort = enrollment?.cohort ?? null
   const status: CohortStatus = enrollment ? deriveStatus(enrollment) : 'none'
+  const enrollmentTier: EnrollmentTier = enrollment?.enrollment_tier ?? 'essential'
   const courseStarted = cohort ? new Date(cohort.course_start_at) <= new Date() : false
 
   const enrolledProgramIds = useMemo(() => {
@@ -168,11 +170,11 @@ export function CohortProvider({ children }: { children: ReactNode }) {
   )
 
   const isSessionAccessible = useCallback(
-    (session: Pick<Session, 'id' | 'session_number'>): boolean => {
+    (session: Pick<Session, 'id' | 'session_number'> & { is_extension?: boolean }): boolean => {
       if (isEditor) return true
-      return isSessionAccessibleFor(session, status, schedule)
+      return isSessionAccessibleFor(session, status, schedule, enrollmentTier)
     },
-    [isEditor, status, schedule],
+    [isEditor, status, schedule, enrollmentTier],
   )
 
   const value: CohortContextValue = {
@@ -187,6 +189,7 @@ export function CohortProvider({ children }: { children: ReactNode }) {
     cohortId: cohort?.id ?? null,
     schedule,
     status,
+    enrollmentTier,
     courseStarted,
     activeProgramId,
     setActiveProgram,

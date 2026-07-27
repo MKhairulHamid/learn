@@ -16,7 +16,17 @@
       "Bash(sips -g pixelWidth -g pixelHeight /Users/hamid/Learn/public/brand/og-image.png)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "mcp__c4b86c67-8fb7-4cbc-9142-b6ad2693d6b0__list_migrations",
+      "mcp__c4b86c67-8fb7-4cbc-9142-b6ad2693d6b0__apply_migration",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(mkdir -p /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/src/presentations /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/src/pages /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/public/brand)",
+      "Bash(cp src/presentations/primitives.tsx /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/src/presentations/)",
+      "Bash(cp src/presentations/registry.ts /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/src/presentations/)",
+      "Bash(cp src/presentations/practicalDataAnalystAi.tsx /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/src/presentations/)",
+      "Bash(cp src/presentations/sqlBasicsSession4.tsx /private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/src/presentations/)",
+      "Bash(open \"/private/tmp/claude-501/-Users-hamid-Learn/3fa76b2d-97e7-4cca-b8f0-3bb37aa7609f/scratchpad/present-export/\")"
     ]
   }
 }

@@ -149,7 +149,7 @@ export function useDashboardPrograms() {
       const sessionById = new Map(allSessions.map(s => [s.id, s]))
 
       const currentPhase = phases.find(p => p.sessions.some(s => !completedSet.has(s.id))) ?? phases[0] ?? null
-      const nextSession = allSessions.find(s => !completedSet.has(s.id) && isSessionAccessibleFor(s, status, schedule)) ?? null
+      const nextSession = allSessions.find(s => !completedSet.has(s.id) && isSessionAccessibleFor(s, status, schedule, best.enr.enrollment_tier)) ?? null
 
       const recent = prog
         .filter(p => p.completed && p.completed_at)

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   GraduationCap, Plus, ChevronRight, ArrowLeft, Users, Clock,
   CheckCircle2, XCircle, UserX, CalendarDays, Trash2, Eye, EyeOff,
-  DoorOpen, DoorClosed, Zap, ZapOff, Loader2, UserPlus, MessageSquarePlus, MessageSquare,
+  DoorOpen, DoorClosed, Zap, ZapOff, Loader2, UserPlus, MessageSquarePlus, MessageSquare, Rocket,
 } from 'lucide-react'
 import {
   useCohortAdmin, useCohortDetail, useAllProfiles,
@@ -712,6 +712,17 @@ function EnrollmentManager({ d }: { d: DetailHook }) {
           <p className="text-xs text-gray-500 px-3 py-3">No active members yet.</p>
         ) : active.map(e => (
           <EnrollRow key={e.id} e={e}>
+            <button
+              onClick={() => d.setEnrollmentTier(e.id, e.enrollment_tier === 'extended' ? 'essential' : 'extended')}
+              title="Toggle Upscale (Extended) access"
+              className={`cursor-pointer flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border transition-colors ${
+                e.enrollment_tier === 'extended'
+                  ? 'text-violet-300 border-violet-400/40 bg-violet-500/10 hover:bg-violet-500/20'
+                  : 'text-gray-400 border-white/10 hover:text-violet-300 hover:border-violet-400/40'
+              }`}
+            >
+              <Rocket size={12} /> {e.enrollment_tier === 'extended' ? 'Extended' : 'Essential'}
+            </button>
             <button onClick={() => d.setEnrollmentStatus(e.id, 'removed')}
               className="cursor-pointer flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-red-300">
               <UserX size={13} /> Deactivate

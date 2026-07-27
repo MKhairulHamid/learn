@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { addMonths } from '../lib/cohortAccess'
 import type {
-  Cohort, CohortEnrollment, CohortLessonSchedule, EnrollmentStatus,
+  Cohort, CohortEnrollment, CohortLessonSchedule, EnrollmentStatus, EnrollmentTier,
 } from '../types'
 
 // ── Shared shapes ───────────────────────────────────────────────────
@@ -274,6 +274,15 @@ export function useCohortDetail(cohortId: string | null) {
     return { error: error?.message ?? null }
   }, [refetch])
 
+  const setEnrollmentTier = useCallback(async (
+    enrollmentId: string, tier: EnrollmentTier,
+  ) => {
+    const { error } = await supabase.from('cohort_enrollments')
+      .update({ enrollment_tier: tier }).eq('id', enrollmentId)
+    if (!error) await refetch()
+    return { error: error?.message ?? null }
+  }, [refetch])
+
   const removeEnrollment = useCallback(async (enrollmentId: string) => {
     const { error } = await supabase.from('cohort_enrollments')
       .delete().eq('id', enrollmentId)
@@ -302,7 +311,7 @@ export function useCohortDetail(cohortId: string | null) {
     cohort, programName, sessions, schedule, enrollments, loading, refetch,
     updateCohort, setAdmissionOpen,
     saveScheduleRow, removeScheduleRow, toggleFeedbackOpen, generateSchedule,
-    approveEnrollment, setEnrollmentStatus, removeEnrollment, addUser,
+    approveEnrollment, setEnrollmentStatus, setEnrollmentTier, removeEnrollment, addUser,
   }
 }
 

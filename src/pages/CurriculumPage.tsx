@@ -3,7 +3,7 @@ import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle2, Clock, ChevronDown, ChevronUp, Lock, PlayCircle,
-  CalendarDays, Sparkles, ArrowLeft, MessageSquarePlus,
+  CalendarDays, Sparkles, ArrowLeft, MessageSquarePlus, Rocket,
 } from 'lucide-react'
 import { usePhases, usePrograms } from '../hooks/usePhases'
 import { useProgress } from '../hooks/useProgress'
@@ -276,6 +276,11 @@ export default function CurriculumPage() {
                             <Badge variant={done ? 'success' : 'gray'} size="sm">
                               {done ? t('common:common.completed') : session.unit_skkni}
                             </Badge>
+                            {session.is_extension && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+                                <Rocket size={11} /> {t('common:curriculum_page.upscale')}
+                              </span>
+                            )}
                             {pendingSessionIds.has(session.id) && (
                               <button
                                 type="button"
