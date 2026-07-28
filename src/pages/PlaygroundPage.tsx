@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type MouseEvent } from 'react'
+import { useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target, Copy, Check } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
@@ -144,7 +144,7 @@ function ColumnChip({ col, accent }: { col: string; accent: 'blue' | 'yellow' })
   const [copied, setCopied] = useState(false)
   const ring = accent === 'blue' ? 'hover:border-blue-400/40' : 'hover:border-yellow-400/40'
 
-  async function copy(e: MouseEvent) {
+  async function copy(e: ReactMouseEvent) {
     e.stopPropagation()
     try {
       await navigator.clipboard.writeText(col)
