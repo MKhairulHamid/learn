@@ -1,30 +1,244 @@
-// E-commerce dataset for SQL practice
-// Tables: customers, products, orders, order_items
+// E-commerce dataset for SQL practice.
+// Rich, multi-table schema generated deterministically so learners have plenty
+// to explore: lookups (categories, suppliers), dimensions (customers, products,
+// employees) and facts (orders, order_items, reviews).
 
+// ── Deterministic RNG (seeded) so the dataset is stable across reloads ──
+function makeRng(seed: number) {
+  let s = seed >>> 0
+  return () => {
+    s = (Math.imul(s, 1103515245) + 12345) & 0x7fffffff
+    return s / 0x7fffffff
+  }
+}
+const rng = makeRng(42)
+const pick = <T,>(arr: T[]): T => arr[Math.floor(rng() * arr.length)]
+const randInt = (min: number, max: number) => min + Math.floor(rng() * (max - min + 1))
+const esc = (v: string) => v.replace(/'/g, "''")
+
+// ── Lookup tables ──────────────────────────────────────────────────────
+const CATEGORIES = [
+  [1, 'Electronics', 'Devices, gadgets and accessories'],
+  [2, 'Books', 'Print and reference titles'],
+  [3, 'Furniture', 'Office and home furniture'],
+  [4, 'Home & Kitchen', 'Appliances and kitchenware'],
+  [5, 'Sports & Outdoors', 'Fitness and outdoor gear'],
+  [6, 'Fashion', 'Bags, watches and apparel'],
+] as const
+
+const SUPPLIERS = [
+  [1, 'TechDistributors Nusantara', 'Java',     'sales@techdist.co.id'],
+  [2, 'BukuMakmur',                 'Java',     'order@bukumakmur.co.id'],
+  [3, 'FurniCraft Indo',            'Sumatra',  'hello@furnicraft.co.id'],
+  [4, 'HomeStyle Supply',           'Bali',     'cs@homestyle.co.id'],
+  [5, 'ActiveGear ID',              'Java',     'team@activegear.co.id'],
+] as const
+
+// [name, category_id, price, cost, stock, brand, rating]
+const PRODUCTS: [string, number, number, number, number, string, number][] = [
+  ['Laptop Pro 15"',            1, 12500000, 9800000,  45, 'TechPro',    4.6],
+  ['Wireless Mouse',            1,   285000,  180000, 200, 'Logi',       4.3],
+  ['USB-C Hub',                 1,   450000,  280000, 150, 'Anker',      4.5],
+  ['Monitor 27"',               1,  4750000, 3600000,  60, 'ViewMax',    4.4],
+  ['Mechanical Keyboard',       1,   850000,  520000, 120, 'KeyForce',   4.7],
+  ['Noise-Cancel Headphones',   1,  2100000, 1400000,  75, 'SoundWave',  4.6],
+  ['Webcam HD',                 1,   620000,  400000,  90, 'ClearView',  4.1],
+  ['External SSD 1TB',          1,  1350000,  950000, 110, 'DataVault',  4.8],
+  ['Smartphone X',              1,  8900000, 7100000,  55, 'Nova',       4.5],
+  ['Tablet 10"',                1,  5400000, 4200000,  40, 'Nova',       4.2],
+  ['Python Programming',        2,   185000,   90000, 300, 'CodePress',  4.7],
+  ['Data Analytics Guide',      2,   165000,   80000, 250, 'CodePress',  4.5],
+  ['SQL Mastery',               2,   155000,   75000,  80, 'CodePress',  4.6],
+  ['Machine Learning 101',      2,   210000,  110000, 130, 'CodePress',  4.4],
+  ['Business Statistics',       2,   175000,   95000,  95, 'AkademiPress', 4.2],
+  ['Financial Modeling',        2,   195000,  100000,  60, 'AkademiPress', 4.3],
+  ['Standing Desk',             3,  3200000, 2100000,  30, 'ErgoLife',   4.5],
+  ['Ergonomic Chair',           3,  4500000, 3000000,  25, 'ErgoLife',   4.7],
+  ['Bookshelf',                 3,  1250000,  800000,  40, 'WoodCraft',  4.1],
+  ['Office Cabinet',            3,  1850000, 1200000,  35, 'WoodCraft',  4.0],
+  ['Coffee Maker',              4,   950000,  600000,  70, 'BrewMaster', 4.4],
+  ['Air Fryer',                 4,  1450000,  950000,  85, 'KitchenPro', 4.6],
+  ['Blender',                   4,   680000,  420000, 100, 'KitchenPro', 4.3],
+  ['Vacuum Cleaner',            4,  2300000, 1600000,  45, 'CleanTech',  4.2],
+  ['Yoga Mat',                  5,   320000,  180000, 160, 'FlexFit',    4.5],
+  ['Dumbbell Set',              5,   890000,  560000,  55, 'IronCore',   4.6],
+  ['Running Shoes',             5,  1150000,  720000,  90, 'StrideX',    4.4],
+  ['Camping Tent',              5,  1750000, 1150000,  30, 'TrailGear',  4.3],
+  ['Leather Backpack',          6,   780000,  480000,  75, 'UrbanStyle', 4.5],
+  ['Wristwatch Classic',        6,  1650000, 1050000,  50, 'TimeCraft',  4.6],
+]
+const supplierForCategory = (cat: number) => (cat === 6 ? 5 : cat)
+
+// ── Customers (generated) ──────────────────────────────────────────────
+const FIRST = ['Budi', 'Siti', 'Ahmad', 'Dewi', 'Rizky', 'Nur', 'Wahyu', 'Fitri', 'Eko', 'Maya',
+  'Doni', 'Rina', 'Hendra', 'Yuni', 'Farhan', 'Agus', 'Putri', 'Bayu', 'Sari', 'Andi']
+const LAST = ['Santoso', 'Rahayu', 'Fauzi', 'Lestari', 'Pratama', 'Hidayah', 'Setiawan', 'Handayani',
+  'Prasetyo', 'Indrawati', 'Kusuma', 'Wulandari', 'Gunawan', 'Astuti', 'Malik']
+const PLACES: [string, string][] = [
+  ['Jakarta', 'Java'], ['Surabaya', 'Java'], ['Bandung', 'Java'], ['Semarang', 'Java'],
+  ['Yogyakarta', 'Java'], ['Medan', 'Sumatra'], ['Palembang', 'Sumatra'], ['Padang', 'Sumatra'],
+  ['Balikpapan', 'Kalimantan'], ['Pontianak', 'Kalimantan'], ['Denpasar', 'Bali'],
+  ['Makassar', 'Sulawesi'], ['Manado', 'Sulawesi'],
+]
+const MEMBERSHIPS = ['regular', 'regular', 'premium', 'premium', 'vip']
+
+const NUM_CUSTOMERS = 40
+const customers: { id: number; city: string }[] = []
+const customerRows: string[] = []
+for (let id = 1; id <= NUM_CUSTOMERS; id++) {
+  const first = FIRST[(id * 7) % FIRST.length]
+  const last = LAST[(id * 3) % LAST.length]
+  const name = `${first} ${last}`
+  const email = `${first.toLowerCase()}.${last.toLowerCase()}${id}@email.com`
+  const phone = `08${randInt(11, 89)}${randInt(1000000, 9999999)}`
+  const [city, region] = PLACES[(id * 5) % PLACES.length]
+  const year = 2023
+  const month = String(randInt(1, 12)).padStart(2, '0')
+  const day = String(randInt(1, 28)).padStart(2, '0')
+  const membership = pick(MEMBERSHIPS)
+  const age = randInt(21, 58)
+  const gender = rng() < 0.5 ? 'M' : 'F'
+  customers.push({ id, city })
+  customerRows.push(
+    `(${id}, '${esc(name)}', '${email}', '${phone}', '${region}', '${city}', '${year}-${month}-${day}', '${membership}', ${age}, '${gender}')`,
+  )
+}
+
+// ── Employees (sales reps) ─────────────────────────────────────────────
+const ROLES = ['Sales', 'Sales', 'Senior Sales', 'Manager']
+const NUM_EMPLOYEES = 12
+const employeeRows: string[] = []
+for (let id = 1; id <= NUM_EMPLOYEES; id++) {
+  const first = FIRST[(id * 4 + 2) % FIRST.length]
+  const last = LAST[(id * 6 + 1) % LAST.length]
+  const role = ROLES[(id) % ROLES.length]
+  const [, region] = PLACES[(id * 2) % PLACES.length]
+  const hire = `202${randInt(1, 3)}-${String(randInt(1, 12)).padStart(2, '0')}-${String(randInt(1, 28)).padStart(2, '0')}`
+  const salary = randInt(6, 18) * 1000000
+  employeeRows.push(`(${id}, '${esc(`${first} ${last}`)}', '${role}', '${region}', '${hire}', ${salary})`)
+}
+
+// ── Products rows ──────────────────────────────────────────────────────
+const productRows = PRODUCTS.map(([name, cat, price, cost, stock, brand, rating], i) => {
+  const id = i + 1
+  const sku = `${['ELEC', 'BOOK', 'FURN', 'HOME', 'SPRT', 'FASH'][cat - 1]}-${String(id).padStart(3, '0')}`
+  return `(${id}, '${esc(name)}', ${cat}, ${supplierForCategory(cat)}, '${sku}', ${price}, ${cost}, ${stock}, '${esc(brand)}', ${rating})`
+})
+
+// ── Orders + order_items (facts) ───────────────────────────────────────
+const STATUSES = ['completed', 'completed', 'completed', 'completed', 'completed',
+  'completed', 'completed', 'pending', 'cancelled']
+const PAYMENTS = ['credit_card', 'bank_transfer', 'e-wallet', 'cod']
+
+const NUM_ORDERS = 200
+const orderRows: string[] = []
+const orderItemRows: string[] = []
+let itemId = 0
+for (let id = 1; id <= NUM_ORDERS; id++) {
+  const cust = customers[randInt(0, customers.length - 1)]
+  // Spread dates across 2023-06 .. 2024-12
+  const monthOffset = randInt(0, 18)
+  const y = 2023 + Math.floor((5 + monthOffset) / 12)
+  const m = String(((5 + monthOffset) % 12) + 1).padStart(2, '0')
+  const d = String(randInt(1, 28)).padStart(2, '0')
+  const status = pick(STATUSES)
+  const payment = pick(PAYMENTS)
+  const salesRep = randInt(1, NUM_EMPLOYEES)
+
+  // 1–4 distinct products per order
+  const n = randInt(1, 4)
+  const chosen = new Set<number>()
+  while (chosen.size < n) chosen.add(randInt(1, PRODUCTS.length))
+  let subtotal = 0
+  for (const pid of chosen) {
+    const qty = randInt(1, 3)
+    const unit = PRODUCTS[pid - 1][2]
+    subtotal += qty * unit
+    itemId++
+    orderItemRows.push(`(${itemId}, ${id}, ${pid}, ${qty}, ${unit})`)
+  }
+  const discount = rng() < 0.3 ? Math.round((subtotal * randInt(5, 15)) / 100) : 0
+  const total = subtotal - discount
+  orderRows.push(
+    `(${id}, ${cust.id}, ${salesRep}, '${y}-${m}-${d}', '${status}', '${payment}', '${esc(cust.city)}', ${discount}, ${total})`,
+  )
+}
+
+// ── Reviews ────────────────────────────────────────────────────────────
+const COMMENTS = ['Great product, highly recommend', 'Works exactly as described',
+  'Good value for money', 'Quality could be better', 'Fast delivery, very satisfied',
+  'Not quite what I expected', 'Excellent, will buy again', 'Average, nothing special',
+  'Sturdy and reliable', 'Absolutely love it']
+const NUM_REVIEWS = 90
+const reviewRows: string[] = []
+for (let id = 1; id <= NUM_REVIEWS; id++) {
+  const pid = randInt(1, PRODUCTS.length)
+  const cid = randInt(1, NUM_CUSTOMERS)
+  const rating = rng() < 0.7 ? randInt(4, 5) : randInt(1, 3)
+  const y = pick([2023, 2024])
+  const date = `${y}-${String(randInt(1, 12)).padStart(2, '0')}-${String(randInt(1, 28)).padStart(2, '0')}`
+  reviewRows.push(`(${id}, ${pid}, ${cid}, ${rating}, '${esc(pick(COMMENTS))}', '${date}')`)
+}
+
+// ── Assemble seed SQL ──────────────────────────────────────────────────
 export const ECOMMERCE_SEED_SQL = `
+CREATE TABLE categories (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT
+);
+
+CREATE TABLE suppliers (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  region TEXT NOT NULL,
+  contact_email TEXT
+);
+
 CREATE TABLE customers (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
+  phone TEXT,
   region TEXT NOT NULL,
   city TEXT NOT NULL,
   joined_date TEXT NOT NULL,
-  membership TEXT NOT NULL DEFAULT 'regular'
+  membership TEXT NOT NULL DEFAULT 'regular',
+  age INTEGER,
+  gender TEXT
+);
+
+CREATE TABLE employees (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  region TEXT NOT NULL,
+  hire_date TEXT NOT NULL,
+  salary REAL NOT NULL
 );
 
 CREATE TABLE products (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
-  category TEXT NOT NULL,
+  category_id INTEGER NOT NULL REFERENCES categories(id),
+  supplier_id INTEGER NOT NULL REFERENCES suppliers(id),
+  sku TEXT NOT NULL,
   price REAL NOT NULL,
-  stock INTEGER NOT NULL DEFAULT 0
+  cost REAL NOT NULL,
+  stock INTEGER NOT NULL DEFAULT 0,
+  brand TEXT,
+  rating REAL
 );
 
 CREATE TABLE orders (
   id INTEGER PRIMARY KEY,
   customer_id INTEGER NOT NULL REFERENCES customers(id),
+  employee_id INTEGER REFERENCES employees(id),
   order_date TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'completed',
+  payment_method TEXT,
+  shipping_city TEXT,
+  discount REAL NOT NULL DEFAULT 0,
   total_amount REAL NOT NULL
 );
 
@@ -36,145 +250,93 @@ CREATE TABLE order_items (
   unit_price REAL NOT NULL
 );
 
+CREATE TABLE reviews (
+  id INTEGER PRIMARY KEY,
+  product_id INTEGER NOT NULL REFERENCES products(id),
+  customer_id INTEGER NOT NULL REFERENCES customers(id),
+  rating INTEGER NOT NULL,
+  comment TEXT,
+  review_date TEXT NOT NULL
+);
+
+INSERT INTO categories VALUES
+${CATEGORIES.map(([id, n, d]) => `(${id}, '${esc(n)}', '${esc(d)}')`).join(',\n')};
+
+INSERT INTO suppliers VALUES
+${SUPPLIERS.map(([id, n, r, e]) => `(${id}, '${esc(n)}', '${r}', '${e}')`).join(',\n')};
+
 INSERT INTO customers VALUES
-(1,  'Budi Santoso',      'budi@email.com',     'Java',       'Jakarta',   '2023-01-15', 'premium'),
-(2,  'Siti Rahayu',       'siti@email.com',      'Java',       'Surabaya',  '2023-02-20', 'regular'),
-(3,  'Ahmad Fauzi',       'ahmad@email.com',     'Sumatra',    'Medan',     '2023-03-10', 'premium'),
-(4,  'Dewi Lestari',      'dewi@email.com',      'Java',       'Bandung',   '2023-03-25', 'regular'),
-(5,  'Rizky Pratama',     'rizky@email.com',     'Java',       'Jakarta',   '2023-04-05', 'premium'),
-(6,  'Nur Hidayah',       'nur@email.com',       'Kalimantan', 'Balikpapan','2023-04-18', 'regular'),
-(7,  'Wahyu Setiawan',    'wahyu@email.com',     'Java',       'Semarang',  '2023-05-02', 'regular'),
-(8,  'Fitri Handayani',   'fitri@email.com',     'Sumatra',    'Palembang', '2023-05-20', 'premium'),
-(9,  'Eko Prasetyo',      'eko@email.com',       'Java',       'Yogyakarta','2023-06-08', 'regular'),
-(10, 'Maya Indrawati',    'maya@email.com',      'Bali',       'Denpasar',  '2023-06-15', 'premium'),
-(11, 'Doni Kusuma',       'doni@email.com',      'Java',       'Jakarta',   '2023-07-01', 'regular'),
-(12, 'Rina Wulandari',    'rina@email.com',      'Sulawesi',   'Makassar',  '2023-07-14', 'regular'),
-(13, 'Hendra Gunawan',    'hendra@email.com',    'Java',       'Surabaya',  '2023-08-03', 'premium'),
-(14, 'Yuni Astuti',       'yuni@email.com',      'Java',       'Bandung',   '2023-08-22', 'regular'),
-(15, 'Farhan Malik',      'farhan@email.com',    'Sumatra',    'Medan',     '2023-09-10', 'premium');
+${customerRows.join(',\n')};
+
+INSERT INTO employees VALUES
+${employeeRows.join(',\n')};
 
 INSERT INTO products VALUES
-(1,  'Laptop Pro 15"',       'Electronics',  12500000, 45),
-(2,  'Wireless Mouse',       'Electronics',    285000, 200),
-(3,  'USB-C Hub',            'Electronics',    450000, 150),
-(4,  'Python Programming',   'Books',          185000, 300),
-(5,  'Data Analytics Guide', 'Books',          165000, 250),
-(6,  'SQL Mastery',          'Books',          155000,  80),
-(7,  'Standing Desk',        'Furniture',     3200000,  30),
-(8,  'Ergonomic Chair',      'Furniture',     4500000,  25),
-(9,  'Monitor 27"',          'Electronics',  4750000,  60),
-(10, 'Mechanical Keyboard',  'Electronics',    850000, 120);
+${productRows.join(',\n')};
 
 INSERT INTO orders VALUES
-(1,  1,  '2024-01-05', 'completed', 12785000),
-(2,  2,  '2024-01-12', 'completed',   450000),
-(3,  3,  '2024-01-18', 'completed',  5200000),
-(4,  4,  '2024-01-22', 'completed',   350000),
-(5,  5,  '2024-02-03', 'completed', 17250000),
-(6,  1,  '2024-02-10', 'completed',  1135000),
-(7,  6,  '2024-02-14', 'completed',   735000),
-(8,  7,  '2024-02-20', 'completed',  4500000),
-(9,  3,  '2024-02-28', 'completed',   320000),
-(10, 8,  '2024-03-05', 'completed', 13350000),
-(11, 9,  '2024-03-11', 'completed',   505000),
-(12, 10, '2024-03-18', 'completed',  4750000),
-(13, 2,  '2024-03-25', 'completed',  3200000),
-(14, 11, '2024-04-02', 'completed',   285000),
-(15, 12, '2024-04-09', 'completed',  1700000),
-(16, 5,  '2024-04-15', 'completed',  9500000),
-(17, 13, '2024-04-22', 'completed',   920000),
-(18, 14, '2024-04-28', 'completed',  5600000),
-(19, 4,  '2024-05-06', 'cancelled',   165000),
-(20, 15, '2024-05-12', 'completed', 12500000),
-(21, 1,  '2024-05-20', 'completed',  4750000),
-(22, 6,  '2024-05-27', 'completed',   850000),
-(23, 10, '2024-06-03', 'completed',  3200000),
-(24, 7,  '2024-06-10', 'completed',  1005000),
-(25, 9,  '2024-06-18', 'completed',   450000),
-(26, 3,  '2024-06-24', 'completed',  4800000),
-(27, 13, '2024-07-02', 'completed',  4500000),
-(28, 8,  '2024-07-09', 'completed',   340000),
-(29, 2,  '2024-07-15', 'completed',   850000),
-(30, 11, '2024-07-22', 'completed',  5000000),
-(31, 5,  '2024-08-01', 'completed', 13000000),
-(32, 14, '2024-08-08', 'completed',   450000),
-(33, 15, '2024-08-15', 'completed',  1700000),
-(34, 12, '2024-08-21', 'completed',   310000),
-(35, 4,  '2024-09-03', 'completed',  3200000),
-(36, 1,  '2024-09-10', 'completed',   735000),
-(37, 6,  '2024-09-17', 'completed',  4750000),
-(38, 9,  '2024-09-24', 'completed',  1850000),
-(39, 13, '2024-10-02', 'completed',  5450000),
-(40, 3,  '2024-10-08', 'completed',   285000),
-(41, 7,  '2024-10-15', 'completed',  8700000),
-(42, 10, '2024-10-22', 'completed',   920000),
-(43, 2,  '2024-11-01', 'completed',  4500000),
-(44, 15, '2024-11-08', 'completed',  9250000),
-(45, 5,  '2024-11-15', 'completed',   850000),
-(46, 8,  '2024-11-22', 'completed', 12500000),
-(47, 14, '2024-12-03', 'completed',  4750000),
-(48, 11, '2024-12-10', 'completed',  3200000),
-(49, 1,  '2024-12-17', 'completed',   505000),
-(50, 12, '2024-12-24', 'completed',   450000);
+${orderRows.join(',\n')};
 
 INSERT INTO order_items VALUES
-(1,  1,  1,  1, 12500000), (2,  1,  2,  1,   285000),
-(3,  2,  3,  1,   450000),
-(4,  3,  9,  1,  4750000), (5,  3,  4,  2,   185000), (6,  3,  7,  0,        0),
-(7,  4,  4,  1,   185000), (8,  4,  5,  1,   165000),
-(9,  5,  1,  1, 12500000), (10, 5,  9,  1,  4750000),
-(11, 6,  2,  2,   285000), (12, 6,  3,  1,   450000), (13, 6,  6,  1,   155000),
-(14, 7,  2,  1,   285000), (15, 7,  10, 0,        0), (16, 7,  6,  3,   155000),
-(17, 8,  8,  1,  4500000),
-(18, 9,  5,  1,   165000), (19, 9,  6,  1,   155000),
-(20,10,  1,  1, 12500000), (21,10,  2,  3,   285000),
-(22,11,  4,  1,   185000), (23,11,  2,  1,   285000), (24,11,  6,  1,   155000),
-(25,12,  9,  1,  4750000),
-(26,13,  7,  1,  3200000),
-(27,14,  2,  1,   285000),
-(28,15, 10,  2,   850000),
-(29,16,  9,  2,  4750000),
-(30,17, 10,  1,   850000), (31,17,  6,  1,   155000),
-(32,18,  7,  1,  3200000), (33,18,  4,  5,   185000),
-(34,20,  1,  1, 12500000),
-(35,21,  9,  1,  4750000),
-(36,22, 10,  1,   850000),
-(37,23,  7,  1,  3200000),
-(38,24,  3,  1,   450000), (39,24, 10,  1,   850000),
-(40,25,  3,  1,   450000),
-(41,26,  9,  1,  4750000), (42,26,  6,  1,   155000),
-(43,27,  8,  1,  4500000),
-(44,28,  4,  1,   185000), (45,28,  5,  1,   155000),
-(46,29, 10,  1,   850000),
-(47,30,  9,  1,  4750000), (48,30,  4,  1,   185000),
-(49,31,  1,  1, 12500000), (50,31,  3,  1,   450000);
+${orderItemRows.join(',\n')};
+
+INSERT INTO reviews VALUES
+${reviewRows.join(',\n')};
 `
 
+// ── Schema reference shown in the playground UI ────────────────────────
 export const DATASET_INFO = {
   tables: [
     {
       name: 'customers',
-      description: '15 customers across Indonesia',
-      columns: ['id', 'name', 'email', 'region', 'city', 'joined_date', 'membership'],
-      rowCount: 15,
+      description: `${NUM_CUSTOMERS} customers across Indonesia`,
+      columns: ['id', 'name', 'email', 'phone', 'region', 'city', 'joined_date', 'membership', 'age', 'gender'],
+      rowCount: NUM_CUSTOMERS,
     },
     {
       name: 'products',
-      description: '10 products in 3 categories',
-      columns: ['id', 'name', 'category', 'price', 'stock'],
-      rowCount: 10,
+      description: `${PRODUCTS.length} products in ${CATEGORIES.length} categories`,
+      columns: ['id', 'name', 'category_id', 'supplier_id', 'sku', 'price', 'cost', 'stock', 'brand', 'rating'],
+      rowCount: PRODUCTS.length,
+    },
+    {
+      name: 'categories',
+      description: `${CATEGORIES.length} product categories`,
+      columns: ['id', 'name', 'description'],
+      rowCount: CATEGORIES.length,
+    },
+    {
+      name: 'suppliers',
+      description: `${SUPPLIERS.length} suppliers`,
+      columns: ['id', 'name', 'region', 'contact_email'],
+      rowCount: SUPPLIERS.length,
+    },
+    {
+      name: 'employees',
+      description: `${NUM_EMPLOYEES} sales reps`,
+      columns: ['id', 'name', 'role', 'region', 'hire_date', 'salary'],
+      rowCount: NUM_EMPLOYEES,
     },
     {
       name: 'orders',
-      description: '50 orders (Jan–Dec 2024)',
-      columns: ['id', 'customer_id', 'order_date', 'status', 'total_amount'],
-      rowCount: 50,
+      description: `${NUM_ORDERS} orders (2023–2024)`,
+      columns: ['id', 'customer_id', 'employee_id', 'order_date', 'status', 'payment_method', 'shipping_city', 'discount', 'total_amount'],
+      rowCount: NUM_ORDERS,
     },
     {
       name: 'order_items',
-      description: 'Line items for each order',
+      description: `${orderItemRows.length} line items`,
       columns: ['id', 'order_id', 'product_id', 'quantity', 'unit_price'],
-      rowCount: 51,
+      rowCount: orderItemRows.length,
+    },
+    {
+      name: 'reviews',
+      description: `${NUM_REVIEWS} product reviews`,
+      columns: ['id', 'product_id', 'customer_id', 'rating', 'comment', 'review_date'],
+      rowCount: NUM_REVIEWS,
     },
   ],
+  get totalRows() {
+    return this.tables.reduce((sum, t) => sum + t.rowCount, 0)
+  },
 }

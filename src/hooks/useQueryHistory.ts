@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 export interface QueryHistoryEntry {
   id: string
@@ -88,4 +88,39 @@ export function useQueryHistory(kind: string) {
   }, [persist])
 
   return { history, add, remove, clear }
+}
+
+/**
+ * Editor draft persisted to localStorage, so the current query/script survives
+ * unmounting when the user switches to another playground tab and comes back.
+ * Returns a [value, setValue] pair like useState.
+ */
+export function usePlaygroundDraft(kind: string, fallback: string) {
+  const draftKey = `playground-draft:${kind}`
+  const [value, setValue] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(draftKey)
+      return saved !== null ? saved : fallback
+    } catch {
+      return fallback
+    }
+  })
+
+  // Debounce writes so typing doesn't hammer localStorage.
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (timer.current) clearTimeout(timer.current)
+    timer.current = setTimeout(() => {
+      try {
+        localStorage.setItem(draftKey, value)
+      } catch {
+        // best-effort
+      }
+    }, 300)
+    return () => {
+      if (timer.current) clearTimeout(timer.current)
+    }
+  }, [draftKey, value])
+
+  return [value, setValue] as const
 }

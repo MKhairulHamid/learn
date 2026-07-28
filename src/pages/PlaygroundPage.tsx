@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target } from 'lucide-react'
+import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target, Copy, Check } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { QueryHistoryPanel } from '../components/exercises/QueryHistoryPanel'
-import { useQueryHistory } from '../hooks/useQueryHistory'
+import { useQueryHistory, usePlaygroundDraft } from '../hooks/useQueryHistory'
 import { runQuery, resetDB } from '../lib/sqlSimulator'
 import { DATASET_INFO } from '../data/datasets/ecommerce'
 import { TRANSACTIONS_CSV, EMPLOYEES_CSV, CSV_DATASET_INFO } from '../data/datasets/retail_csv'
@@ -18,8 +18,9 @@ import OkrBuilderPage from './OkrBuilderPage'
 import type { QueryResult } from '../lib/sqlSimulator'
 import type { PyLoadProgress, PyResult } from '../lib/pyodideRunner'
 
-const SQL_STARTER = `-- E-commerce database: customers, products, orders, order_items
--- Try a query below!
+const SQL_STARTER = `-- E-commerce database — 8 tables to explore:
+-- customers, products, categories, suppliers, employees, orders, order_items, reviews
+-- Click a table above to see its columns (click a column to copy it). Try a query below!
 
 SELECT c.name, COUNT(o.id) AS total_orders, SUM(o.total_amount) AS total_spent
 FROM customers c
@@ -137,10 +138,41 @@ plt.show()
   },
 ]
 
+// ── Column chip with copy-to-clipboard ────────────────────────────────
+
+function ColumnChip({ col, accent }: { col: string; accent: 'blue' | 'yellow' }) {
+  const [copied, setCopied] = useState(false)
+  const ring = accent === 'blue' ? 'hover:border-blue-400/40' : 'hover:border-yellow-400/40'
+
+  async function copy(e: MouseEvent) {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(col)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    } catch {
+      // Clipboard blocked — ignore.
+    }
+  }
+
+  return (
+    <button
+      onClick={copy}
+      title={`Copy "${col}"`}
+      className={`group flex items-center gap-1 text-[11px] font-mono text-gray-200 bg-white/10 border border-white/10 ${ring} px-2 py-1 rounded-md transition-colors`}
+    >
+      {col}
+      {copied
+        ? <Check size={11} className="text-green-400" />
+        : <Copy size={11} className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />}
+    </button>
+  )
+}
+
 // ── SQL sub-page ──────────────────────────────────────────────────────
 
 function SqlPlayground() {
-  const [query, setQuery] = useState(SQL_STARTER)
+  const [query, setQuery] = usePlaygroundDraft('sql', SQL_STARTER)
   const [result, setResult] = useState<QueryResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [openTable, setOpenTable] = useState<string | null>(null)
@@ -175,40 +207,50 @@ function SqlPlayground() {
       <div className="bg-[#0d1117] rounded-2xl border border-white/[0.08] p-4">
         <div className="flex items-center gap-2 mb-3">
           <Table2 size={13} className="text-blue-400" />
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">
             Dataset · E-Commerce
           </span>
-          <span className="ml-auto text-[11px] text-gray-600 font-mono">4 tables · 126 rows</span>
+          <span className="ml-auto text-[11px] text-gray-400 font-mono">
+            {DATASET_INFO.tables.length} tables · {DATASET_INFO.totalRows} rows
+          </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {DATASET_INFO.tables.map(t => (
-            <button
-              key={t.name}
-              onClick={() => setOpenTable(openTable === t.name ? null : t.name)}
-              className={`text-left rounded-xl border p-3 transition-colors ${
-                openTable === t.name
-                  ? 'border-blue-500/40 bg-blue-500/[0.08]'
-                  : 'border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold text-blue-300">{t.name}</span>
-                {openTable === t.name
-                  ? <ChevronDown size={12} className="text-gray-500" />
-                  : <ChevronRight size={12} className="text-gray-500" />}
+          {DATASET_INFO.tables.map(t => {
+            const open = openTable === t.name
+            return (
+              <div
+                key={t.name}
+                className={`rounded-xl border transition-colors ${
+                  open
+                    ? 'border-blue-500/40 bg-blue-500/[0.10]'
+                    : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-white/15'
+                }`}
+              >
+                <button
+                  onClick={() => setOpenTable(open ? null : t.name)}
+                  className="w-full text-left p-3"
+                  title={t.description}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-blue-300">{t.name}</span>
+                    {open
+                      ? <ChevronDown size={12} className="text-gray-400" />
+                      : <ChevronRight size={12} className="text-gray-400" />}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-0.5">{t.rowCount} rows · {t.columns.length} cols</div>
+                </button>
+                {open && (
+                  <div className="px-3 pb-3 -mt-1">
+                    <div className="pt-2 border-t border-white/10 flex flex-wrap gap-1.5">
+                      {t.columns.map(col => (
+                        <ColumnChip key={col} col={col} accent="blue" />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="text-[11px] text-gray-600 mt-0.5">{t.rowCount} rows</div>
-              {openTable === t.name && (
-                <div className="mt-2 pt-2 border-t border-white/[0.06] flex flex-wrap gap-1">
-                  {t.columns.map(col => (
-                    <span key={col} className="text-[10px] font-mono text-gray-500 bg-white/[0.05] px-1.5 py-0.5 rounded">
-                      {col}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </button>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -271,7 +313,7 @@ function SqlPlayground() {
 // ── Python sub-page ───────────────────────────────────────────────────
 
 function PythonPlayground() {
-  const [code, setCode] = useState(PYTHON_STARTER)
+  const [code, setCode] = usePlaygroundDraft('python', PYTHON_STARTER)
   const [result, setResult] = useState<PyResult | null>(null)
   const [running, setRunning] = useState(false)
   const [progress, setProgress] = useState<PyLoadProgress>({ stage: 'Starting…', percent: 0 })
@@ -326,42 +368,50 @@ function PythonPlayground() {
       <div className="bg-[#0d1117] rounded-2xl border border-white/[0.08] p-4">
         <div className="flex items-center gap-2 mb-3">
           <FileText size={13} className="text-yellow-400" />
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">
             Dataset · Retail
           </span>
-          <span className="ml-auto text-[11px] text-gray-600 font-mono">
+          <span className="ml-auto text-[11px] text-gray-400 font-mono">
             2 CSV files · pd.read_csv('filename.csv')
           </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {CSV_DATASET_INFO.files.map(f => (
-            <button
-              key={f.name}
-              onClick={() => setOpenCsvFile(openCsvFile === f.name ? null : f.name)}
-              className={`text-left rounded-xl border p-3 transition-colors ${
-                openCsvFile === f.name
-                  ? 'border-yellow-500/40 bg-yellow-500/[0.08]'
-                  : 'border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold text-yellow-300">{f.name}</span>
-                {openCsvFile === f.name
-                  ? <ChevronDown size={12} className="text-gray-500" />
-                  : <ChevronRight size={12} className="text-gray-500" />}
+          {CSV_DATASET_INFO.files.map(f => {
+            const open = openCsvFile === f.name
+            return (
+              <div
+                key={f.name}
+                className={`rounded-xl border transition-colors ${
+                  open
+                    ? 'border-yellow-500/40 bg-yellow-500/[0.10]'
+                    : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-white/15'
+                }`}
+              >
+                <button
+                  onClick={() => setOpenCsvFile(open ? null : f.name)}
+                  className="w-full text-left p-3"
+                  title={f.description}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono font-semibold text-yellow-300">{f.name}</span>
+                    {open
+                      ? <ChevronDown size={12} className="text-gray-400" />
+                      : <ChevronRight size={12} className="text-gray-400" />}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-0.5">{f.rowCount} rows · {f.description}</div>
+                </button>
+                {open && (
+                  <div className="px-3 pb-3 -mt-1">
+                    <div className="pt-2 border-t border-white/10 flex flex-wrap gap-1.5">
+                      {f.columns.map(col => (
+                        <ColumnChip key={col} col={col} accent="yellow" />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="text-[11px] text-gray-600 mt-0.5">{f.rowCount} rows · {f.description}</div>
-              {openCsvFile === f.name && (
-                <div className="mt-2 pt-2 border-t border-white/[0.06] flex flex-wrap gap-1">
-                  {f.columns.map(col => (
-                    <span key={col} className="text-[10px] font-mono text-gray-500 bg-white/[0.05] px-1.5 py-0.5 rounded">
-                      {col}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </button>
-          ))}
+            )
+          })}
         </div>
       </div>
 
