@@ -169,6 +169,33 @@ function ColumnChip({ col, accent }: { col: string; accent: 'blue' | 'yellow' })
   )
 }
 
+function CopyAllColumns({ columns, accent }: { columns: string[]; accent: 'blue' | 'yellow' }) {
+  const [copied, setCopied] = useState(false)
+  const color = accent === 'blue' ? 'text-blue-300 hover:text-blue-200' : 'text-yellow-300 hover:text-yellow-200'
+
+  async function copy(e: ReactMouseEvent) {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(columns.join(', '))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1400)
+    } catch {
+      // Clipboard blocked — ignore.
+    }
+  }
+
+  return (
+    <button
+      onClick={copy}
+      title="Copy all column names (comma-separated)"
+      className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide ${color} transition-colors`}
+    >
+      {copied ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
+      {copied ? 'Copied' : 'Copy all'}
+    </button>
+  )
+}
+
 // ── SQL sub-page ──────────────────────────────────────────────────────
 
 function SqlPlayground() {
@@ -241,10 +268,16 @@ function SqlPlayground() {
                 </button>
                 {open && (
                   <div className="px-3 pb-3 -mt-1">
-                    <div className="pt-2 border-t border-white/10 flex flex-wrap gap-1.5">
-                      {t.columns.map(col => (
-                        <ColumnChip key={col} col={col} accent="blue" />
-                      ))}
+                    <div className="pt-2 border-t border-white/10">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">Columns</span>
+                        <CopyAllColumns columns={t.columns} accent="blue" />
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {t.columns.map(col => (
+                          <ColumnChip key={col} col={col} accent="blue" />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -402,10 +435,16 @@ function PythonPlayground() {
                 </button>
                 {open && (
                   <div className="px-3 pb-3 -mt-1">
-                    <div className="pt-2 border-t border-white/10 flex flex-wrap gap-1.5">
-                      {f.columns.map(col => (
-                        <ColumnChip key={col} col={col} accent="yellow" />
-                      ))}
+                    <div className="pt-2 border-t border-white/10">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">Columns</span>
+                        <CopyAllColumns columns={f.columns} accent="yellow" />
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {f.columns.map(col => (
+                          <ColumnChip key={col} col={col} accent="yellow" />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
