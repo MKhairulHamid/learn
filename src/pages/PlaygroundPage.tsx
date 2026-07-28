@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
+import { QueryHistoryPanel } from '../components/exercises/QueryHistoryPanel'
+import { useQueryHistory } from '../hooks/useQueryHistory'
 import { runQuery, resetDB } from '../lib/sqlSimulator'
 import { DATASET_INFO } from '../data/datasets/ecommerce'
 import { TRANSACTIONS_CSV, EMPLOYEES_CSV, CSV_DATASET_INFO } from '../data/datasets/retail_csv'
@@ -142,12 +144,20 @@ function SqlPlayground() {
   const [result, setResult] = useState<QueryResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [openTable, setOpenTable] = useState<string | null>(null)
+  const { history, add, remove, clear } = useQueryHistory('sql')
 
   async function runCurrentQuery() {
     setLoading(true)
     const r = await runQuery(query)
     setResult(r)
     setLoading(false)
+    add({
+      code: query,
+      ok: !r.error,
+      summary: r.error
+        ? 'Error'
+        : `${r.rows?.length ?? 0} row${(r.rows?.length ?? 0) !== 1 ? 's' : ''}`,
+    })
   }
 
   async function handleReset() {
@@ -245,6 +255,15 @@ function SqlPlayground() {
           </div>
         </div>
       )}
+
+      {/* Query history */}
+      <QueryHistoryPanel
+        history={history}
+        onLoad={code => setQuery(code)}
+        onRemove={remove}
+        onClear={clear}
+        accent="text-blue-400"
+      />
     </div>
   )
 }
@@ -260,6 +279,7 @@ function PythonPlayground() {
   const [pyLoading, setPyLoading] = useState(!isPyodideReady())
   const [openCsvFile, setOpenCsvFile] = useState<string | null>(null)
   const [openSnippet, setOpenSnippet] = useState(false)
+  const { history, add, remove, clear } = useQueryHistory('python')
   const initialized = useRef(false)
   const snippetRef = useRef<HTMLDivElement>(null)
 
@@ -293,6 +313,11 @@ function PythonPlayground() {
     const r = await runPython(code)
     setResult(r)
     setRunning(false)
+    add({
+      code,
+      ok: !r.error,
+      summary: r.error ? 'Error' : r.figures.length > 0 ? `${r.figures.length} chart${r.figures.length !== 1 ? 's' : ''}` : 'Ran',
+    })
   }
 
   return (
@@ -483,6 +508,15 @@ function PythonPlayground() {
         </div>
 
       </div>
+
+      {/* Script history */}
+      <QueryHistoryPanel
+        history={history}
+        onLoad={c => { setCode(c); setResult(null) }}
+        onRemove={remove}
+        onClear={clear}
+        accent="text-yellow-400"
+      />
     </div>
   )
 }
