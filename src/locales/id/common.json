@@ -284,6 +284,18 @@
     "reload": "Muat Ulang",
     "dismiss": "Nanti"
   },
+  "final_project": {
+    "title": "Proyek Akhir — Seduh Coffee",
+    "subtitle": "Proyek portofolio end-to-end kamu, dibangun sesi demi sesi.",
+    "step_of": "Langkah {{step}} dari {{total}}",
+    "new_this_session": "Yang sekarang bisa kamu kerjakan",
+    "answers_questions": "Menjawab {{questions}}",
+    "unlocked_so_far": "Sudah terbuka sejauh ini",
+    "unlocked_count": "{{count}} dari 12 langkah",
+    "workbook_title": "Workbook proyek Seduh Coffee",
+    "workbook_hint": "Satu file untuk 12 langkah — brief proyek, kamus data, serta data Orders, Customers, Products, dan Marketing_Spend.",
+    "download": "Unduh workbook"
+  },
   "report": {
     "button": "Laporkan masalah",
     "cta_title": "Bantu kami tingkatkan sesi ini",

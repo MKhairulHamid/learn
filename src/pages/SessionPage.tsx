@@ -22,6 +22,7 @@ import { useFeedbackModal } from '../context/FeedbackModalContext'
 import { CohortNotice } from '../components/cohort/CohortNotice'
 import { LessonMarkdown } from '../components/curriculum/LessonMarkdown'
 import { LessonEditor } from '../components/curriculum/LessonEditor'
+import { FinalProjectCard } from '../components/curriculum/FinalProjectCard'
 import { ReportContentModal } from '../components/feedback/ReportContentModal'
 import { LiveCheckpointPanel } from '../components/checkpoints/LiveCheckpointPanel'
 import { CheckpointConsole } from '../components/checkpoints/CheckpointConsole'
@@ -449,6 +450,9 @@ export default function SessionPage() {
       <div ref={exercisesRef} className="mb-8">
         {id && <SessionExercises sessionId={id} lang={lang} />}
       </div>
+
+      {/* Which part of the final project this session unlocked (X01–X12 only) */}
+      <FinalProjectCard sessionNumber={session.session_number} lang={lang} />
 
       {/* ── Session completion CTA ────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 flex items-center justify-between gap-4 flex-wrap">

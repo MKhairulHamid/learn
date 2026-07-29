@@ -284,6 +284,18 @@
     "reload": "Reload",
     "dismiss": "Later"
   },
+  "final_project": {
+    "title": "Final Project — Seduh Coffee",
+    "subtitle": "Your end-to-end portfolio project, built one session at a time.",
+    "step_of": "Step {{step}} of {{total}}",
+    "new_this_session": "What you can do now",
+    "answers_questions": "Answers {{questions}}",
+    "unlocked_so_far": "Unlocked so far",
+    "unlocked_count": "{{count}} of 12 steps",
+    "workbook_title": "Seduh Coffee project workbook",
+    "workbook_hint": "One file for all 12 steps — project brief, data dictionary, and the Orders, Customers, Products and Marketing_Spend data.",
+    "download": "Download workbook"
+  },
   "report": {
     "button": "Report an issue",
     "cta_title": "Help us improve this session",
