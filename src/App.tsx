@@ -7,6 +7,7 @@ import { OnboardingProvider, useOnboarding } from './hooks/useOnboarding'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { MobileNav } from './components/layout/MobileNav'
+import { LiveCheckpointBanner } from './components/checkpoints/LiveCheckpointBanner'
 import { SplashScreen } from './components/ui/SplashScreen'
 import { ReloadPrompt } from './components/ui/ReloadPrompt'
 import './lib/i18n'
@@ -112,6 +113,7 @@ function AppLayout() {
       </main>
       <Footer />
       <MobileNav />
+      <LiveCheckpointBanner />
     </div>
   )
 }

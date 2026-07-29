@@ -259,6 +259,12 @@ export interface CheckpointActivation {
   opened_at: string
   revealed_at: string | null
   closed_at: string | null
+  // ── Live pacing (051) — one question at a time, on a clock ──
+  current_question_id: string | null
+  question_started_at: string | null
+  time_limit_seconds: number        // 0 = mentor-paced, no countdown
+  locked: boolean                   // no further answers accepted
+  revealed_question_ids: string[]   // keys published so far
 }
 
 export interface CheckpointResponse {

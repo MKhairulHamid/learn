@@ -3,11 +3,19 @@ import { useTranslation } from 'react-i18next'
 import {
   Pencil, Plus, Trash2, ChevronDown, ChevronUp, Save, X, CheckCircle2,
 } from 'lucide-react'
-import { useCheckpointEditor } from '../../hooks/useCheckpoints'
+import { useCheckpointEditor, validateDraft } from '../../hooks/useCheckpoints'
 import type { QuestionDraft } from '../../hooks/useCheckpoints'
-import type { SessionCheckpoint } from '../../types'
+import type { CheckpointQuestion, SessionCheckpoint } from '../../types'
 
 const OPTION_IDS = ['a', 'b', 'c', 'd', 'e']
+const MAX_QUESTIONS = 3   // matches the order_num check constraint
+
+/** First unused slot in 1..3, so deleting a middle question doesn't collide. */
+function nextFreeOrder(questions: CheckpointQuestion[]): number {
+  const taken = new Set(questions.map(q => q.order_num))
+  for (let i = 1; i <= MAX_QUESTIONS; i++) if (!taken.has(i)) return i
+  return MAX_QUESTIONS
+}
 
 function blankDraft(order_num: number): QuestionDraft {
   return {
@@ -65,7 +73,7 @@ function CheckpointBlock({
   const [titleId, setTitleId] = useState(cp.title_id)
   const [adding, setAdding] = useState(false)
   const questions = cp.questions ?? []
-  const canAdd = questions.length < 3
+  const canAdd = questions.length < MAX_QUESTIONS
 
   return (
     <div className="rounded-xl border border-gray-200 p-4">
@@ -110,7 +118,7 @@ function CheckpointBlock({
           <QuestionForm
             checkpointId={cp.id}
             ed={ed}
-            initial={blankDraft(questions.length + 1)}
+            initial={blankDraft(nextFreeOrder(questions))}
             onDone={() => setAdding(false)}
           />
         )}
@@ -139,6 +147,7 @@ function QuestionForm({
   const { t } = useTranslation('common')
   const [d, setD] = useState<QuestionDraft>(initial)
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<string[]>([])
   const isNew = !initial.id
 
   const setOpt = (i: number, patch: Partial<QuestionDraft['options'][number]>) =>
@@ -157,10 +166,13 @@ function QuestionForm({
   })
 
   const save = async () => {
+    const problems = validateDraft(d)
+    setErrors(problems)
+    if (problems.length > 0) return
     setSaving(true)
     const res = await ed.saveQuestion(checkpointId, d)
     setSaving(false)
-    if (res.error) { alert(res.error); return }
+    if (res.error) { setErrors([res.error]); return }
     if (isNew) onDone?.()
   }
 
@@ -201,6 +213,11 @@ function QuestionForm({
           </div>
         ))}
       </div>
+      {errors.length > 0 && (
+        <ul className="text-xs text-red-600 space-y-0.5 pt-0.5">
+          {errors.map(e => <li key={e}>· {t(e, { defaultValue: e })}</li>)}
+        </ul>
+      )}
       <div className="flex items-center gap-3 pt-1">
         {d.options.length < 5 && (
           <button onClick={addOption} className="text-xs font-medium text-gray-500 hover:text-gray-700 cursor-pointer inline-flex items-center gap-1">
