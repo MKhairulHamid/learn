@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   FolderKanban, FileSpreadsheet, Check, ChevronDown, ChevronUp, Sparkles,
+  Download, SkipForward,
 } from 'lucide-react'
 import { Badge } from '../ui/Badge'
 import {
-  FINAL_PROJECT_FILE, FINAL_PROJECT_STEPS, FINAL_PROJECT_TOTAL, stepsUnlockedThrough,
+  FINAL_PROJECT_FILE, FINAL_PROJECT_STEPS, FINAL_PROJECT_TOTAL,
+  continuationFiles, stepsUnlockedThrough,
 } from '../../data/finalProject'
 
 interface Props {
@@ -34,6 +36,8 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
   const title = lang === 'id' ? step.title_id : step.title_en
   const summary = lang === 'id' ? step.summary_id : step.summary_en
   const canDo = lang === 'id' ? step.can_do_id : step.can_do_en
+  const gain = lang === 'id' ? step.gain_id : step.gain_en
+  const starters = continuationFiles(step)
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8">
@@ -46,20 +50,37 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
           <p className="text-sm font-bold text-gray-900">{t('final_project.title')}</p>
           <p className="text-xs text-gray-400 mt-0.5">{t('final_project.subtitle')}</p>
         </div>
-        <Badge variant="primary" size="sm">
-          {t('final_project.step_of', { step: step.step, total: FINAL_PROJECT_TOTAL })}
-        </Badge>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Badge variant="primary" size="sm">
+            {t('final_project.step_of', { step: step.step, total: FINAL_PROJECT_TOTAL })}
+          </Badge>
+          {step.optional && (
+            <Badge variant="warning" size="sm">{t('final_project.optional')}</Badge>
+          )}
+        </div>
       </div>
 
       {/* Progress across the 12-step arc */}
       <div className="px-5 pt-4">
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-primary-500 rounded-full transition-all"
+            className={`h-full rounded-full transition-all ${step.optional ? 'bg-amber-400' : 'bg-primary-500'}`}
             style={{ width: `${pct}%` }}
           />
         </div>
       </div>
+
+      {/* Optional steps are worth doing, but nobody should think they are behind */}
+      {step.optional && (
+        <div className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-2.5">
+          <SkipForward size={14} className="text-amber-600 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-900 leading-relaxed">
+            <span className="font-semibold">{t('final_project.optional_title')}</span>{' '}
+            {t('final_project.optional_body')}
+            {gain && <> {t('final_project.optional_gain', { gain })}</>}
+          </p>
+        </div>
+      )}
 
       {/* What this session unlocked */}
       <div className="px-5 pt-4 pb-5">
@@ -112,10 +133,19 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
             <ol className="px-5 pb-4 space-y-1.5">
               {previous.map(s => (
                 <li key={s.step} className="flex items-start gap-2.5 text-sm text-gray-500">
-                  <span className="mt-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-100 text-[10px] font-bold text-gray-500 shrink-0">
+                  <span className={`mt-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold shrink-0 ${
+                    s.optional ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
+                  }`}>
                     {s.step}
                   </span>
-                  <span className="leading-snug">{lang === 'id' ? s.title_id : s.title_en}</span>
+                  <span className="leading-snug">
+                    {lang === 'id' ? s.title_id : s.title_en}
+                    {s.optional && (
+                      <span className="ml-1.5 text-[10px] font-semibold text-amber-600 uppercase tracking-wide">
+                        {t('final_project.optional')}
+                      </span>
+                    )}
+                  </span>
                 </li>
               ))}
               <li className="flex items-start gap-2.5 text-sm font-medium text-gray-800">
@@ -126,6 +156,45 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
               </li>
             </ol>
           )}
+        </div>
+      )}
+
+      {/* Joined the program late? Start from the state this session assumes. */}
+      {starters.length > 0 && (
+        <div className="border-t border-gray-100 px-5 py-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {t('final_project.continue_title')}
+          </p>
+          <p className="text-xs text-gray-500 leading-relaxed mt-1">
+            {t('final_project.continue_hint', { step: step.step - 1 })}
+          </p>
+
+          <ul className="mt-3 space-y-2">
+            {starters.map(file => (
+              <li key={file.path}>
+                <a
+                  href={file.path}
+                  download={file.downloadName}
+                  className="group flex items-start gap-3 rounded-xl border border-gray-100 hover:border-primary-200 hover:bg-primary-50/40 px-3.5 py-3 transition-colors"
+                >
+                  <span className="mt-0.5 w-7 h-7 rounded-lg bg-gray-50 group-hover:bg-white border border-gray-100 flex items-center justify-center shrink-0">
+                    <Download size={13} className="text-gray-400 group-hover:text-primary-600" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-gray-800">
+                        {lang === 'id' ? file.name_id : file.name_en}
+                      </span>
+                      <span className="text-xs text-gray-400">{file.sizeLabel}</span>
+                    </span>
+                    <span className="block text-xs text-gray-500 leading-relaxed mt-1">
+                      {lang === 'id' ? file.hint_id : file.hint_en}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

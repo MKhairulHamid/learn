@@ -327,6 +327,12 @@
     "answers_questions": "Answers {{questions}}",
     "unlocked_so_far": "Unlocked so far",
     "unlocked_count": "{{count}} of 12 steps",
+    "optional": "Optional",
+    "optional_title": "This step is optional.",
+    "optional_body": "The portfolio piece is complete without it, and nothing later in the project depends on it.",
+    "optional_gain": "Do it and you gain {{gain}}.",
+    "continue_title": "Joined the program here?",
+    "continue_hint": "Start from these files — the project as it should look at the end of Step {{step}}, so you can follow this session without redoing the earlier ones.",
     "workbook_title": "Seduh Coffee project workbook",
     "workbook_hint": "One file for all 12 steps — project brief, data dictionary, and the Orders, Customers, Products and Marketing_Spend data.",
     "download": "Download workbook"

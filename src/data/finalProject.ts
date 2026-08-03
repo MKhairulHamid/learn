@@ -21,15 +21,97 @@ export interface ProjectStep {
   /** Concrete things the learner can do to the data right now. */
   can_do_en: string[]
   can_do_id: string[]
+  /**
+   * Steps the portfolio piece stands without — Power BI, Python and RFM. Set
+   * together with gain_*, which says what completing it adds instead.
+   */
+  optional?: boolean
+  gain_en?: string
+  gain_id?: string
+  /**
+   * Keys into CONTINUATION_FILES: the project as it should look at the START of
+   * this session, for learners who joined the program part-way through.
+   */
+  continue_from: string[]
 }
 
-export const FINAL_PROJECT_FILE = {
+export interface ContinuationFile {
   /** Served from public/ — vite base is '/', so this is the deployed path too. */
-  path: '/project/seduh-coffee-final-project.xlsx',
+  path: string
   /** Restores a readable name on the learner's disk via the download attribute. */
-  downloadName: 'Seduh Coffee - Data Analyst Final Project.xlsx',
-  sizeLabel: '1.7 MB',
+  downloadName: string
+  sizeLabel: string
+  name_en: string
+  name_id: string
+  /** What is already done inside it, so the learner knows what they are skipping. */
+  hint_en: string
+  hint_id: string
 }
+
+/**
+ * The data pipeline only branches once — the Session 2 cleaning — so twelve
+ * sessions need six artifacts, not twelve. Regenerate with
+ * `python scripts/gen-project-files.py` after changing any of them.
+ */
+export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
+  raw: {
+    path: '/project/seduh-coffee-final-project.xlsx',
+    downloadName: 'Seduh Coffee - Data Analyst Final Project.xlsx',
+    sizeLabel: '1.7 MB',
+    name_en: 'Raw workbook',
+    name_id: 'Workbook mentah',
+    hint_en: 'The project brief, the data dictionary, and the four tables exactly as they came out of the business — duplicates, inconsistent text and all.',
+    hint_id: 'Brief proyek, kamus data, dan empat tabel persis seperti keluar dari bisnisnya — lengkap dengan duplikat dan teks yang tidak konsisten.',
+  },
+  cleaned: {
+    path: '/project/seduh-coffee-cleaned.xlsx',
+    downloadName: 'Seduh Coffee - Cleaned Dataset.xlsx',
+    sizeLabel: '1.6 MB',
+    name_en: 'Cleaned dataset',
+    name_id: 'Dataset bersih',
+    hint_en: 'The same workbook after Session 2. A Cleaning_Log tab lists every rule applied, why, and how many rows it touched — read it before you build on top.',
+    hint_id: 'Workbook yang sama setelah Sesi 2. Tab Cleaning_Log memuat setiap aturan yang diterapkan, alasannya, dan berapa baris yang terdampak — baca dulu sebelum melanjutkan.',
+  },
+  datapack: {
+    path: '/project/seduh-coffee-data-pack.zip',
+    downloadName: 'Seduh Coffee - Data Pack.zip',
+    sizeLabel: '2.5 MB',
+    name_en: 'Data pack — CSV, SQL schema, SQLite',
+    name_id: 'Paket data — CSV, skema SQL, SQLite',
+    hint_en: 'The cleaned tables as CSVs, plus schema.sql and a seduh.db you can open straight away. Import these into SQL, Power BI or pandas without redoing the cleaning.',
+    hint_id: 'Tabel bersih dalam bentuk CSV, plus schema.sql dan seduh.db yang langsung bisa dibuka. Impor ke SQL, Power BI, atau pandas tanpa mengulang cleaning.',
+  },
+  analysis: {
+    path: '/project/seduh-coffee-analysis.xlsx',
+    downloadName: 'Seduh Coffee - Analysis.xlsx',
+    sizeLabel: '4.7 MB',
+    name_en: 'Analysis workbook — Q1–Q4 and Q7 answered',
+    name_id: 'Workbook analisis — Q1–Q4 dan Q7 sudah terjawab',
+    hint_en: 'The cleaned tables plus finished answer tabs for category profit, channel value, the monthly trend, the repeat-buyer split and discount vs volume — and an Orders_Enriched tab with revenue and profit already computed per line.',
+    hint_id: 'Tabel bersih plus tab jawaban jadi untuk profit kategori, nilai channel, tren bulanan, pembagian repeat buyer, dan diskon vs volume — serta tab Orders_Enriched dengan revenue dan profit yang sudah dihitung per baris.',
+  },
+  rfm: {
+    path: '/project/seduh-coffee-rfm-segments.csv',
+    downloadName: 'Seduh Coffee - RFM Segments.csv',
+    sizeLabel: '368 KB',
+    name_en: 'RFM segments',
+    name_id: 'Segmen RFM',
+    hint_en: 'Recency, Frequency and Monetary scored per customer against the 1 January 2026 snapshot, with each one placed in a segment. Session 10 is optional, so this is here for the sessions that need its output.',
+    hint_id: 'Recency, Frequency, dan Monetary yang sudah diskor per customer terhadap snapshot 1 Januari 2026, lengkap dengan segmennya. Sesi 10 bersifat opsional, jadi file ini disediakan untuk sesi yang membutuhkan hasilnya.',
+  },
+  deck: {
+    path: '/project/seduh-coffee-deck-outline.md',
+    downloadName: 'Seduh Coffee - Deck Outline.md',
+    sizeLabel: '3 KB',
+    name_en: 'Deck outline',
+    name_id: 'Kerangka deck',
+    hint_en: 'A slide-by-slide skeleton for the stakeholder deck and the one-page executive summary — one message per slide, mapped to Q1–Q8. A starting point, not an answer key.',
+    hint_id: 'Kerangka slide demi slide untuk deck stakeholder dan ringkasan eksekutif satu halaman — satu pesan per slide, dipetakan ke Q1–Q8. Titik awal, bukan kunci jawaban.',
+  },
+}
+
+/** The download offered on every session, regardless of where the learner joined. */
+export const FINAL_PROJECT_FILE = CONTINUATION_FILES.raw
 
 export const FINAL_PROJECT_TOTAL = 12
 
@@ -55,6 +137,7 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Menghitung mean, median, min/max, dan sebaran untuk quantity, unit_price, dan rating di Orders',
       'Menghitung jumlah baris tiap tabel dan menjelaskan arti satu baris di Orders vs Customers',
     ],
+    continue_from: ['raw'],
   },
   X02: {
     step: 2,
@@ -77,6 +160,7 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Menormalkan gender di Customers (Female / F / female / Perempuan → satu nilai) serta membersihkan city yang kosong dan berspasi',
       'Memperbaiki inkonsistensi penamaan category di Products, dan membuang atau menandai quantity nol dan negatif',
     ],
+    continue_from: ['raw'],
   },
   X03: {
     step: 3,
@@ -99,10 +183,11 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Q3 — menyusun tren bulanan 2024–2025 dan menemukan puncak Ramadan / Harbolnas 11.11 dan 12.12',
       'Q4 — menghitung jumlah order per customer untuk memisahkan pembeli sekali dari repeat buyer',
     ],
+    continue_from: ['cleaned'],
   },
   X04: {
     step: 4,
-    questions: ['Q1', 'Q2'],
+    questions: ['Q1', 'Q2', 'Q6'],
     title_en: 'Rebuild the analysis in SQL',
     title_id: 'Bangun ulang analisisnya dengan SQL',
     summary_en:
@@ -114,13 +199,16 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'JOIN Orders to Products on product_id to compute profit per line with unit_cost',
       'Filter to order_status = \'Completed\' in WHERE so returns and cancellations never enter revenue',
       'GROUP BY category or channel with HAVING to surface only the segments that clear a threshold',
+      'Q6 — join Customers.acquisition_channel to Marketing_Spend for CAC and ROI per channel; the two channel vocabularies do not match 1:1, so state your mapping assumption',
     ],
     can_do_id: [
       'Memuat Orders, Customers, Products, dan Marketing_Spend sebagai empat tabel yang saling berelasi',
       'JOIN Orders ke Products lewat product_id untuk menghitung profit per baris dengan unit_cost',
       'Memfilter order_status = \'Completed\' di WHERE agar retur dan pembatalan tidak pernah masuk revenue',
       'GROUP BY category atau channel dengan HAVING untuk menampilkan hanya segmen yang melewati ambang tertentu',
+      'Q6 — men-join Customers.acquisition_channel ke Marketing_Spend untuk CAC dan ROI per channel; kosakata channel keduanya tidak sama persis, jadi nyatakan asumsi pemetaanmu',
     ],
+    continue_from: ['cleaned', 'datapack'],
   },
   X05: {
     step: 5,
@@ -143,6 +231,7 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Bivariat — harga vs permintaan, dan rating vs apakah customer kembali membeli',
       'Menandai outlier yang layak dijelaskan di deck akhir, bukan dihapus diam-diam',
     ],
+    continue_from: ['cleaned'],
   },
   X06: {
     step: 6,
@@ -165,6 +254,7 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Memvisualkan bauran channel dan profit kategori agar pemenangnya terlihat tanpa membaca angka',
       'Menerapkan warna, pelabelan, dan tata letak yang konsisten di seluruh grafik dalam deck',
     ],
+    continue_from: ['cleaned', 'analysis'],
   },
   X07: {
     step: 7,
@@ -187,6 +277,10 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Menambahkan slicer agar leadership bisa memfilter sendiri per periode, channel, dan kategori',
       'Mempublikasikan dashboard dan menyimpan tautannya untuk submission portofolio',
     ],
+    optional: true,
+    gain_en: 'a shareable, interactive dashboard link — the deliverable recruiters click first',
+    gain_id: 'tautan dashboard interaktif yang bisa dibagikan — deliverable yang paling dulu diklik rekruter',
+    continue_from: ['datapack', 'analysis'],
   },
   X08: {
     step: 8,
@@ -209,6 +303,10 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Membuat grafik yang sama dengan Matplotlib atau Seaborn',
       'Opsional: mengotomasi output laporan Excel dengan openpyxl',
     ],
+    optional: true,
+    gain_en: 'a reproducible notebook that proves the result was not a one-off spreadsheet',
+    gain_id: 'notebook yang bisa diulang, membuktikan hasilnya bukan spreadsheet sekali jadi',
+    continue_from: ['datapack'],
   },
   X09: {
     step: 9,
@@ -231,6 +329,7 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Mengotomasi satu langkah pelaporan yang berulang dalam pipeline',
       'Mencatat apa yang didelegasikan ke AI, apa yang kamu periksa sendiri, dan apa yang kamu koreksi',
     ],
+    continue_from: ['cleaned', 'analysis'],
   },
   X10: {
     step: 10,
@@ -253,6 +352,10 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Q6 — men-join Customers.acquisition_channel ke Marketing_Spend untuk membandingkan CAC dan ROI per channel',
       'Merekomendasikan aksi retensi spesifik untuk tiap segmen',
     ],
+    optional: true,
+    gain_en: 'a named customer segmentation — the difference between "retention is weak" and "these 1,068 customers are worth keeping"',
+    gain_id: 'segmentasi customer yang bernama — pembeda antara "retensi lemah" dan "1.068 customer ini layak dipertahankan"',
+    continue_from: ['cleaned', 'analysis'],
   },
   X11: {
     step: 11,
@@ -275,6 +378,7 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
       'Q8 — mengargumentasikan jalur konkret dari IDR 4,4 M ke target 5,5 M beserta hitungannya',
       'Mengantisipasi sanggahan leadership: apa yang harus benar agar rencana ini berhasil',
     ],
+    continue_from: ['analysis', 'rfm', 'deck'],
   },
   X12: {
     step: 12,
@@ -282,21 +386,24 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
     title_en: 'Package the portfolio piece',
     title_id: 'Kemas menjadi karya portofolio',
     summary_en:
-      'Everything is unlocked. You can now assemble the seven deliverables the brief asks for into one professional portfolio piece — the artefact you show in interviews.',
+      'Everything is unlocked. You can now assemble the deliverables the brief asks for into one professional portfolio piece — the artefact you show in interviews.',
     summary_id:
-      'Semuanya sudah terbuka. Kamu sekarang bisa merangkai tujuh deliverable yang diminta brief menjadi satu karya portofolio profesional — artefak yang kamu tunjukkan saat interview.',
+      'Semuanya sudah terbuka. Kamu sekarang bisa merangkai deliverable yang diminta brief menjadi satu karya portofolio profesional — artefak yang kamu tunjukkan saat interview.',
     can_do_en: [
-      'Collect all seven deliverables: cleaned dataset, SQL scripts, pivot analysis, dashboard link, Python notebook, deck, executive summary',
+      'Collect the four core deliverables: cleaned dataset, SQL scripts, pivot analysis, stakeholder deck',
+      'Add whichever optional ones you completed — dashboard link (Session 7), Python notebook (Session 8), RFM segmentation (Session 10)',
       'Write the one-page executive summary answering Q8',
       'Document your assumptions — completed-orders-only revenue, the 1 Jan 2026 snapshot, and every cleaning decision you made',
       'Publish it so a recruiter can open it without asking you for access',
     ],
     can_do_id: [
-      'Mengumpulkan tujuh deliverable: dataset bersih, skrip SQL, analisis pivot, tautan dashboard, notebook Python, deck, ringkasan eksekutif',
+      'Mengumpulkan empat deliverable inti: dataset bersih, skrip SQL, analisis pivot, deck stakeholder',
+      'Menambahkan deliverable opsional yang kamu selesaikan — tautan dashboard (Sesi 7), notebook Python (Sesi 8), segmentasi RFM (Sesi 10)',
       'Menulis ringkasan eksekutif satu halaman yang menjawab Q8',
       'Mendokumentasikan asumsimu — revenue hanya dari order Completed, snapshot 1 Jan 2026, dan setiap keputusan cleaning yang kamu ambil',
       'Mempublikasikannya agar rekruter bisa membuka tanpa perlu meminta akses padamu',
     ],
+    continue_from: ['analysis', 'rfm', 'deck'],
   },
 }
 
@@ -308,3 +415,18 @@ export function stepsUnlockedThrough(sessionNumber: string): ProjectStep[] {
     .filter(s => s.step <= current.step)
     .sort((a, b) => a.step - b.step)
 }
+
+/**
+ * Files that put a learner who joined mid-program at the right starting state
+ * for this session. Sessions 1–2 start from the raw workbook, which is already
+ * offered as the permanent download, so they get nothing here.
+ */
+export function continuationFiles(step: ProjectStep): ContinuationFile[] {
+  if (step.continue_from.every(key => key === 'raw')) return []
+  return step.continue_from.map(key => CONTINUATION_FILES[key]).filter(Boolean)
+}
+
+/** Steps the portfolio piece stands without — Power BI, Python and RFM. */
+export const OPTIONAL_STEPS = Object.values(FINAL_PROJECT_STEPS).filter(s => s.optional)
+
+export const FINAL_PROJECT_REQUIRED_TOTAL = FINAL_PROJECT_TOTAL - OPTIONAL_STEPS.length

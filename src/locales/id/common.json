@@ -327,6 +327,12 @@
     "answers_questions": "Menjawab {{questions}}",
     "unlocked_so_far": "Sudah terbuka sejauh ini",
     "unlocked_count": "{{count}} dari 12 langkah",
+    "optional": "Opsional",
+    "optional_title": "Langkah ini opsional.",
+    "optional_body": "Karya portofoliomu tetap lengkap tanpa ini, dan tidak ada bagian proyek berikutnya yang bergantung padanya.",
+    "optional_gain": "Kalau dikerjakan, kamu mendapat {{gain}}.",
+    "continue_title": "Baru gabung di sesi ini?",
+    "continue_hint": "Mulai dari file berikut — kondisi proyek sebagaimana seharusnya di akhir Langkah {{step}}, supaya kamu bisa mengikuti sesi ini tanpa mengulang sesi-sesi sebelumnya.",
     "workbook_title": "Workbook proyek Seduh Coffee",
     "workbook_hint": "Satu file untuk 12 langkah — brief proyek, kamus data, serta data Orders, Customers, Products, dan Marketing_Spend.",
     "download": "Unduh workbook"
