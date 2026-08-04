@@ -12,7 +12,7 @@ import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
 import { useCohort } from '../hooks/useCohort'
-import { runQuery } from '../lib/sqlSimulator'
+import { runQuery, resolveDataset } from '../lib/sqlSimulator'
 import { evaluateExercise } from '../lib/evaluator'
 import { supabase } from '../lib/supabase'
 import type { QueryResult } from '../lib/sqlSimulator'
@@ -53,10 +53,13 @@ export default function ExercisePage() {
 
   const attemptCount = submissions.length
 
+  // X01–X12 run on the Seduh project data; the older programs stay on ecommerce.
+  const dataset = resolveDataset(exercise?.dataset_name)
+
   async function handleRun() {
     setRunning(true)
     setTestResults(null)
-    const r = await runQuery(query)
+    const r = await runQuery(query, dataset)
     setRunResult(r)
     setRunning(false)
   }
@@ -66,7 +69,7 @@ export default function ExercisePage() {
     setSubmitting(true)
     const testCases = (exercise.test_cases ?? []) as Parameters<typeof evaluateExercise>[1]
     const answer = JSON.stringify(matchSelections)
-    const { results, allPassed: passed, score } = await evaluateExercise(answer, testCases, lang)
+    const { results, allPassed: passed, score } = await evaluateExercise(answer, testCases, lang, dataset)
     setTestResults(results)
     setAllPassed(passed)
     await saveSubmission({ user_id: profile.id, exercise_id: exercise.id, cohort_id: activeCohortId, submitted_code: answer, passed, test_results: results, attempt_number: attemptCount + 1, score })
@@ -82,7 +85,7 @@ export default function ExercisePage() {
     setSubmitting(true)
 
     const testCases = (exercise.test_cases ?? []) as Parameters<typeof evaluateExercise>[1]
-    const { results, allPassed: passed, score } = await evaluateExercise(query, testCases, lang)
+    const { results, allPassed: passed, score } = await evaluateExercise(query, testCases, lang, dataset)
     setTestResults(results)
     setAllPassed(passed)
 

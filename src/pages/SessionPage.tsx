@@ -434,7 +434,11 @@ export default function SessionPage() {
       {/* Embedded playground for SQL / Python sessions */}
       {playgroundType && (
         <div className="mb-8">
-          <SessionPlayground type={playgroundType} lang={lang} />
+          <SessionPlayground
+            type={playgroundType}
+            lang={lang}
+            dataset={session.session_number.startsWith('X') ? 'seduh' : 'ecommerce'}
+          />
         </div>
       )}
 

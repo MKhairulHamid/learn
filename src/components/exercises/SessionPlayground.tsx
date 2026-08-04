@@ -4,20 +4,53 @@ import { Play, ExternalLink, Circle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { SqlEditor } from './SqlEditor'
 import { ResultsTable } from './ResultsTable'
-import { runQuery } from '../../lib/sqlSimulator'
-import { initPyodide, runPython, isPyodideReady } from '../../lib/pyodideRunner'
-import type { QueryResult } from '../../lib/sqlSimulator'
+import { runQuery, DEFAULT_DATASET } from '../../lib/sqlSimulator'
+import { initPyodide, runPython, isPyodideReady, preloadCSVFiles } from '../../lib/pyodideRunner'
+import { loadSeduhCsvFiles } from '../../lib/seduhCsv'
+import type { DatasetName, QueryResult } from '../../lib/sqlSimulator'
 import type { PyLoadProgress, PyResult } from '../../lib/pyodideRunner'
 
 type PlaygroundType = 'sql' | 'python'
 
-const SQL_STARTER = `-- Try it out! E-commerce dataset is loaded.
+// Seduh sessions open on the question the project actually asks: which category
+// earns, not which sells. Both starters run as-is.
+const SQL_STARTER: Record<DatasetName, string> = {
+  seduh: `-- Seduh Coffee — the same data as your final-project workbook.
+-- Profit per category. Only 'Completed' orders count as revenue.
+SELECT p.category,
+       ROUND(SUM(o.quantity * (o.unit_price * (1 - o.discount_pct) - p.unit_cost))) AS profit
+FROM orders o
+JOIN products p ON p.product_id = o.product_id
+WHERE o.order_status = 'Completed'
+GROUP BY p.category
+ORDER BY profit DESC;`,
+  ecommerce: `-- Try it out! E-commerce dataset is loaded.
 SELECT name, region, membership
 FROM customers
 WHERE membership = 'premium'
-ORDER BY name;`
+ORDER BY name;`,
+}
 
-const PYTHON_STARTER = `import pandas as pd
+const PYTHON_STARTER: Record<DatasetName, string> = {
+  seduh: `import pandas as pd
+import matplotlib.pyplot as plt
+
+# Seduh Coffee — the same data as your final-project workbook.
+orders = pd.read_csv('orders.csv', parse_dates=['order_date'])
+products = pd.read_csv('products.csv')
+
+df = orders[orders['order_status'] == 'Completed'].merge(products, on='product_id')
+df['revenue'] = df['quantity'] * df['unit_price'] * (1 - df['discount_pct'])
+
+monthly = df.groupby(df['order_date'].dt.to_period('M'))['revenue'].sum() / 1e6
+print(monthly.head(12).round(1))
+
+plt.figure(figsize=(7, 3))
+monthly.plot(color='#eab308')
+plt.title('Seduh monthly revenue (IDR millions)')
+plt.tight_layout()
+plt.show()`,
+  ecommerce: `import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -34,18 +67,19 @@ plt.figure(figsize=(7, 3))
 plt.bar(df['month'], df['sales'], color='#eab308', alpha=0.85)
 plt.title('Monthly Sales (millions)')
 plt.tight_layout()
-plt.show()`
+plt.show()`,
+}
 
 // ── SQL mini-playground ───────────────────────────────────────
 
-function SqlMini({ lang }: { lang: 'en' | 'id' }) {
-  const [code, setCode]       = useState(SQL_STARTER)
+function SqlMini({ lang, dataset }: { lang: 'en' | 'id'; dataset: DatasetName }) {
+  const [code, setCode]       = useState(SQL_STARTER[dataset])
   const [result, setResult]   = useState<QueryResult | null>(null)
   const [running, setRunning] = useState(false)
 
   async function handleRun() {
     setRunning(true)
-    const r = await runQuery(code)
+    const r = await runQuery(code, dataset)
     setResult(r)
     setRunning(false)
   }
@@ -57,7 +91,7 @@ function SqlMini({ lang }: { lang: 'en' | 'id' }) {
       lang={lang}
       isSql
       filename="query.sql"
-      meta="E-commerce dataset"
+      meta={dataset === 'seduh' ? 'Seduh Coffee dataset' : 'E-commerce dataset'}
       running={running}
       onRun={handleRun}
       fullscreenTo="/playground"
@@ -76,19 +110,27 @@ function SqlMini({ lang }: { lang: 'en' | 'id' }) {
 
 // ── Python mini-playground ────────────────────────────────────
 
-function PythonMini({ lang }: { lang: 'en' | 'id' }) {
-  const [code, setCode]       = useState(PYTHON_STARTER)
+function PythonMini({ lang, dataset }: { lang: 'en' | 'id'; dataset: DatasetName }) {
+  const [code, setCode]       = useState(PYTHON_STARTER[dataset])
   const [result, setResult]   = useState<PyResult | null>(null)
   const [running, setRunning] = useState(false)
-  const [ready, setReady]     = useState(isPyodideReady())
+  const [ready, setReady]     = useState(false)
   const [progress, setProgress] = useState<PyLoadProgress>({ stage: 'Starting…', percent: 0 })
   const initialized = useRef(false)
 
   useEffect(() => {
-    if (initialized.current || isPyodideReady()) { setReady(true); return }
+    if (initialized.current) return
     initialized.current = true
-    initPyodide(p => setProgress(p)).then(() => setReady(true))
-  }, [])
+
+    // The starter reads orders.csv, so the files must be mounted before the
+    // Run button goes live — otherwise the first click fails on a missing file.
+    const mount = dataset === 'seduh'
+      ? loadSeduhCsvFiles().then(preloadCSVFiles)
+      : Promise.resolve()
+    const boot = isPyodideReady() ? Promise.resolve() : initPyodide(p => setProgress(p))
+
+    Promise.all([boot, mount]).then(() => setReady(true))
+  }, [dataset])
 
   async function handleRun() {
     if (!ready) return
@@ -250,8 +292,12 @@ function EditorWindow({
 
 // ── Main export ───────────────────────────────────────────────
 
-export function SessionPlayground({ type, lang = 'en' }: { type: PlaygroundType; lang?: 'en' | 'id' }) {
+export function SessionPlayground({ type, lang = 'en', dataset = DEFAULT_DATASET }: {
+  type: PlaygroundType
+  lang?: 'en' | 'id'
+  dataset?: DatasetName
+}) {
   return type === 'sql'
-    ? <SqlMini lang={lang} />
-    : <PythonMini lang={lang} />
+    ? <SqlMini lang={lang} dataset={dataset} />
+    : <PythonMini lang={lang} dataset={dataset} />
 }

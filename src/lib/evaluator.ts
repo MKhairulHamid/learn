@@ -1,10 +1,12 @@
-import { runQuery } from './sqlSimulator'
+import { runQuery, DEFAULT_DATASET } from './sqlSimulator'
+import type { DatasetName } from './sqlSimulator'
 import type { TestCase, TestResult } from '../types'
 
 export async function evaluateExercise(
   userQuery: string,
   testCases: TestCase[],
-  lang: 'en' | 'id' = 'en'
+  lang: 'en' | 'id' = 'en',
+  dataset: DatasetName = DEFAULT_DATASET,
 ): Promise<{ results: TestResult[]; allPassed: boolean; score: number }> {
   // Matching exercises submit JSON array of selected right-column texts
   if (testCases.length > 0 && testCases[0].validation_type === 'matching') {
@@ -14,7 +16,7 @@ export async function evaluateExercise(
   const results: TestResult[] = []
 
   for (const tc of testCases) {
-    const result = await runSingleTest(userQuery, tc, lang)
+    const result = await runSingleTest(userQuery, tc, lang, dataset)
     results.push(result)
   }
 
@@ -63,9 +65,10 @@ function evaluateMatching(
 async function runSingleTest(
   query: string,
   tc: TestCase,
-  lang: 'en' | 'id'
+  lang: 'en' | 'id',
+  dataset: DatasetName,
 ): Promise<TestResult> {
-  const { rows, columns, error } = await runQuery(query)
+  const { rows, columns, error } = await runQuery(query, dataset)
   const desc = lang === 'id' ? tc.description_id : tc.description_en
 
   if (error) {

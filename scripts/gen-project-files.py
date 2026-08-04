@@ -469,6 +469,12 @@ REMEMBER
 """
 
 
+def _csv_text(df):
+    """LF-terminated CSV. Anything else leaves a stray \\r on the last column,
+    which silently turned every blank orders.rating into 0 in the playground."""
+    return df.to_csv(index=False, date_format='%Y-%m-%d', lineterminator='\n')
+
+
 def write_data_pack(dest, tables, enriched):
     csvs = {
         'products.csv': tables['Products'],
@@ -477,6 +483,14 @@ def write_data_pack(dest, tables, enriched):
         'marketing_spend.csv': tables['Marketing_Spend'],
         'orders_enriched.csv': enriched,
     }
+
+    # The four cleaned tables are also served standalone under public/project/data/
+    # so both playgrounds can load the real dataset — a learner's playground totals
+    # then match their own workbook exactly. The SQL playground builds its SQLite
+    # database in the browser from these same CSVs, so there is one source of truth
+    # and nothing ships twice.
+    live = OUT / 'data'
+    live.mkdir(exist_ok=True)
 
     tmp = OUT / '_seduh_tmp.db'
     tmp.unlink(missing_ok=True)
@@ -496,9 +510,25 @@ def write_data_pack(dest, tables, enriched):
         z.writestr('README.txt', PACK_README)
         z.writestr('schema.sql', SCHEMA)
         for name, df in csvs.items():
-            z.writestr(name, df.to_csv(index=False, date_format='%Y-%m-%d'))
+            z.writestr(name, _csv_text(df))
         z.write(tmp, 'seduh.db')
+
     tmp.unlink()
+
+    # The playgrounds split these on ',' rather than carrying a CSV parser, which
+    # is only safe while no value contains a comma or a quote. Fail loudly here
+    # instead of corrupting a table in the browser.
+    for name in ['products.csv', 'customers.csv', 'orders.csv', 'marketing_spend.csv']:
+        text = _csv_text(csvs[name])
+        if '"' in text or any(',' in str(v) for v in csvs[name].select_dtypes('object').to_numpy().ravel()):
+            raise SystemExit(f'{name} contains a quoted or comma-bearing field; '
+                             'the playground CSV loader cannot parse it')
+        if '\r' in text:
+            raise SystemExit(f'{name} contains a carriage return')
+        # newline='' keeps Python from translating the LFs back into CRLFs.
+        (live / name).write_text(text, encoding='utf-8', newline='')
+
+    # orders_enriched stays zip-only so nobody skips building it themselves.
 
 
 DECK_OUTLINE = """\
@@ -622,8 +652,9 @@ def main():
     deck_path.write_text(DECK_OUTLINE, encoding='utf-8')
 
     print()
-    for p in [RAW, cleaned_path, pack_path, analysis_path, rfm_path, deck_path]:
-        print(f'  {p.stat().st_size / 1_048_576:6.2f} MB  {p.name}')
+    for p in [RAW, cleaned_path, pack_path, analysis_path, rfm_path, deck_path,
+              *sorted((OUT / 'data').iterdir())]:
+        print(f'  {p.stat().st_size / 1_048_576:6.2f} MB  {p.relative_to(OUT)}')
 
 
 if __name__ == '__main__':

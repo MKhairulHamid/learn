@@ -5,8 +5,11 @@ import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { QueryHistoryPanel } from '../components/exercises/QueryHistoryPanel'
 import { useQueryHistory, usePlaygroundDraft } from '../hooks/useQueryHistory'
-import { runQuery, resetDB } from '../lib/sqlSimulator'
+import { runQuery, resetDB, DEFAULT_DATASET } from '../lib/sqlSimulator'
+import type { DatasetName } from '../lib/sqlSimulator'
 import { DATASET_INFO } from '../data/datasets/ecommerce'
+import { SEDUH_DATASET_INFO, SEDUH_FORMULAS } from '../data/datasets/seduh'
+import { loadSeduhCsvFiles } from '../lib/seduhCsv'
 import { TRANSACTIONS_CSV, EMPLOYEES_CSV, CSV_DATASET_INFO } from '../data/datasets/retail_csv'
 import { initPyodide, runPython, isPyodideReady, preloadCSVFiles } from '../lib/pyodideRunner'
 import { useCohort } from '../hooks/useCohort'
@@ -18,7 +21,25 @@ import OkrBuilderPage from './OkrBuilderPage'
 import type { QueryResult } from '../lib/sqlSimulator'
 import type { PyLoadProgress, PyResult } from '../lib/pyodideRunner'
 
-const SQL_STARTER = `-- E-commerce database — 8 tables to explore:
+const SQL_STARTER: Record<DatasetName, string> = {
+  // The final-project data. Numbers here match the learner's own workbook, so
+  // the opening query is one of the eight business questions (Q1).
+  seduh: `-- Seduh Coffee — the same four tables as your final-project workbook:
+-- orders, customers, products, marketing_spend
+-- Click a table above to see its columns (click a column to copy it).
+
+-- Q1: which categories are most PROFITABLE, not just best-selling?
+SELECT p.category,
+       SUM(o.quantity)                                              AS units,
+       ROUND(SUM(o.quantity * o.unit_price * (1 - o.discount_pct))) AS revenue,
+       ROUND(SUM(o.quantity * (o.unit_price * (1 - o.discount_pct)
+                               - p.unit_cost)))                     AS profit
+FROM orders o
+JOIN products p ON p.product_id = o.product_id
+WHERE o.order_status = 'Completed'   -- only completed orders count as revenue
+GROUP BY p.category
+ORDER BY profit DESC;`,
+  ecommerce: `-- E-commerce database — 8 tables to explore:
 -- customers, products, categories, suppliers, employees, orders, order_items, reviews
 -- Click a table above to see its columns (click a column to copy it). Try a query below!
 
@@ -28,7 +49,17 @@ JOIN orders o ON o.customer_id = c.id
 WHERE o.status = 'completed'
 GROUP BY c.id, c.name
 ORDER BY total_spent DESC
-LIMIT 5;`
+LIMIT 5;`,
+}
+
+/** Label and schema panel contents per SQL dataset. */
+const SQL_DATASETS: Record<DatasetName, {
+  label: string
+  info: { tables: { name: string; description: string; columns: string[]; rowCount: number }[]; totalRows: number }
+}> = {
+  seduh: { label: 'Seduh Coffee', info: SEDUH_DATASET_INFO },
+  ecommerce: { label: 'E-Commerce', info: DATASET_INFO },
+}
 
 const PYTHON_STARTER = `import pandas as pd
 import matplotlib.pyplot as plt
@@ -60,6 +91,57 @@ ax.spines['right'].set_visible(False)
 plt.tight_layout()
 plt.show()
 `
+
+const SEDUH_PYTHON_STARTER = `import pandas as pd
+import matplotlib.pyplot as plt
+
+# Seduh Coffee — the same four tables as your final-project workbook.
+# Available: orders.csv, customers.csv, products.csv, marketing_spend.csv
+orders   = pd.read_csv('orders.csv', parse_dates=['order_date'])
+products = pd.read_csv('products.csv')
+
+# Only completed orders count as revenue.
+df = orders[orders['order_status'] == 'Completed'].merge(products, on='product_id')
+df['revenue'] = df['quantity'] * df['unit_price'] * (1 - df['discount_pct'])
+df['profit']  = df['quantity'] * (df['unit_price'] * (1 - df['discount_pct'])
+                                  - df['unit_cost'])
+
+print(f"Order lines: {len(df):,}  |  Customers: {df['customer_id'].nunique():,}")
+print(f"Revenue:     Rp {df['revenue'].sum():,.0f}")
+
+by_cat = df.groupby('category')[['revenue', 'profit']].sum().sort_values('profit')
+print("\\nProfit by category (IDR):")
+for cat, row in by_cat.sort_values('profit', ascending=False).iterrows():
+    print(f"  {cat:<20}  Rp {row['profit']:>15,.0f}")
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.barh(by_cat.index, by_cat['profit'] / 1e6, color='#0891b2')
+ax.set_xlabel('Profit (M IDR)')
+ax.set_title('Seduh Coffee · profit by category')
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+plt.tight_layout()
+plt.show()
+`
+
+/** Filenames pandas sees, built from the shared schema so the two cannot drift. */
+const SEDUH_CSV_INFO = {
+  files: SEDUH_DATASET_INFO.tables.map(t => ({
+    name: `${t.name}.csv`,
+    description: t.description,
+    columns: t.columns,
+    rowCount: t.rowCount,
+  })),
+}
+
+const PYTHON_DATASETS: Record<DatasetName, {
+  label: string
+  starter: string
+  info: { files: { name: string; description: string; columns: string[]; rowCount: number }[] }
+}> = {
+  seduh: { label: 'Seduh Coffee', starter: SEDUH_PYTHON_STARTER, info: SEDUH_CSV_INFO },
+  ecommerce: { label: 'Retail', starter: PYTHON_STARTER, info: CSV_DATASET_INFO },
+}
 
 const PYTHON_SNIPPETS = [
   {
@@ -199,15 +281,18 @@ function CopyAllColumns({ columns, accent }: { columns: string[]; accent: 'blue'
 // ── SQL sub-page ──────────────────────────────────────────────────────
 
 function SqlPlayground() {
-  const [query, setQuery] = usePlaygroundDraft('sql', SQL_STARTER)
+  const [dataset, setDataset] = useState<DatasetName>(DEFAULT_DATASET)
+  const [query, setQuery] = usePlaygroundDraft('sql', SQL_STARTER[DEFAULT_DATASET])
   const [result, setResult] = useState<QueryResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [openTable, setOpenTable] = useState<string | null>(null)
   const { history, add, remove, clear } = useQueryHistory('sql')
 
+  const active = SQL_DATASETS[dataset]
+
   async function runCurrentQuery() {
     setLoading(true)
-    const r = await runQuery(query)
+    const r = await runQuery(query, dataset)
     setResult(r)
     setLoading(false)
     add({
@@ -220,9 +305,19 @@ function SqlPlayground() {
   }
 
   async function handleReset() {
-    await resetDB()
+    await resetDB(dataset)
     setResult(null)
-    setQuery(SQL_STARTER)
+    setQuery(SQL_STARTER[dataset])
+  }
+
+  // Switching datasets swaps the schema and the starter query; the two are not
+  // interchangeable, so keeping the old query would only produce errors.
+  function switchDataset(next: DatasetName) {
+    if (next === dataset) return
+    setDataset(next)
+    setQuery(SQL_STARTER[next])
+    setResult(null)
+    setOpenTable(null)
   }
 
   const rowCount = result?.rows?.length ?? 0
@@ -232,17 +327,42 @@ function SqlPlayground() {
     <div className="flex flex-col gap-4">
       {/* Schema reference */}
       <div className="bg-[#0d1117] rounded-2xl border border-white/[0.08] p-4">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           <Table2 size={13} className="text-blue-400" />
           <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">
-            Dataset · E-Commerce
+            Dataset
           </span>
+          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] border border-white/10 p-0.5">
+            {(Object.keys(SQL_DATASETS) as DatasetName[]).map(key => (
+              <button
+                key={key}
+                onClick={() => switchDataset(key)}
+                className={`cursor-pointer px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  key === dataset
+                    ? 'bg-blue-500/20 text-blue-200 border border-blue-500/40'
+                    : 'text-gray-400 hover:text-gray-200 border border-transparent'
+                }`}
+              >
+                {SQL_DATASETS[key].label}
+              </button>
+            ))}
+          </div>
           <span className="ml-auto text-[11px] text-gray-400 font-mono">
-            {DATASET_INFO.tables.length} tables · {DATASET_INFO.totalRows} rows
+            {active.info.tables.length} tables · {active.info.totalRows.toLocaleString()} rows
           </span>
         </div>
+
+        {dataset === 'seduh' && (
+          <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
+            {SEDUH_DATASET_INFO.blurb_en}{' '}
+            <span className="font-mono text-gray-300">revenue = {SEDUH_FORMULAS.revenue}</span>
+            {' · '}
+            <span className="font-mono text-gray-300">profit = {SEDUH_FORMULAS.profit}</span>
+          </p>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {DATASET_INFO.tables.map(t => {
+          {active.info.tables.map(t => {
             const open = openTable === t.name
             return (
               <div
@@ -346,33 +466,44 @@ function SqlPlayground() {
 // ── Python sub-page ───────────────────────────────────────────────────
 
 function PythonPlayground() {
-  const [code, setCode] = usePlaygroundDraft('python', PYTHON_STARTER)
+  const [dataset, setDataset] = useState<DatasetName>(DEFAULT_DATASET)
+  const [code, setCode] = usePlaygroundDraft('python', PYTHON_DATASETS[DEFAULT_DATASET].starter)
   const [result, setResult] = useState<PyResult | null>(null)
   const [running, setRunning] = useState(false)
   const [progress, setProgress] = useState<PyLoadProgress>({ stage: 'Starting…', percent: 0 })
-  const [ready, setReady] = useState(isPyodideReady())
+  // Which dataset's CSVs are currently mounted. Deriving `ready` from it means
+  // switching datasets un-readies the editor without a setState in the effect.
+  const [mountedDataset, setMountedDataset] = useState<DatasetName | null>(null)
   const [pyLoading, setPyLoading] = useState(!isPyodideReady())
+  const ready = mountedDataset === dataset
   const [openCsvFile, setOpenCsvFile] = useState<string | null>(null)
   const [openSnippet, setOpenSnippet] = useState(false)
   const { history, add, remove, clear } = useQueryHistory('python')
   const initialized = useRef(false)
   const snippetRef = useRef<HTMLDivElement>(null)
 
+  // Re-runs on dataset switch so the newly selected CSVs are mounted before the
+  // Run button is live; Pyodide itself boots only once.
   useEffect(() => {
-    const csvFiles = { 'transactions.csv': TRANSACTIONS_CSV, 'employees.csv': EMPLOYEES_CSV }
-    if (initialized.current || isPyodideReady()) {
-      setReady(true)
-      setPyLoading(false)
+    let cancelled = false
+
+    const mount = dataset === 'seduh'
+      ? loadSeduhCsvFiles()
+      : Promise.resolve({ 'transactions.csv': TRANSACTIONS_CSV, 'employees.csv': EMPLOYEES_CSV })
+
+    const boot = initialized.current || isPyodideReady()
+      ? Promise.resolve()
+      : (initialized.current = true, initPyodide(p => setProgress(p)))
+
+    Promise.all([boot, mount]).then(([, csvFiles]) => {
+      if (cancelled) return
       preloadCSVFiles(csvFiles)
-      return
-    }
-    initialized.current = true
-    initPyodide(p => setProgress(p)).then(() => {
-      setReady(true)
+      setMountedDataset(dataset)
       setPyLoading(false)
-      preloadCSVFiles(csvFiles)
     })
-  }, [])
+
+    return () => { cancelled = true }
+  }, [dataset])
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -399,17 +530,38 @@ function PythonPlayground() {
     <div className="flex flex-col gap-4">
       {/* CSV dataset info panel */}
       <div className="bg-[#0d1117] rounded-2xl border border-white/[0.08] p-4">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           <FileText size={13} className="text-yellow-400" />
           <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">
-            Dataset · Retail
+            Dataset
           </span>
+          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] border border-white/10 p-0.5">
+            {(Object.keys(PYTHON_DATASETS) as DatasetName[]).map(key => (
+              <button
+                key={key}
+                onClick={() => {
+                  if (key === dataset) return
+                  setDataset(key)
+                  setCode(PYTHON_DATASETS[key].starter)
+                  setResult(null)
+                  setOpenCsvFile(null)
+                }}
+                className={`cursor-pointer px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  key === dataset
+                    ? 'bg-yellow-500/20 text-yellow-200 border border-yellow-500/40'
+                    : 'text-gray-400 hover:text-gray-200 border border-transparent'
+                }`}
+              >
+                {PYTHON_DATASETS[key].label}
+              </button>
+            ))}
+          </div>
           <span className="ml-auto text-[11px] text-gray-400 font-mono">
-            2 CSV files · pd.read_csv('filename.csv')
+            {PYTHON_DATASETS[dataset].info.files.length} CSV files · pd.read_csv('filename.csv')
           </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {CSV_DATASET_INFO.files.map(f => {
+          {PYTHON_DATASETS[dataset].info.files.map(f => {
             const open = openCsvFile === f.name
             return (
               <div
