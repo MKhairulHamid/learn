@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Table2, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target, Copy, Check } from 'lucide-react'
+import { Play, RotateCcw, ChevronDown, ChevronRight, Circle, Code2, Terminal, Calculator, FileText, PanelLeftClose, PanelLeftOpen, Clock, Search, Target, Copy, Check } from 'lucide-react'
 import { SqlEditor } from '../components/exercises/SqlEditor'
 import { ResultsTable } from '../components/exercises/ResultsTable'
 import { QueryHistoryPanel } from '../components/exercises/QueryHistoryPanel'
+import { SchemaReference } from '../components/exercises/SchemaReference'
+import { SQL_DATASETS } from '../data/datasets/sqlDatasets'
 import { useQueryHistory, usePlaygroundDraft } from '../hooks/useQueryHistory'
 import { runQuery, resetDB, DEFAULT_DATASET } from '../lib/sqlSimulator'
 import type { DatasetName } from '../lib/sqlSimulator'
-import { DATASET_INFO } from '../data/datasets/ecommerce'
-import { SEDUH_DATASET_INFO, SEDUH_FORMULAS } from '../data/datasets/seduh'
+import { SEDUH_DATASET_INFO } from '../data/datasets/seduh'
 import { loadSeduhCsvFiles } from '../lib/seduhCsv'
 import { TRANSACTIONS_CSV, EMPLOYEES_CSV, CSV_DATASET_INFO } from '../data/datasets/retail_csv'
 import { initPyodide, runPython, isPyodideReady, preloadCSVFiles } from '../lib/pyodideRunner'
@@ -50,15 +51,6 @@ WHERE o.status = 'completed'
 GROUP BY c.id, c.name
 ORDER BY total_spent DESC
 LIMIT 5;`,
-}
-
-/** Label and schema panel contents per SQL dataset. */
-const SQL_DATASETS: Record<DatasetName, {
-  label: string
-  info: { tables: { name: string; description: string; columns: string[]; rowCount: number }[]; totalRows: number }
-}> = {
-  seduh: { label: 'Seduh Coffee', info: SEDUH_DATASET_INFO },
-  ecommerce: { label: 'E-Commerce', info: DATASET_INFO },
 }
 
 const PYTHON_STARTER = `import pandas as pd
@@ -222,9 +214,8 @@ plt.show()
 
 // ── Column chip with copy-to-clipboard ────────────────────────────────
 
-function ColumnChip({ col, accent }: { col: string; accent: 'blue' | 'yellow' }) {
+function ColumnChip({ col }: { col: string }) {
   const [copied, setCopied] = useState(false)
-  const ring = accent === 'blue' ? 'hover:border-blue-400/40' : 'hover:border-yellow-400/40'
 
   async function copy(e: ReactMouseEvent) {
     e.stopPropagation()
@@ -241,7 +232,7 @@ function ColumnChip({ col, accent }: { col: string; accent: 'blue' | 'yellow' })
     <button
       onClick={copy}
       title={`Copy "${col}"`}
-      className={`group flex items-center gap-1 text-[11px] font-mono text-gray-200 bg-white/10 border border-white/10 ${ring} px-2 py-1 rounded-md transition-colors`}
+      className="group flex items-center gap-1 text-[11px] font-mono text-gray-200 bg-white/10 border border-white/10 hover:border-yellow-400/40 px-2 py-1 rounded-md transition-colors"
     >
       {col}
       {copied
@@ -251,9 +242,8 @@ function ColumnChip({ col, accent }: { col: string; accent: 'blue' | 'yellow' })
   )
 }
 
-function CopyAllColumns({ columns, accent }: { columns: string[]; accent: 'blue' | 'yellow' }) {
+function CopyAllColumns({ columns }: { columns: string[] }) {
   const [copied, setCopied] = useState(false)
-  const color = accent === 'blue' ? 'text-blue-300 hover:text-blue-200' : 'text-yellow-300 hover:text-yellow-200'
 
   async function copy(e: ReactMouseEvent) {
     e.stopPropagation()
@@ -270,7 +260,7 @@ function CopyAllColumns({ columns, accent }: { columns: string[]; accent: 'blue'
     <button
       onClick={copy}
       title="Copy all column names (comma-separated)"
-      className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide ${color} transition-colors`}
+      className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-yellow-300 hover:text-yellow-200 transition-colors"
     >
       {copied ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
       {copied ? 'Copied' : 'Copy all'}
@@ -285,10 +275,7 @@ function SqlPlayground() {
   const [query, setQuery] = usePlaygroundDraft('sql', SQL_STARTER[DEFAULT_DATASET])
   const [result, setResult] = useState<QueryResult | null>(null)
   const [loading, setLoading] = useState(false)
-  const [openTable, setOpenTable] = useState<string | null>(null)
   const { history, add, remove, clear } = useQueryHistory('sql')
-
-  const active = SQL_DATASETS[dataset]
 
   async function runCurrentQuery() {
     setLoading(true)
@@ -317,7 +304,6 @@ function SqlPlayground() {
     setDataset(next)
     setQuery(SQL_STARTER[next])
     setResult(null)
-    setOpenTable(null)
   }
 
   const rowCount = result?.rows?.length ?? 0
@@ -325,87 +311,11 @@ function SqlPlayground() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Schema reference */}
-      <div className="bg-[#0d1117] rounded-2xl border border-white/[0.08] p-4">
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <Table2 size={13} className="text-blue-400" />
-          <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">
-            Dataset
-          </span>
-          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] border border-white/10 p-0.5">
-            {(Object.keys(SQL_DATASETS) as DatasetName[]).map(key => (
-              <button
-                key={key}
-                onClick={() => switchDataset(key)}
-                className={`cursor-pointer px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                  key === dataset
-                    ? 'bg-blue-500/20 text-blue-200 border border-blue-500/40'
-                    : 'text-gray-400 hover:text-gray-200 border border-transparent'
-                }`}
-              >
-                {SQL_DATASETS[key].label}
-              </button>
-            ))}
-          </div>
-          <span className="ml-auto text-[11px] text-gray-400 font-mono">
-            {active.info.tables.length} tables · {active.info.totalRows.toLocaleString()} rows
-          </span>
-        </div>
-
-        {dataset === 'seduh' && (
-          <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
-            {SEDUH_DATASET_INFO.blurb_en}{' '}
-            <span className="font-mono text-gray-300">revenue = {SEDUH_FORMULAS.revenue}</span>
-            {' · '}
-            <span className="font-mono text-gray-300">profit = {SEDUH_FORMULAS.profit}</span>
-          </p>
-        )}
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {active.info.tables.map(t => {
-            const open = openTable === t.name
-            return (
-              <div
-                key={t.name}
-                className={`rounded-xl border transition-colors ${
-                  open
-                    ? 'border-blue-500/40 bg-blue-500/[0.10]'
-                    : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.07] hover:border-white/15'
-                }`}
-              >
-                <button
-                  onClick={() => setOpenTable(open ? null : t.name)}
-                  className="w-full text-left p-3"
-                  title={t.description}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-blue-300">{t.name}</span>
-                    {open
-                      ? <ChevronDown size={12} className="text-gray-400" />
-                      : <ChevronRight size={12} className="text-gray-400" />}
-                  </div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">{t.rowCount} rows · {t.columns.length} cols</div>
-                </button>
-                {open && (
-                  <div className="px-3 pb-3 -mt-1">
-                    <div className="pt-2 border-t border-white/10">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">Columns</span>
-                        <CopyAllColumns columns={t.columns} accent="blue" />
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {t.columns.map(col => (
-                          <ColumnChip key={col} col={col} accent="blue" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </div>
+      <SchemaReference
+        dataset={dataset}
+        datasets={Object.keys(SQL_DATASETS) as DatasetName[]}
+        onDatasetChange={switchDataset}
+      />
 
       {/* Editor */}
       <div className="bg-[#0d1117] rounded-2xl border border-white/[0.08] overflow-hidden">
@@ -590,11 +500,11 @@ function PythonPlayground() {
                     <div className="pt-2 border-t border-white/10">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-[10px] text-gray-500 uppercase tracking-wide">Columns</span>
-                        <CopyAllColumns columns={f.columns} accent="yellow" />
+                        <CopyAllColumns columns={f.columns} />
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {f.columns.map(col => (
-                          <ColumnChip key={col} col={col} accent="yellow" />
+                          <ColumnChip key={col} col={col} />
                         ))}
                       </div>
                     </div>

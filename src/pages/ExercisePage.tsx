@@ -8,6 +8,7 @@ import { TestResultPanel } from '../components/exercises/TestResultPanel'
 import { HintSystem } from '../components/exercises/HintSystem'
 import { MatchingExercise } from '../components/exercises/MatchingExercise'
 import { ExerciseEditor } from '../components/exercises/ExerciseEditor'
+import { SchemaReference } from '../components/exercises/SchemaReference'
 import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
@@ -312,6 +313,12 @@ export default function ExercisePage() {
         const sessionId = location.state?.fromSessionId ?? exercise.session_id
         navigate(sessionId ? `/session/${sessionId}` : '/curriculum', { state: { scrollTo: 'exercises' } })
       }} />
+
+      {exercise.type === 'sql' && (
+        <div className="mb-6">
+          <SchemaReference dataset={dataset} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Problem statement */}
