@@ -1,0 +1,9 @@
+# The playground loads these CSVs verbatim over HTTP and splits them on commas.
+# A CRLF checkout leaves a stray \r on every last column, which is how 4,419
+# deliberately-blank order ratings once loaded as 0. Keep them LF everywhere,
+# on every platform, regardless of core.autocrlf.
+public/project/data/*.csv text eol=lf
+
+# Generated artifacts — never line-ending-converted, never diffed as text.
+public/project/*.xlsx binary
+public/project/*.zip  binary
