@@ -9,6 +9,7 @@ import { HintSystem } from '../components/exercises/HintSystem'
 import { MatchingExercise } from '../components/exercises/MatchingExercise'
 import { ExerciseEditor } from '../components/exercises/ExerciseEditor'
 import { SchemaReference } from '../components/exercises/SchemaReference'
+import { ExerciseNav } from '../components/exercises/ExerciseNav'
 import { useExercise, useExercises, useSubmissions } from '../hooks/useExercises'
 import { useAuth } from '../hooks/useAuth'
 import { useProgress } from '../hooks/useProgress'
@@ -231,7 +232,11 @@ export default function ExercisePage() {
     const allSelected = pairs.length > 0 && matchSelections.filter(Boolean).length === pairs.length
 
     return (
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <ExerciseNav exercises={sessionExercises} currentId={id} sessionId={exercise.session_id} lang={lang} />
+
+          <div className="flex-1 min-w-0">
         <ExerciseHeader onBack={() => { const sid = location.state?.fromSessionId ?? exercise.session_id; navigate(sid ? `/session/${sid}` : '/curriculum', { state: { scrollTo: 'exercises' } }) }} />
 
         <div className="space-y-4">
@@ -303,12 +308,18 @@ export default function ExercisePage() {
             </div>
           )}
         </div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <ExerciseNav exercises={sessionExercises} currentId={id} sessionId={exercise.session_id} lang={lang} />
+
+        <div className="flex-1 min-w-0">
       <ExerciseHeader onBack={() => {
         const sessionId = location.state?.fromSessionId ?? exercise.session_id
         navigate(sessionId ? `/session/${sessionId}` : '/curriculum', { state: { scrollTo: 'exercises' } })
@@ -411,6 +422,8 @@ export default function ExercisePage() {
             </h3>
             <ResultsTable result={runResult} loading={running} />
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
