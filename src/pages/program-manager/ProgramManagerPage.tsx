@@ -5,6 +5,7 @@ import {
   ArrowLeft, Briefcase, Loader2, Save, Users, CalendarDays,
   BarChart2, UserCheck, ChevronDown, Check, X, Star,
   BookOpen, Clock, Eye, EyeOff, ClipboardCheck, CheckCircle2,
+  Rocket, GraduationCap, Mail, MailCheck, Hourglass,
 } from 'lucide-react'
 import { StudentReviewTable } from '../../components/admin/StudentReviewTable'
 import {
@@ -16,7 +17,7 @@ import {
 } from '../../hooks/useProgramManager'
 import type { MentorProfile, SessionWithMentor } from '../../hooks/useProgramManager'
 import type { CohortWithSchedule } from '../../hooks/useProgramManager'
-import type { CohortEnrollment } from '../../types'
+import type { CohortEnrollment, EnrollmentTier } from '../../types'
 import { useAuth } from '../../context/AuthContext'
 
 type Tab = 'details' | 'sessions' | 'cohorts' | 'students' | 'performance'
@@ -486,9 +487,26 @@ const STATUS_COLORS: Record<string, string> = {
   removed: 'bg-gray-500/10 text-gray-400',
 }
 
+function TierBadge({ tier }: { tier: EnrollmentTier }) {
+  const extended = tier === 'extended'
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+        extended ? 'bg-violet-500/10 text-violet-300' : 'bg-sky-500/10 text-sky-300'
+      }`}
+    >
+      {extended ? <Rocket size={11} /> : <GraduationCap size={11} />}
+      {extended ? 'Extended' : 'Essential'}
+    </span>
+  )
+}
+
+type StudentView = 'enrolled' | 'preapproved'
+
 function StudentsTab({ programId }: { programId: string }) {
   const { profile } = useAuth()
-  const { enrollments, loading, updateEnrollment } = usePMStudents(programId)
+  const { enrollments, preapproved, loading, updateEnrollment } = usePMStudents(programId)
+  const [view, setView] = useState<StudentView>('enrolled')
   const [filter, setFilter] = useState<CohortEnrollment['status'] | 'all'>('all')
 
   const filtered = filter === 'all' ? enrollments : enrollments.filter(e => e.status === filter)
@@ -509,80 +527,163 @@ function StudentsTab({ programId }: { programId: string }) {
 
   return (
     <div className="space-y-4">
-      {/* Filter tabs */}
-      <div className="flex gap-1 border-b border-white/[0.06]">
-        {(['all', 'active', 'pending', 'rejected', 'removed'] as const).map(s => (
+      {/* View switch: enrolled students vs pre-approval list */}
+      <div className="inline-flex rounded-lg border border-white/[0.08] p-0.5 bg-white/[0.02]">
+        {([
+          { key: 'enrolled', label: 'Enrolled', icon: <Users size={12} />, count: enrollments.length },
+          { key: 'preapproved', label: 'Pre-approved', icon: <Mail size={12} />, count: preapproved.length },
+        ] as const).map(v => (
           <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`cursor-pointer px-3 py-2 text-xs font-medium border-b-2 transition-colors capitalize ${
-              filter === s
-                ? 'border-primary-500 text-primary-400'
-                : 'border-transparent text-gray-500 hover:text-gray-300'
+            key={v.key}
+            onClick={() => setView(v.key)}
+            className={`cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              view === v.key ? 'bg-primary-600 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            {s} {s === 'all' ? `(${enrollments.length})` : `(${enrollments.filter(e => e.status === s).length})`}
+            {v.icon}
+            {v.label} ({v.count})
           </button>
         ))}
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="text-center py-12 text-gray-500 text-sm">No students found.</p>
+      {view === 'enrolled' ? (
+        <>
+          {/* Status filter tabs */}
+          <div className="flex gap-1 border-b border-white/[0.06]">
+            {(['all', 'active', 'pending', 'rejected', 'removed'] as const).map(s => (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`cursor-pointer px-3 py-2 text-xs font-medium border-b-2 transition-colors capitalize ${
+                  filter === s
+                    ? 'border-primary-500 text-primary-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                {s} {s === 'all' ? `(${enrollments.length})` : `(${enrollments.filter(e => e.status === s).length})`}
+              </button>
+            ))}
+          </div>
+
+          {filtered.length === 0 ? (
+            <p className="text-center py-12 text-gray-500 text-sm">No students found.</p>
+          ) : (
+            <div className="rounded-xl border border-white/[0.06] overflow-x-auto">
+              <table className="w-full text-sm min-w-[560px]">
+                <thead>
+                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Student</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Cohort</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Tier</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Status</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Applied</th>
+                    <th className="px-4 py-2.5" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((e, i) => (
+                    <tr key={e.id} className={i !== filtered.length - 1 ? 'border-b border-white/[0.04]' : ''}>
+                      <td className="px-4 py-3">
+                        <span className="text-xs text-gray-200">
+                          {e.profile?.full_name ?? e.profile?.username ?? e.user_id.slice(0, 8)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500">{e.cohortName}</td>
+                      <td className="px-4 py-3"><TierBadge tier={e.enrollment_tier} /></td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[e.status] ?? ''}`}>
+                          {e.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500">
+                        {new Date(e.applied_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                      </td>
+                      <td className="px-4 py-3">
+                        {e.status === 'pending' && (
+                          <div className="flex items-center gap-1 justify-end">
+                            <button
+                              onClick={() => handleApprove(e.id)}
+                              className="cursor-pointer p-1 rounded-md text-green-400 hover:bg-green-500/10 transition-colors"
+                              title="Approve"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleReject(e.id)}
+                              className="cursor-pointer p-1 rounded-md text-red-400 hover:bg-red-500/10 transition-colors"
+                              title="Reject"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       ) : (
-        <div className="rounded-xl border border-white/[0.06] overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Student</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Cohort</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Status</th>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Applied</th>
-                <th className="px-4 py-2.5" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((e, i) => (
-                <tr key={e.id} className={i !== filtered.length - 1 ? 'border-b border-white/[0.04]' : ''}>
-                  <td className="px-4 py-3">
-                    <span className="text-xs text-gray-200">
-                      {e.profile?.full_name ?? e.profile?.username ?? e.user_id.slice(0, 8)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{e.cohortName}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[e.status] ?? ''}`}>
-                      {e.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {new Date(e.applied_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                  </td>
-                  <td className="px-4 py-3">
-                    {e.status === 'pending' && (
-                      <div className="flex items-center gap-1 justify-end">
-                        <button
-                          onClick={() => handleApprove(e.id)}
-                          className="cursor-pointer p-1 rounded-md text-green-400 hover:bg-green-500/10 transition-colors"
-                          title="Approve"
-                        >
-                          <Check size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleReject(e.id)}
-                          className="cursor-pointer p-1 rounded-md text-red-400 hover:bg-red-500/10 transition-colors"
-                          title="Reject"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PreapprovedList preapproved={preapproved} />
       )}
+    </div>
+  )
+}
+
+function PreapprovedList({ preapproved }: { preapproved: ReturnType<typeof usePMStudents>['preapproved'] }) {
+  const signedUp = preapproved.filter(p => p.signedUp).length
+
+  if (preapproved.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 text-sm">No pre-approved emails for this program's cohorts.</p>
+        <p className="text-gray-600 text-xs mt-1">Paid students added to the pre-approval list appear here until they sign up.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-gray-500">
+        {preapproved.length} pre-approved · {signedUp} signed up · {preapproved.length - signedUp} awaiting sign-up.
+        They auto-enroll on their tier the moment they create an account.
+      </p>
+      <div className="rounded-xl border border-white/[0.06] overflow-x-auto">
+        <table className="w-full text-sm min-w-[620px]">
+          <thead>
+            <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Name</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Email</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Cohort</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Tier</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Sign-up</th>
+            </tr>
+          </thead>
+          <tbody>
+            {preapproved.map((p, i) => (
+              <tr key={p.id} className={i !== preapproved.length - 1 ? 'border-b border-white/[0.04]' : ''}>
+                <td className="px-4 py-3 text-xs text-gray-200">{p.full_name ?? '—'}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 font-mono">{p.email}</td>
+                <td className="px-4 py-3 text-xs text-gray-500">{p.cohortName}</td>
+                <td className="px-4 py-3"><TierBadge tier={p.enrollment_tier} /></td>
+                <td className="px-4 py-3">
+                  {p.signedUp ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-green-400">
+                      <MailCheck size={12} /> Signed up
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-xs text-yellow-400">
+                      <Hourglass size={12} /> Awaiting
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

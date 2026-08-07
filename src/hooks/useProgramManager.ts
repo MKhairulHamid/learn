@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { Program, Session, Cohort, CohortEnrollment, CohortLessonSchedule, SessionFeedback } from '../types'
+import type { Program, Session, Cohort, CohortEnrollment, CohortLessonSchedule, SessionFeedback, CohortPreapprovedEmail } from '../types'
 
 // ── Shared shapes ────────────────────────────────────────────────────
 
@@ -25,6 +25,12 @@ export interface MentorPerformance {
 export interface EnrollmentWithProfile extends CohortEnrollment {
   profile: { id: string; full_name: string | null; username: string | null } | null
   cohortName: string
+}
+
+export interface PreapprovedWithCohort extends CohortPreapprovedEmail {
+  cohortName: string
+  /** True once someone with this email has an enrollment in the cohort. */
+  signedUp: boolean
 }
 
 export interface SessionWithMentor extends Session {
@@ -226,6 +232,7 @@ export function usePMCohorts(programId: string | undefined) {
 
 export function usePMStudents(programId: string | undefined) {
   const [enrollments, setEnrollments] = useState<EnrollmentWithProfile[]>([])
+  const [preapproved, setPreapproved] = useState<PreapprovedWithCohort[]>([])
   const [loading, setLoading] = useState(true)
 
   const refetch = useCallback(async () => {
@@ -240,24 +247,31 @@ export function usePMStudents(programId: string | undefined) {
       ((cohortData as { id: string; name: string }[] | null) ?? []).map(c => [c.id, c.name])
     )
     const cohortIds = Object.keys(cohortNames)
-    if (cohortIds.length === 0) { setEnrollments([]); setLoading(false); return }
+    if (cohortIds.length === 0) { setEnrollments([]); setPreapproved([]); setLoading(false); return }
 
     // No FK from cohort_enrollments → profiles (user_id points at auth.users),
     // so profiles can't be embedded — fetch and join them separately.
-    const { data: enrollmentData } = await supabase
-      .from('cohort_enrollments')
-      .select('*')
-      .in('cohort_id', cohortIds)
-      .order('applied_at', { ascending: false })
+    const [{ data: enrollmentData }, { data: preapprovedData }] = await Promise.all([
+      supabase
+        .from('cohort_enrollments')
+        .select('*')
+        .in('cohort_id', cohortIds)
+        .order('applied_at', { ascending: false }),
+      supabase
+        .from('cohort_preapproved_emails')
+        .select('*')
+        .in('cohort_id', cohortIds)
+        .order('created_at', { ascending: false }),
+    ])
 
     const rawEnrollments = (enrollmentData as CohortEnrollment[] | null) ?? []
     const userIds = [...new Set(rawEnrollments.map(e => e.user_id))]
     const { data: profileData } = userIds.length > 0
-      ? await supabase.from('profiles').select('id, full_name, username').in('id', userIds)
+      ? await supabase.from('profiles').select('id, full_name, username, email').in('id', userIds)
       : { data: [] }
 
     const profileById = new Map(
-      ((profileData as { id: string; full_name: string | null; username: string | null }[] | null) ?? [])
+      ((profileData as { id: string; full_name: string | null; username: string | null; email: string | null }[] | null) ?? [])
         .map(p => [p.id, p])
     )
 
@@ -267,7 +281,25 @@ export function usePMStudents(programId: string | undefined) {
       cohortName: cohortNames[r.cohort_id] ?? '',
     }))
 
+    // An email counts as "signed up" once it has an enrollment in the same cohort.
+    const enrolledKeys = new Set(
+      rawEnrollments
+        .map(e => {
+          const email = profileById.get(e.user_id)?.email
+          return email ? `${e.cohort_id}:${email.toLowerCase()}` : null
+        })
+        .filter((k): k is string => k !== null)
+    )
+
+    const preapprovedRows: PreapprovedWithCohort[] = ((preapprovedData as CohortPreapprovedEmail[] | null) ?? [])
+      .map(p => ({
+        ...p,
+        cohortName: cohortNames[p.cohort_id] ?? '',
+        signedUp: enrolledKeys.has(`${p.cohort_id}:${p.email.toLowerCase()}`),
+      }))
+
     setEnrollments(rows)
+    setPreapproved(preapprovedRows)
     setLoading(false)
   }, [programId])
 
@@ -287,7 +319,7 @@ export function usePMStudents(programId: string | undefined) {
     return !error
   }, [])
 
-  return { enrollments, loading, refetch, updateEnrollment }
+  return { enrollments, preapproved, loading, refetch, updateEnrollment }
 }
 
 // ── Mentor performance ───────────────────────────────────────────────

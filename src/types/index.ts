@@ -220,6 +220,16 @@ export interface CohortSessionProgress {
   score: number
 }
 
+export interface CohortPreapprovedEmail {
+  id: string
+  cohort_id: string
+  email: string
+  full_name: string | null
+  note: string | null
+  enrollment_tier: EnrollmentTier
+  created_at: string
+}
+
 // ── Live checkpoints ───────────────────────────────────────────────────
 
 export interface CheckpointOption {
