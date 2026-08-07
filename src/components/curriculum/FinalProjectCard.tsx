@@ -7,7 +7,7 @@ import {
 import { Badge } from '../ui/Badge'
 import {
   FINAL_PROJECT_FILE, FINAL_PROJECT_STEPS, FINAL_PROJECT_TOTAL,
-  continuationFiles, stepsUnlockedThrough,
+  continuationFiles, localizedDownload, stepsUnlockedThrough,
 } from '../../data/finalProject'
 
 interface Props {
@@ -38,6 +38,7 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
   const canDo = lang === 'id' ? step.can_do_id : step.can_do_en
   const gain = lang === 'id' ? step.gain_id : step.gain_en
   const starters = continuationFiles(step)
+  const mainDownload = localizedDownload(FINAL_PROJECT_FILE, lang)
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8">
@@ -170,11 +171,13 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
           </p>
 
           <ul className="mt-3 space-y-2">
-            {starters.map(file => (
+            {starters.map(file => {
+              const dl = localizedDownload(file, lang)
+              return (
               <li key={file.path}>
                 <a
-                  href={file.path}
-                  download={file.downloadName}
+                  href={dl.path}
+                  download={dl.downloadName}
                   className="group flex items-start gap-3 rounded-xl border border-gray-100 hover:border-primary-200 hover:bg-primary-50/40 px-3.5 py-3 transition-colors"
                 >
                   <span className="mt-0.5 w-7 h-7 rounded-lg bg-gray-50 group-hover:bg-white border border-gray-100 flex items-center justify-center shrink-0">
@@ -193,7 +196,8 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
                   </span>
                 </a>
               </li>
-            ))}
+              )
+            })}
           </ul>
         </div>
       )}
@@ -205,8 +209,8 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
           <p className="text-xs text-gray-400 mt-0.5">{t('final_project.workbook_hint')}</p>
         </div>
         <a
-          href={FINAL_PROJECT_FILE.path}
-          download={FINAL_PROJECT_FILE.downloadName}
+          href={mainDownload.path}
+          download={mainDownload.downloadName}
           className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors"
         >
           <FileSpreadsheet size={15} />

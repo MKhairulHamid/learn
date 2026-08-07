@@ -38,8 +38,15 @@ export interface ProjectStep {
 export interface ContinuationFile {
   /** Served from public/ — vite base is '/', so this is the deployed path too. */
   path: string
+  /**
+   * Indonesian variant, served when the site is set to Bahasa Indonesia. Only
+   * the workbooks with narrative tabs (Project Brief + Data Dictionary) have one;
+   * their data tabs stay English. Files without prose tabs omit these.
+   */
+  path_id?: string
   /** Restores a readable name on the learner's disk via the download attribute. */
   downloadName: string
+  downloadName_id?: string
   sizeLabel: string
   name_en: string
   name_id: string
@@ -56,7 +63,9 @@ export interface ContinuationFile {
 export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
   raw: {
     path: '/project/seduh-coffee-final-project.xlsx',
+    path_id: '/project/seduh-coffee-final-project-id.xlsx',
     downloadName: 'Seduh Coffee - Data Analyst Final Project.xlsx',
+    downloadName_id: 'Seduh Coffee - Proyek Akhir Data Analyst.xlsx',
     sizeLabel: '1.7 MB',
     name_en: 'Raw workbook',
     name_id: 'Workbook mentah',
@@ -65,7 +74,9 @@ export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
   },
   cleaned: {
     path: '/project/seduh-coffee-cleaned.xlsx',
+    path_id: '/project/seduh-coffee-cleaned-id.xlsx',
     downloadName: 'Seduh Coffee - Cleaned Dataset.xlsx',
+    downloadName_id: 'Seduh Coffee - Dataset Bersih.xlsx',
     sizeLabel: '1.6 MB',
     name_en: 'Cleaned dataset',
     name_id: 'Dataset bersih',
@@ -83,7 +94,9 @@ export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
   },
   analysis: {
     path: '/project/seduh-coffee-analysis.xlsx',
+    path_id: '/project/seduh-coffee-analysis-id.xlsx',
     downloadName: 'Seduh Coffee - Analysis.xlsx',
+    downloadName_id: 'Seduh Coffee - Analisis.xlsx',
     sizeLabel: '4.7 MB',
     name_en: 'Analysis workbook — Q1–Q4 and Q7 answered',
     name_id: 'Workbook analisis — Q1–Q4 dan Q7 sudah terjawab',
@@ -405,6 +418,18 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
     ],
     continue_from: ['analysis', 'rfm', 'deck'],
   },
+}
+
+/**
+ * The path and download name to serve for a file in the given language. Falls
+ * back to English when the file has no Indonesian variant (data pack, RFM, deck).
+ */
+export function localizedDownload(file: ContinuationFile, lang: 'en' | 'id') {
+  const useId = lang === 'id' && !!file.path_id
+  return {
+    path: useId ? file.path_id! : file.path,
+    downloadName: useId ? (file.downloadName_id ?? file.downloadName) : file.downloadName,
+  }
 }
 
 /** Steps unlocked up to and including the given session, in order. */

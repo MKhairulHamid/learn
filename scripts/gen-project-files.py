@@ -12,6 +12,11 @@
 #   seduh-coffee-rfm-segments.csv     after Session 10
 #   seduh-coffee-deck-outline.md      slide skeleton for Session 11
 #
+# The three workbooks that carry narrative tabs also get an -id sibling
+# (…-id.xlsx) with only the Project Brief and Data Dictionary tabs translated to
+# Bahasa Indonesia; every data tab stays English. Served when the site is set to
+# Indonesian — see CONTINUATION_FILES in src/data/finalProject.ts.
+#
 # Dev-only: run by hand, commit the output. Nothing in the build invokes it.
 #   pip install pandas openpyxl
 #   python scripts/gen-project-files.py
@@ -345,6 +350,214 @@ def patch_brief(path):
     wb.save(path)
 
 
+# ── Indonesian narrative variant ─────────────────────────────────────────────
+#
+# Learners who set the site to Bahasa Indonesia get an -id copy of each workbook
+# that HAS narrative tabs (raw, cleaned, analysis). Only the two prose tabs are
+# translated — 'Project Brief' and 'Data Dictionary'. Every data tab (Orders,
+# Customers, Products, Marketing_Spend, the Q*/Cleaning_Log answer tabs) keeps
+# its English column names untouched, because the SQL/pandas/Power BI exercises
+# and the playgrounds all query those exact English identifiers.
+#
+# Coordinate-based, like patch_brief: the three source workbooks share one Brief
+# and one Dictionary layout (cleaned/analysis are copied from RAW), so a single
+# map localizes all three. Kept in lockstep with the English cells above and in
+# the raw workbook — regenerate if either changes.
+
+BRIEF_ID = {
+    'C1': 'SEDUH COFFEE  —  PROYEK AKHIR DATA ANALYST',
+    'C2': 'Proyek Portofolio Analisis Data End-to-End  —  Program Data Analyst Talentiv',
+    'C5': f'1.  LATAR BELAKANG {EM} Tentang Seduh',
+    'C6': ('Seduh adalah brand kopi spesialti direct-to-consumer (D2C) asal Indonesia yang tumbuh '
+           'pesat, berdiri pada 2022. Perusahaan me-roasting dan menjual biji single-origin premium, '
+           'kopi ready-to-drink (RTD), alat seduh, aksesori, langganan bulanan, dan gift set. Seduh '
+           'berjualan online lewat webstore sendiri dan lewat marketplace (Tokopedia, Shopee, dan '
+           'TikTok Shop), mengirim ke pelanggan di seluruh Indonesia.'),
+    'C7': ('Pelanggan Seduh mayoritas profesional muda urban dan penggemar home-brewing berusia '
+           '19-45 tahun. Brand ini tumbuh lewat iklan Instagram dan TikTok, referral, dan konten '
+           'organik di media sosial.'),
+    'C9': '2.  SITUASI BISNIS',
+    'C10': ('Pada 2025, Seduh menghasilkan sekitar IDR 4,4 miliar revenue dari order yang selesai, '
+            'naik dari sekitar IDR 2,0 miliar pada 2024. Di atas kertas bisnis ini bertumbuh '
+            f'{EM} tetapi leadership khawatir:'),
+    'C11': (f'{BULLET}   Marketing spend naik lebih cepat daripada revenue, sehingga biaya '
+            'mengakuisisi tiap pelanggan terus meningkat.'),
+    'C12': (f'{BULLET}   Banyak pelanggan hanya membeli sekali dan tidak pernah kembali. Repeat '
+            f'purchase {EM} jantung dari bisnis kopi {EM} terasa lemah.'),
+    'C13': (f'{BULLET}   Tidak ada yang tahu produk, channel, bulan, atau segmen pelanggan mana '
+            'yang benar-benar mendorong profit (bukan sekadar revenue).'),
+    'C14': 'Investor telah menetapkan target yang jelas untuk tahun depan:',
+    'C15': ('    TARGET  ->   Tumbuh ke revenue IDR 5,5 miliar pada 2026 (sekitar +24% vs 2025), '
+            'sambil meningkatkan retensi pelanggan dan efisiensi marketing.'),
+    'C16': (f'Leadership merekrutmu {EM} sang data analyst {EM} untuk mengubah data operasional '
+            'mentah Seduh menjadi diagnosis yang jelas dan rencana pertumbuhan yang bisa dijalankan.'),
+    'C18': '3.  MISIMU',
+    'C19': ('Dengan dataset yang tersedia di workbook ini (Orders, Customers, Products, '
+            'Marketing_Spend), lakukan analisis end-to-end yang lengkap dan sampaikan rekomendasi '
+            'berbasis data tentang bagaimana Seduh bisa mencapai target 2026-nya. Kamu akan '
+            'menerapkan setiap skill dari 12 sesi program, mulai dari data cleaning hingga storytelling.'),
+    'C21': '4.  PERTANYAAN BISNIS UTAMA YANG HARUS DIJAWAB',
+    'C22': ('Q1.  Kategori produk dan produk individual mana yang paling PROFITABLE (revenue '
+            'dikurangi biaya), bukan sekadar paling laku?'),
+    'C23': ('Q2.  Channel penjualan mana (Webstore / Tokopedia / Shopee / TikTok Shop) yang '
+            'paling bernilai setelah diskon?'),
+    'C24': ('Q3.  Bagaimana tren revenue dari bulan ke bulan sepanjang 2024-2025? Apakah ada '
+            'pola musiman (mis. Ramadan, Harbolnas 11.11 / 12.12)?'),
+    'C25': ('Q4.  Berapa proporsi pelanggan yang membeli sekali vs repeat buyer? Berapa '
+            'repeat-purchase rate-nya?'),
+    'C26': ('Q5.  Dengan analisis RFM, segmen pelanggan apa saja yang ada (mis. Champions, Loyal, '
+            f'At-Risk, Lost)? Seberapa besar dan seberapa bernilai masing-masing?   [OPSIONAL {EM} '
+            'dijawab di Sesi 10]'),
+    'C27': ('Q6.  Channel akuisisi mana yang mendatangkan pelanggan bernilai tertinggi? Apakah '
+            'marketing spend sudah efisien (ROI / CAC)?'),
+    'C28': (f'Q7.  Adakah hubungan antara pemberian diskon dan jumlah unit terjual {EM} dan apakah '
+            'diskon benar-benar menaikkan profit?'),
+    'C29': ('Q8.  Berdasarkan semua di atas, aksi spesifik apa yang harus diambil Seduh untuk '
+            'mencapai target revenue IDR 5,5 M pada 2026?'),
+    'C31': f'5.  DELIVERABLE {EM} Dipetakan ke 12 Sesi Program',
+    'C32': ('Submission akhirmu harus menunjukkan hal-hal berikut. Perlakukan tiap poin sebagai '
+            f'checklist untuk portofoliomu. Sesi 7, 8, dan 10 bersifat OPSIONAL {EM} proyek tetap '
+            'lengkap tanpanya; menyelesaikannya menambah dashboard interaktif, notebook yang bisa '
+            'diulang, dan segmentasi pelanggan ke portofoliomu.'),
+    'B34': 'Sesi', 'C34': 'Deliverable', 'D34': 'Yang harus dihasilkan',
+    'C35': 'Business Acumen & Problem Statement',
+    'D35': ('Tulis problem statement yang jelas untuk Seduh dan petakan proses bisnisnya dari hulu '
+            'ke hilir. Definisikan metrik yang penting di tiap tahap (akuisisi, konversi, order '
+            'value, retensi). Tambahkan statistik deskriptif dasar dari data.'),
+    'C36': 'Membersihkan & Merapikan Data',
+    'D36': ('Perbaiki masalah kualitas pada data mentah: hapus order duplikat, tangani sel kosong, '
+            'seragamkan teks yang tidak konsisten (nama channel, gender, city) memakai TRIM / '
+            'CONCAT / LEFT / RIGHT, dan atasi nilai tidak valid (mis. quantity nol/negatif).'),
+    'C37': 'Pivot Table untuk Insight',
+    'D37': ('Gunakan Pivot Table untuk menjawab Q1-Q4: revenue & profit per kategori, per channel, '
+            'per bulan, dan rincian repeat buyer.'),
+    'C38': 'Pengumpulan Data dengan SQL',
+    'D38': ('Muat keempat tabel ke database dan tulis SQL (SELECT, WHERE, ORDER BY, GROUP BY, '
+            'HAVING, JOIN) untuk membangun dataset analisis persis seperti yang kamu butuhkan '
+            f'{EM} mis. join Orders ke Products untuk menghitung profit, atau Orders ke Customers '
+            'untuk analisis segmen. Join juga Customers.acquisition_channel ke Marketing_Spend '
+            'untuk membandingkan CAC dan ROI per channel (menjawab Q6). Perhatikan bahwa kedua '
+            f"kosakata channel tidak sama persis 1:1 {EM} 'Marketplace' vs 'Marketplace Ads', serta "
+            f'Organic Social dan Referral tidak punya baris spend {EM} jadi nyatakan asumsi pemetaanmu.'),
+    'C39': 'Exploratory Data Analysis (EDA)',
+    'D39': ('Lakukan analisis univariat dan bivariat: sebaran order value, quantity, rating; '
+            'hubungan antara diskon dan quantity (Q7), harga dan permintaan, rating dan repeat purchase.'),
+    'C40': 'Visualisasi Data',
+    'D40': ('Bangun grafik yang jelas dan didesain baik (jenis chart, warna, tata letak yang tepat) '
+            'yang menceritakan tren revenue dan cerita segmen.'),
+    'C41': 'Dashboard PowerBI   [OPSIONAL]',
+    'D41': ('Rakit dashboard PowerBI interaktif: tren revenue, bauran channel, profit kategori, '
+            'segmen RFM (jika kamu menyelesaikan Sesi 10), dan ROI marketing. Publikasikan.'),
+    'C42': 'Python / Pandas 101   [OPSIONAL]',
+    'D42': ('Reproduksi cleaning dan agregasi utama di pandas; visualkan dengan Matplotlib/Seaborn; '
+            'opsional, otomasi laporan Excel dengan openpyxl.'),
+    'C43': 'Analisis End-to-End dengan AI',
+    'D43': ('Gunakan alur kerja AI/agentik untuk mempercepat sebagian analisis (mis. menghasilkan '
+            'SQL, merangkum temuan, atau mengotomasi laporan yang berulang) dan dokumentasikan '
+            'cara pemakaiannya.'),
+    'C44': f'Advanced Analysis {EM} Segmentasi & RFM   [OPSIONAL]',
+    'D44': ('Hitung Recency, Frequency, Monetary per pelanggan (tanggal snapshot = 1 Jan 2026), '
+            'beri skor dan segmentasi pelanggan, dan rekomendasikan strategi per segmen (menjawab Q5).'),
+    'C45': 'Storytelling dengan Data',
+    'D45': ('Ubah analisis menjadi narasi yang siap untuk stakeholder: dari data -> insight -> '
+            'rekomendasi, disusun sebagai deck untuk leadership Seduh.'),
+    'C46': 'Proyek Akhir & Portofolio',
+    'D46': ('Kemas semuanya menjadi karya portofolio profesional: data yang sudah bersih, skrip '
+            'SQL, dashboard, deck, dan ringkasan eksekutif tertulis yang menjawab Q8.'),
+    'C48': '6.  CATATAN DATA & SUBMISSION',
+    'C49': (f'{BULLET}   Workbook ini berisi 4 tab data: Orders (level transaksi), Customers, '
+            "Products, dan Marketing_Spend. Lihat tab 'Data Dictionary' untuk definisi setiap kolom."),
+    'C50': (f'{BULLET}   Data ini MENTAH dan sengaja dibuat berantakan {EM} membersihkannya (Sesi 2) '
+            'adalah bagian dari tugas. JANGAN anggap data sudah siap dianalisis. Jika kamu bergabung '
+            'di tengah program, tiap halaman sesi juga menyediakan file siap-lanjut agar kamu bisa '
+            'mulai dari kondisi yang benar.'),
+    'C51': (f'{BULLET}   Revenue per baris order = quantity x unit_price x (1 - discount_pct). '
+            'Profit per baris = quantity x (unit_price x (1 - discount_pct) - unit_cost). unit_cost '
+            'ada di tab Products.'),
+    'C52': (f"{BULLET}   Hanya order dengan status = 'Completed' yang dihitung sebagai revenue. "
+            "Order 'Returned' dan 'Cancelled' harus dikecualikan dari revenue/profit (tetapi berguna "
+            'untuk metrik return-rate).'),
+    'C53': (f'{BULLET}   Tanggal snapshot / analisis RFM = 1 Januari 2026 (anggap semua data lengkap '
+            'sampai 31 Desember 2025).'),
+    'C54': (f'{BULLET}   Keys: Orders.customer_id -> Customers.customer_id ; Orders.product_id -> '
+            'Products.product_id ; Marketing_Spend di-join lewat month + channel.'),
+    'C55': (f'{BULLET}   Serahkan: (1) dataset bersih, (2) skrip SQL, (3) analisis pivot, (4) tautan '
+            'dashboard PowerBI [opsional], (5) notebook Python [opsional], (6) deck stakeholder, '
+            '(7) ringkasan eksekutif 1 halaman yang menjawab Q8. Segmentasi RFM dari Sesi 10 juga opsional.'),
+    'C57': f'Semoga berhasil {EM} buat leadership Seduh melihat ceritanya di dalam data.',
+}
+
+# Column names (order_id, quantity, …) and table names (Orders, …) are real
+# identifiers the exercises query, so they stay English; only the header labels,
+# the Type words and the Description prose are translated.
+DICT_ID = {
+    'B1': 'KAMUS DATA',
+    'B2': 'Tabel', 'C2': 'Kolom', 'D2': 'Tipe', 'E2': 'Deskripsi',
+    'E3': 'ID unik dari baris order (catatan: data mentah memuat beberapa baris duplikat yang harus dihapus).',
+    'E4': 'Tanggal order dibuat (2024-01-01 sampai 2025-12-31).',
+    'E5': 'Foreign key ke Customers.customer_id.',
+    'E6': 'Foreign key ke Products.product_id.',
+    'E7': 'Jumlah unit yang dipesan. Data mentah memuat beberapa nilai 0/negatif tidak valid yang harus dibersihkan.',
+    'E8': 'Harga jual per unit saat order, sebelum diskon.',
+    'E9': 'Diskon yang diterapkan pada baris sebagai pecahan (0,10 = 10%).',
+    'E10': 'Channel penjualan: Webstore, Tokopedia, Shopee, TikTok Shop. Nilai mentah punya kapitalisasi/ejaan tidak konsisten.',
+    'E11': 'Metode pembayaran yang dipakai (GoPay, OVO, DANA, Bank Transfer, Credit Card, COD, ShopeePay, Paylater).',
+    'E12': 'Kota pengiriman.',
+    'E13': 'Provinsi pengiriman.',
+    'E14': "Completed, Returned, atau Cancelled. Hanya 'Completed' yang dihitung sebagai revenue.",
+    'E15': 'Rating dari pelanggan; kosong jika tidak diberi rating atau order belum selesai.',
+    'E16': 'Primary key.',
+    'E17': 'Nama lengkap pelanggan.',
+    'E18': f'Nilai mentah tidak konsisten (Female/F/female/Perempuan, dll.) {EM} seragamkan.',
+    'E19': 'Usia dalam tahun.',
+    'E20': 'Kota domisili. Ada beberapa sel kosong / kapitalisasi tidak konsisten / spasi di belakang yang harus dibersihkan.',
+    'E21': 'Provinsi domisili.',
+    'E22': 'Tanggal pelanggan pertama kali mendaftar.',
+    'E23': 'Bagaimana pelanggan pertama kali diakuisisi (Instagram Ads, TikTok Ads, Google Search, Referral, Organic Social, Marketplace).',
+    'E24': 'Primary key.',
+    'E25': 'Nama produk / deskripsi SKU.',
+    'E26': 'Roasted Beans, Ready-to-Drink, Brewing Equipment, Accessories, Subscription, Gift Set (data mentah punya inkonsistensi penamaan yang harus diperbaiki).',
+    'E27': 'Harga list standar per unit.',
+    'E28': 'Harga pokok per unit (COGS). Dipakai untuk analisis profit/margin.',
+    'E29': 'Tanggal produk pertama kali didaftarkan.',
+    'E30': 'Hari pertama bulan untuk catatan spend.',
+    'E31': 'Channel marketing (Instagram Ads, TikTok Ads, Google Search, Marketplace Ads).',
+    'E32': 'Belanja iklan pada bulan itu di channel tersebut.',
+    'E33': 'Jumlah impresi iklan yang tayang.',
+    'E34': 'Jumlah klik iklan yang diterima.',
+}
+
+# The Type column repeats a small vocabulary; translate every cell that holds one.
+TYPE_ID = {
+    'Text': 'Teks', 'Date': 'Tanggal', 'Number': 'Angka',
+    'Number (IDR)': 'Angka (IDR)', 'Number (0-1)': 'Angka (0-1)',
+    'Number (1-5)': 'Angka (1-5)',
+}
+
+
+def write_id_variant(en_path):
+    """Copy an English workbook to its -id sibling and localize the two prose tabs."""
+    dest = en_path.with_name(en_path.stem + '-id' + en_path.suffix)
+    shutil.copy(en_path, dest)
+    wb = openpyxl.load_workbook(dest)
+
+    brief = wb['Project Brief']
+    for coord, text in BRIEF_ID.items():
+        brief[coord] = text
+
+    dictionary = wb['Data Dictionary']
+    for coord, text in DICT_ID.items():
+        dictionary[coord] = text
+    # Type column (D3:D34) — map each English type word to its Indonesian label.
+    for row in range(3, dictionary.max_row + 1):
+        cell = dictionary[f'D{row}']
+        if cell.value in TYPE_ID:
+            cell.value = TYPE_ID[cell.value]
+
+    wb.save(dest)
+    return dest
+
+
 # ── Writers ──────────────────────────────────────────────────────────────────
 
 def write_workbook(dest, sheets, order):
@@ -651,9 +864,15 @@ def main():
     deck_path = OUT / 'seduh-coffee-deck-outline.md'
     deck_path.write_text(DECK_OUTLINE, encoding='utf-8')
 
+    # Indonesian variants: only the workbooks with narrative tabs get one. The
+    # data pack, RFM CSV and deck outline have no Project Brief / Data Dictionary
+    # to translate, so they stay language-neutral.
+    id_paths = [write_id_variant(p) for p in [RAW, cleaned_path, analysis_path]]
+    print(f'localized {len(id_paths)} workbook(s) to Bahasa Indonesia (Brief + Dictionary only)')
+
     print()
     for p in [RAW, cleaned_path, pack_path, analysis_path, rfm_path, deck_path,
-              *sorted((OUT / 'data').iterdir())]:
+              *id_paths, *sorted((OUT / 'data').iterdir())]:
         print(f'  {p.stat().st_size / 1_048_576:6.2f} MB  {p.relative_to(OUT)}')
 
 
