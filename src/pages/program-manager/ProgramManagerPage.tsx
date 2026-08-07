@@ -632,42 +632,36 @@ function StudentsTab({ programId }: { programId: string }) {
   )
 }
 
-function PreapprovedList({ preapproved }: { preapproved: ReturnType<typeof usePMStudents>['preapproved'] }) {
-  const signedUp = preapproved.filter(p => p.signedUp).length
+type PreapprovedRows = ReturnType<typeof usePMStudents>['preapproved']
 
-  if (preapproved.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 text-sm">No pre-approved emails for this program's cohorts.</p>
-        <p className="text-gray-600 text-xs mt-1">Paid students added to the pre-approval list appear here until they sign up.</p>
-      </div>
-    )
-  }
+function PreapprovedGroup({ tier, rows }: { tier: EnrollmentTier; rows: PreapprovedRows }) {
+  if (rows.length === 0) return null
+  const signedUp = rows.filter(p => p.signedUp).length
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-gray-500">
-        {preapproved.length} pre-approved · {signedUp} signed up · {preapproved.length - signedUp} awaiting sign-up.
-        They auto-enroll on their tier the moment they create an account.
-      </p>
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <TierBadge tier={tier} />
+        <span className="text-xs text-gray-500">
+          {rows.length} · {signedUp} signed up · {rows.length - signedUp} awaiting
+        </span>
+      </div>
       <div className="rounded-xl border border-white/[0.06] overflow-x-auto">
-        <table className="w-full text-sm min-w-[620px]">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-white/[0.06] bg-white/[0.02]">
               <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Name</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Email</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Cohort</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Tier</th>
               <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Sign-up</th>
             </tr>
           </thead>
           <tbody>
-            {preapproved.map((p, i) => (
-              <tr key={p.id} className={i !== preapproved.length - 1 ? 'border-b border-white/[0.04]' : ''}>
+            {rows.map((p, i) => (
+              <tr key={p.id} className={i !== rows.length - 1 ? 'border-b border-white/[0.04]' : ''}>
                 <td className="px-4 py-3 text-xs text-gray-200">{p.full_name ?? '—'}</td>
                 <td className="px-4 py-3 text-xs text-gray-400 font-mono">{p.email}</td>
                 <td className="px-4 py-3 text-xs text-gray-500">{p.cohortName}</td>
-                <td className="px-4 py-3"><TierBadge tier={p.enrollment_tier} /></td>
                 <td className="px-4 py-3">
                   {p.signedUp ? (
                     <span className="inline-flex items-center gap-1 text-xs text-green-400">
@@ -684,6 +678,32 @@ function PreapprovedList({ preapproved }: { preapproved: ReturnType<typeof usePM
           </tbody>
         </table>
       </div>
+    </div>
+  )
+}
+
+function PreapprovedList({ preapproved }: { preapproved: PreapprovedRows }) {
+  if (preapproved.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 text-sm">No pre-approved emails for this program's cohorts.</p>
+        <p className="text-gray-600 text-xs mt-1">Paid students added to the pre-approval list appear here until they sign up.</p>
+      </div>
+    )
+  }
+
+  const essential = preapproved.filter(p => p.enrollment_tier === 'essential')
+  const extended = preapproved.filter(p => p.enrollment_tier === 'extended')
+  const signedUp = preapproved.filter(p => p.signedUp).length
+
+  return (
+    <div className="space-y-5">
+      <p className="text-xs text-gray-500">
+        {preapproved.length} pre-approved · {signedUp} signed up · {preapproved.length - signedUp} awaiting sign-up.
+        They auto-enroll on their tier the moment they create an account.
+      </p>
+      <PreapprovedGroup tier="essential" rows={essential} />
+      <PreapprovedGroup tier="extended" rows={extended} />
     </div>
   )
 }
