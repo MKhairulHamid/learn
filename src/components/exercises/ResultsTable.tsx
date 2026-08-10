@@ -1,9 +1,31 @@
 import type { QueryResult } from '../../lib/sqlSimulator'
-import { AlertCircle, CheckCircle2, Table } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Table, Download } from 'lucide-react'
 
 interface ResultsTableProps {
   result: QueryResult | null
   loading?: boolean
+}
+
+function escapeCsvCell(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  const s = String(value)
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+function downloadResultAsCsv(result: QueryResult) {
+  const lines = [
+    result.columns.map(escapeCsvCell).join(','),
+    ...result.rows.map(row => result.columns.map(col => escapeCsvCell(row[col])).join(',')),
+  ]
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `query-result-${Date.now()}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }
 
 export function ResultsTable({ result, loading }: ResultsTableProps) {
@@ -67,9 +89,17 @@ export function ResultsTable({ result, loading }: ResultsTableProps) {
 
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-2">
-        {result.rowCount} row{result.rowCount !== 1 ? 's' : ''} returned
-      </p>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-gray-400">
+          {result.rowCount} row{result.rowCount !== 1 ? 's' : ''} returned
+        </p>
+        <button
+          onClick={() => downloadResultAsCsv(result)}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 border border-gray-700 hover:border-gray-500 px-2.5 py-1 rounded-lg transition-colors"
+        >
+          <Download size={12} /> Download CSV
+        </button>
+      </div>
       <div className="overflow-x-auto rounded-xl border border-gray-700">
         <table className="w-full text-sm text-left">
           <thead>
