@@ -87,12 +87,30 @@ sys.stderr = _stderr_capture
   return pyodidePromise
 }
 
+// seaborn is not in the Pyodide distribution, so it comes from PyPI via micropip.
+// scipy comes along because seaborn needs it for kde/regression estimates.
+let seabornPromise: Promise<void> | null = null
+
+async function ensureSeaborn(): Promise<void> {
+  if (!seabornPromise) {
+    seabornPromise = (async () => {
+      await pyodide.loadPackage(['micropip', 'scipy'])
+      const micropip = pyodide.pyimport('micropip')
+      await micropip.install('seaborn')
+    })()
+  }
+  return seabornPromise
+}
+
 export async function runPython(code: string): Promise<PyResult> {
   if (!pyodide) {
     return { stdout: '', stderr: '', figures: [], error: 'Python not initialized yet.' }
   }
 
   try {
+    await pyodide.loadPackagesFromImports(code)
+    if (/^\s*(import|from)\s+seaborn\b/m.test(code)) await ensureSeaborn()
+
     // Reset capture buffers and close any existing figures
     pyodide.runPython(`
 _stdout_capture.truncate(0)
