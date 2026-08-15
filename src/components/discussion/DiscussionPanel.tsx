@@ -57,7 +57,11 @@ interface Props { sessionId: string }
 export function DiscussionPanel({ sessionId }: Props) {
   const { user, profile } = useAuth()
   const { cohortId } = useCohort()
-  const { posts, loading, error, submitting, submitPost, toggleVote, hidePost } = useDiscussion(sessionId, cohortId)
+  const isAdmin = profile?.role === 'admin'
+  // Admins moderate a session across cohorts, so do not apply the learner's
+  // active-cohort filter. Non-admin users remain isolated to their cohort.
+  const discussionCohortId = isAdmin ? null : cohortId
+  const { posts, loading, error, submitting, submitPost, toggleVote, hidePost } = useDiscussion(sessionId, discussionCohortId)
 
   const [submitError, setSubmitError]   = useState<string | null>(null)
   const [sort, setSort]                 = useState<SortKey>('votes_desc')
@@ -67,7 +71,6 @@ export function DiscussionPanel({ sessionId }: Props) {
 
   const scrolledRef = useRef(false)
   const location    = useLocation()
-  const isAdmin     = profile?.role === 'admin'
   const totalCount  = countTree(posts)
 
   // Posts the current user participated in
