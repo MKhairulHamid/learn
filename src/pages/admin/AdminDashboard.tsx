@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap, MessageSquarePlus, Flag, UserCog } from 'lucide-react'
+import { Users, Activity, BookOpen, TrendingUp, Radio, BarChart2, LayoutDashboard, GraduationCap, MessageSquarePlus, Flag, UserCog, PieChart } from 'lucide-react'
 import { StatsCard } from '../../components/admin/StatsCard'
 import { ActivityFeed } from '../../components/admin/ActivityFeed'
 import { UserTable } from '../../components/admin/UserTable'
 import { ExerciseAnalyticsPanel } from '../../components/admin/ExerciseAnalyticsPanel'
 import { CohortManagerPanel } from '../../components/admin/CohortManagerPanel'
+import { CohortInsightsPanel } from '../../components/admin/CohortInsightsPanel'
 import { FeedbackAnalyticsPanel } from '../../components/admin/FeedbackAnalyticsPanel'
 import { ContentReportsPanel } from '../../components/admin/ContentReportsPanel'
 import { ProgramManagerAdminPanel } from '../../components/admin/ProgramManagerAdminPanel'
 import { useAdminStats, useActivityFeed, useUserList } from '../../hooks/useAdminStats'
 import { useContentReportsAdmin } from '../../hooks/useContentReport'
 
-type Tab = 'overview' | 'cohorts' | 'analytics' | 'feedback' | 'reports' | 'program-managers'
+type Tab = 'overview' | 'insights' | 'cohorts' | 'analytics' | 'feedback' | 'reports' | 'program-managers'
 
 export default function AdminDashboard() {
   const { stats, loading: statsLoading } = useAdminStats()
@@ -48,6 +49,17 @@ export default function AdminDashboard() {
             >
               <LayoutDashboard size={14} />
               Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('insights')}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'insights'
+                  ? 'border-primary-500 text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <PieChart size={14} />
+              Cohort Insights
             </button>
             <button
               onClick={() => setActiveTab('cohorts')}
@@ -169,6 +181,10 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'insights' && (
+          <CohortInsightsPanel />
         )}
 
         {activeTab === 'cohorts' && (
