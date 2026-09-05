@@ -135,6 +135,106 @@ const PYTHON_DATASETS: Record<DatasetName, {
   ecommerce: { label: 'Retail', starter: PYTHON_STARTER, info: CSV_DATASET_INFO },
 }
 
+// Snippets are per dataset: the Seduh tables and the Retail tables share no
+// column names, so a Retail example run against Seduh only ever throws
+// FileNotFoundError. SNIPPETS_BY_DATASET keeps each list with its data.
+const SEDUH_PYTHON_SNIPPETS = [
+  {
+    label: 'Bersihkan channel',
+    code: `import pandas as pd
+import matplotlib.pyplot as plt
+
+orders = pd.read_csv('orders.csv')
+
+# Kolom channel masih mentah: spasi berlebih dan huruf besar-kecil campur.
+orders['channel_clean'] = (orders['channel']
+                           .str.strip()
+                           .str.lower()
+                           .replace({'shoppee': 'shopee', 'tokopdia': 'tokopedia'})
+                           .str.title()
+                           .str.replace('Tiktok', 'TikTok', regex=False))
+
+print(f"Ejaan mentah: {orders['channel'].nunique()}  ->  setelah dibersihkan: {orders['channel_clean'].nunique()}")
+
+done = orders[orders['order_status'] == 'Completed'].copy()
+done['revenue'] = done['quantity'] * done['unit_price'] * (1 - done['discount_pct'])
+
+by_channel = done.groupby('channel_clean')['revenue'].sum().sort_values(ascending=False)
+print("
+Revenue per channel (IDR):")
+for ch, rev in by_channel.items():
+    print(f"  {ch:<14} Rp {rev:>15,.0f}")
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.barh(by_channel.index[::-1], by_channel.values[::-1] / 1e6, color='#0891b2')
+ax.set_xlabel('Revenue (juta IDR)')
+ax.set_title('Revenue per Channel  ·  Seduh Coffee')
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+plt.tight_layout()
+plt.show()
+`,
+  },
+  {
+    label: 'Tren bulanan',
+    code: `import pandas as pd
+import matplotlib.pyplot as plt
+
+orders = pd.read_csv('orders.csv')
+
+# order_date datang dalam dua format: 2024-01-05 dan 05/01/2024.
+# Parse keduanya, lalu gabungkan — baris yang gagal jadi NaT.
+iso = pd.to_datetime(orders['order_date'], format='%Y-%m-%d', errors='coerce')
+alt = pd.to_datetime(orders['order_date'], format='%d/%m/%Y', errors='coerce')
+orders['order_date'] = iso.fillna(alt)
+print(f"Tanggal tidak terbaca: {orders['order_date'].isna().sum()} dari {len(orders):,} baris")
+
+done = orders[orders['order_status'] == 'Completed'].copy()
+done['revenue'] = done['quantity'] * done['unit_price'] * (1 - done['discount_pct'])
+done['month']   = done['order_date'].dt.strftime('%Y-%m')
+
+monthly = done.groupby('month').agg(orders=('order_id', 'size'),
+                                    revenue=('revenue', 'sum'))
+print(monthly.assign(revenue=lambda d: (d['revenue'] / 1e6).round(1)).to_string())
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot(monthly.index, monthly['revenue'] / 1e6, marker='o', color='#0891b2')
+ax.set_ylabel('Revenue (juta IDR)')
+ax.set_title('Tren Revenue Bulanan  ·  Seduh Coffee')
+ax.tick_params(axis='x', rotation=45, labelsize=8)
+ax.grid(alpha=.3)
+plt.tight_layout()
+plt.show()
+`,
+  },
+  {
+    label: 'Profit per kategori',
+    code: `import pandas as pd
+
+orders   = pd.read_csv('orders.csv')
+products = pd.read_csv('products.csv')
+
+done = orders[orders['order_status'] == 'Completed'].merge(products, on='product_id')
+done['revenue'] = done['quantity'] * done['unit_price'] * (1 - done['discount_pct'])
+done['profit']  = done['quantity'] * (done['unit_price'] * (1 - done['discount_pct'])
+                                      - done['unit_cost'])
+
+by_cat = (done.groupby('category')[['revenue', 'profit']].sum()
+              .assign(margin_pct=lambda d: (d['profit'] / d['revenue'] * 100).round(1))
+              .sort_values('profit', ascending=False))
+
+print("Kategori paling menguntungkan (bukan yang paling laku):
+")
+for cat, r in by_cat.iterrows():
+    print(f"  {cat:<22} Rp {r['profit']:>14,.0f}  margin {r['margin_pct']:>5.1f}%")
+
+# Perhatikan: kolom category juga masih mentah — 'Ready to Drink' dan
+# 'Ready-to-Drink' terhitung sebagai dua kategori berbeda. Bersihkan dulu
+# sebelum angkanya dipakai untuk mengambil keputusan.
+`,
+  },
+]
+
 const PYTHON_SNIPPETS = [
   {
     label: 'Regional sales',
@@ -211,6 +311,11 @@ plt.show()
 `,
   },
 ]
+
+const SNIPPETS_BY_DATASET: Record<DatasetName, { label: string; code: string }[]> = {
+  seduh: SEDUH_PYTHON_SNIPPETS,
+  ecommerce: PYTHON_SNIPPETS,
+}
 
 // ── Column chip with copy-to-clipboard ────────────────────────────────
 
@@ -545,7 +650,7 @@ function PythonPlayground() {
                 </button>
                 {openSnippet && (
                   <div className="absolute right-0 top-full mt-1.5 bg-[#111827] border border-white/[0.08] rounded-xl shadow-2xl z-20 w-48 overflow-hidden">
-                    {PYTHON_SNIPPETS.map(s => (
+                    {SNIPPETS_BY_DATASET[dataset].map(s => (
                       <button
                         key={s.label}
                         onClick={() => { setCode(s.code); setResult(null); setOpenSnippet(false) }}
@@ -558,7 +663,7 @@ function PythonPlayground() {
                 )}
               </div>
               <button
-                onClick={() => { setCode(PYTHON_STARTER); setResult(null) }}
+                onClick={() => { setCode(PYTHON_DATASETS[dataset].starter); setResult(null) }}
                 className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 px-2.5 py-1 rounded-lg hover:bg-white/[0.05] transition-colors"
               >
                 <RotateCcw size={11} /> Reset
