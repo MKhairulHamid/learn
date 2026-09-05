@@ -7,6 +7,12 @@
 //
 // Keyed by session_number, so the card renders for X01–X12 only and stays
 // invisible for every other program (04/05/F08, HR H01–H25, orientation).
+//
+// Every file is Bahasa Indonesia. The workbooks that carry a Project Brief ship
+// in two variants because the brief differs by enrollment tier: Fast Track
+// (Essential) stops at Session 9, BNSP (Extended) runs to Session 12.
+
+import type { EnrollmentTier } from '../types'
 
 export interface ProjectStep {
   /** 1-based position in the 12-step project arc. */
@@ -36,17 +42,21 @@ export interface ProjectStep {
 }
 
 export interface ContinuationFile {
-  /** Served from public/ — vite base is '/', so this is the deployed path too. */
+  /**
+   * Served from public/ — vite base is '/', so this is the deployed path too.
+   * This is the Essential (Fast Track) copy; see path_extended.
+   */
   path: string
   /**
-   * Indonesian variant, served when the site is set to Bahasa Indonesia. Only
-   * the workbooks with narrative tabs (Project Brief + Data Dictionary) have one;
-   * their data tabs stay English. Files without prose tabs omit these.
+   * Extended (BNSP) copy, for the workbooks whose Project Brief tab differs by
+   * tier — Fast Track's brief stops at Session 9, BNSP's runs to Session 12.
+   * Files with no prose tabs (the data pack, the RFM CSV, the deck outline) are
+   * tier-neutral and omit these.
    */
-  path_id?: string
+  path_extended?: string
   /** Restores a readable name on the learner's disk via the download attribute. */
   downloadName: string
-  downloadName_id?: string
+  downloadName_extended?: string
   sizeLabel: string
   name_en: string
   name_id: string
@@ -62,22 +72,22 @@ export interface ContinuationFile {
  */
 export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
   raw: {
-    path: '/project/seduh-coffee-final-project.xlsx',
-    path_id: '/project/seduh-coffee-final-project-id.xlsx',
-    downloadName: 'Seduh Coffee - Data Analyst Final Project.xlsx',
-    downloadName_id: 'Seduh Coffee - Proyek Akhir Data Analyst.xlsx',
-    sizeLabel: '1.7 MB',
+    path: '/project/seduh-coffee-final-project-fasttrack.xlsx',
+    path_extended: '/project/seduh-coffee-final-project-bnsp.xlsx',
+    downloadName: 'Seduh Coffee - Proyek Akhir Data Analyst (Fast Track).xlsx',
+    downloadName_extended: 'Seduh Coffee - Proyek Akhir Data Analyst (BNSP).xlsx',
+    sizeLabel: '2.6 MB',
     name_en: 'Raw workbook',
     name_id: 'Workbook mentah',
     hint_en: 'The project brief, the data dictionary, and the four tables exactly as they came out of the business — duplicates, inconsistent text and all.',
     hint_id: 'Brief proyek, kamus data, dan empat tabel persis seperti keluar dari bisnisnya — lengkap dengan duplikat dan teks yang tidak konsisten.',
   },
   cleaned: {
-    path: '/project/seduh-coffee-cleaned.xlsx',
-    path_id: '/project/seduh-coffee-cleaned-id.xlsx',
-    downloadName: 'Seduh Coffee - Cleaned Dataset.xlsx',
-    downloadName_id: 'Seduh Coffee - Dataset Bersih.xlsx',
-    sizeLabel: '1.6 MB',
+    path: '/project/seduh-coffee-cleaned-fasttrack.xlsx',
+    path_extended: '/project/seduh-coffee-cleaned-bnsp.xlsx',
+    downloadName: 'Seduh Coffee - Dataset Bersih (Fast Track).xlsx',
+    downloadName_extended: 'Seduh Coffee - Dataset Bersih (BNSP).xlsx',
+    sizeLabel: '2.5 MB',
     name_en: 'Cleaned dataset',
     name_id: 'Dataset bersih',
     hint_en: 'The same workbook after Session 2. A Cleaning_Log tab lists every rule applied, why, and how many rows it touched — read it before you build on top.',
@@ -85,28 +95,28 @@ export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
   },
   datapack: {
     path: '/project/seduh-coffee-data-pack.zip',
-    downloadName: 'Seduh Coffee - Data Pack.zip',
-    sizeLabel: '2.5 MB',
+    downloadName: 'Seduh Coffee - Paket Data.zip',
+    sizeLabel: '3.6 MB',
     name_en: 'Data pack — CSV, SQL schema, SQLite',
     name_id: 'Paket data — CSV, skema SQL, SQLite',
     hint_en: 'The cleaned tables as CSVs, plus schema.sql and a seduh.db you can open straight away. Import these into SQL, Power BI or pandas without redoing the cleaning.',
     hint_id: 'Tabel bersih dalam bentuk CSV, plus schema.sql dan seduh.db yang langsung bisa dibuka. Impor ke SQL, Power BI, atau pandas tanpa mengulang cleaning.',
   },
   analysis: {
-    path: '/project/seduh-coffee-analysis.xlsx',
-    path_id: '/project/seduh-coffee-analysis-id.xlsx',
-    downloadName: 'Seduh Coffee - Analysis.xlsx',
-    downloadName_id: 'Seduh Coffee - Analisis.xlsx',
-    sizeLabel: '4.7 MB',
-    name_en: 'Analysis workbook — Q1–Q4 and Q7 answered',
-    name_id: 'Workbook analisis — Q1–Q4 dan Q7 sudah terjawab',
+    path: '/project/seduh-coffee-analysis-fasttrack.xlsx',
+    path_extended: '/project/seduh-coffee-analysis-bnsp.xlsx',
+    downloadName: 'Seduh Coffee - Analisis (Fast Track).xlsx',
+    downloadName_extended: 'Seduh Coffee - Analisis (BNSP).xlsx',
+    sizeLabel: '6.1 MB',
+    name_en: 'Analysis workbook — the pivot questions answered',
+    name_id: 'Workbook analisis — pertanyaan pivot sudah terjawab',
     hint_en: 'The cleaned tables plus finished answer tabs for category profit, channel value, the monthly trend, the repeat-buyer split and discount vs volume — and an Orders_Enriched tab with revenue and profit already computed per line.',
     hint_id: 'Tabel bersih plus tab jawaban jadi untuk profit kategori, nilai channel, tren bulanan, pembagian repeat buyer, dan diskon vs volume — serta tab Orders_Enriched dengan revenue dan profit yang sudah dihitung per baris.',
   },
   rfm: {
     path: '/project/seduh-coffee-rfm-segments.csv',
-    downloadName: 'Seduh Coffee - RFM Segments.csv',
-    sizeLabel: '368 KB',
+    downloadName: 'Seduh Coffee - Segmen RFM.csv',
+    sizeLabel: '1.3 MB',
     name_en: 'RFM segments',
     name_id: 'Segmen RFM',
     hint_en: 'Recency, Frequency and Monetary scored per customer against the 1 January 2026 snapshot, with each one placed in a segment. Session 10 is optional, so this is here for the sessions that need its output.',
@@ -114,8 +124,8 @@ export const CONTINUATION_FILES: Record<string, ContinuationFile> = {
   },
   deck: {
     path: '/project/seduh-coffee-deck-outline.md',
-    downloadName: 'Seduh Coffee - Deck Outline.md',
-    sizeLabel: '3 KB',
+    downloadName: 'Seduh Coffee - Kerangka Deck.md',
+    sizeLabel: '5 KB',
     name_en: 'Deck outline',
     name_id: 'Kerangka deck',
     hint_en: 'A slide-by-slide skeleton for the stakeholder deck and the one-page executive summary — one message per slide, mapped to Q1–Q8. A starting point, not an answer key.',
@@ -421,14 +431,16 @@ export const FINAL_PROJECT_STEPS: Record<string, ProjectStep> = {
 }
 
 /**
- * The path and download name to serve for a file in the given language. Falls
- * back to English when the file has no Indonesian variant (data pack, RFM, deck).
+ * The path and download name to serve for a learner on the given tier. Falls
+ * back to the Fast Track copy for the tier-neutral files (data pack, RFM, deck).
  */
-export function localizedDownload(file: ContinuationFile, lang: 'en' | 'id') {
-  const useId = lang === 'id' && !!file.path_id
+export function tierDownload(file: ContinuationFile, tier: EnrollmentTier) {
+  const useExtended = tier === 'extended' && !!file.path_extended
   return {
-    path: useId ? file.path_id! : file.path,
-    downloadName: useId ? (file.downloadName_id ?? file.downloadName) : file.downloadName,
+    path: useExtended ? file.path_extended! : file.path,
+    downloadName: useExtended
+      ? (file.downloadName_extended ?? file.downloadName)
+      : file.downloadName,
   }
 }
 

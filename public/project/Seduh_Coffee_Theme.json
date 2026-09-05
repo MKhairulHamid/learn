@@ -1,0 +1,122 @@
+{
+  "name": "Seduh Coffee",
+  "dataColors": [
+    "#6F4E37",
+    "#C68A4E",
+    "#3C8C7E",
+    "#C0603A",
+    "#D9A441",
+    "#8C6A56",
+    "#5B7C99",
+    "#A8B5A2"
+  ],
+  "background": "#FAF6EF",
+  "foreground": "#3E2A20",
+  "tableAccent": "#6F4E37",
+  "good": "#3C8C7E",
+  "neutral": "#D9A441",
+  "bad": "#C0603A",
+  "maximum": "#6F4E37",
+  "center": "#C68A4E",
+  "minimum": "#E8D5B7",
+  "null": "#EADBC8",
+  "textClasses": {
+    "callout": { "fontFace": "Segoe UI Semibold", "fontSize": 34, "color": "#6F4E37" },
+    "title": { "fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#3E2A20" },
+    "header": { "fontFace": "Segoe UI Semibold", "fontSize": 12, "color": "#3E2A20" },
+    "label": { "fontFace": "Segoe UI", "fontSize": 10, "color": "#5B463A" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          { "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }
+        ],
+        "border": [
+          { "show": true, "color": { "solid": { "color": "#EADBC8" } }, "radius": 12 }
+        ],
+        "dropShadow": [
+          {
+            "show": true,
+            "position": "Outer",
+            "preset": "Custom",
+            "color": { "solid": { "color": "#3E2A20" } },
+            "transparency": 88,
+            "shadowSpread": 2,
+            "shadowBlur": 10,
+            "angle": 90,
+            "shadowDistance": 2
+          }
+        ],
+        "visualHeader": [
+          {
+            "show": true,
+            "background": { "solid": { "color": "#FFFFFF" } },
+            "foreground": { "solid": { "color": "#6F4E37" } },
+            "transparency": 0,
+            "border": false
+          }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontColor": { "solid": { "color": "#3E2A20" } },
+            "background": { "solid": { "color": "#FFFFFF" } },
+            "alignment": "left",
+            "fontSize": 13,
+            "titleWrap": true
+          }
+        ],
+        "labels": [
+          { "show": true, "color": { "solid": { "color": "#3E2A20" } }, "fontSize": 9 }
+        ],
+        "legend": [
+          {
+            "show": true,
+            "position": "Right",
+            "labelColor": { "solid": { "color": "#5B463A" } },
+            "fontSize": 9
+          }
+        ],
+        "categoryAxis": [
+          {
+            "show": true,
+            "labelColor": { "solid": { "color": "#5B463A" } },
+            "fontSize": 9,
+            "gridlineShow": false
+          }
+        ],
+        "valueAxis": [
+          {
+            "show": true,
+            "labelColor": { "solid": { "color": "#5B463A" } },
+            "fontSize": 9,
+            "gridlineColor": { "solid": { "color": "#EADBC8" } },
+            "gridlineThickness": 1
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          { "color": { "solid": { "color": "#6F4E37" } }, "fontSize": 32, "fontFamily": "Segoe UI Semibold" }
+        ],
+        "categoryLabels": [
+          { "show": true, "color": { "solid": { "color": "#8C6A56" } }, "fontSize": 11 }
+        ]
+      }
+    },
+    "donutChart": {
+      "*": {
+        "slices": [ { "innerRadiusRatio": 60 } ]
+      }
+    },
+    "slicer": {
+      "*": {
+        "header": [ { "show": true, "fontColor": { "solid": { "color": "#3E2A20" } }, "fontSize": 11 } ],
+        "items": [ { "fontColor": { "solid": { "color": "#5B463A" } }, "fontSize": 10 } ]
+      }
+    }
+  }
+}

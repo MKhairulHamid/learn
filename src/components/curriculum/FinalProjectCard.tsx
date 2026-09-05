@@ -7,12 +7,18 @@ import {
 import { Badge } from '../ui/Badge'
 import {
   FINAL_PROJECT_FILE, FINAL_PROJECT_STEPS, FINAL_PROJECT_TOTAL,
-  continuationFiles, localizedDownload, stepsUnlockedThrough,
+  continuationFiles, stepsUnlockedThrough, tierDownload,
 } from '../../data/finalProject'
+import type { EnrollmentTier } from '../../types'
 
 interface Props {
   sessionNumber: string
   lang?: 'en' | 'id'
+  /**
+   * Picks which copy of the workbook to serve: Extended learners get the BNSP
+   * brief (Sessions 1-12), Essential learners the Fast Track one (1-9).
+   */
+  tier?: EnrollmentTier
 }
 
 /**
@@ -22,7 +28,7 @@ interface Props {
  * Renders only for sessions that have a project step (X01–X12); every other
  * program falls through the null guard below.
  */
-export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
+export function FinalProjectCard({ sessionNumber, lang = 'en', tier = 'essential' }: Props) {
   const { t } = useTranslation('common')
   const [historyOpen, setHistoryOpen] = useState(false)
 
@@ -38,7 +44,7 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
   const canDo = lang === 'id' ? step.can_do_id : step.can_do_en
   const gain = lang === 'id' ? step.gain_id : step.gain_en
   const starters = continuationFiles(step)
-  const mainDownload = localizedDownload(FINAL_PROJECT_FILE, lang)
+  const mainDownload = tierDownload(FINAL_PROJECT_FILE, tier)
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8">
@@ -172,7 +178,7 @@ export function FinalProjectCard({ sessionNumber, lang = 'en' }: Props) {
 
           <ul className="mt-3 space-y-2">
             {starters.map(file => {
-              const dl = localizedDownload(file, lang)
+              const dl = tierDownload(file, tier)
               return (
               <li key={file.path}>
                 <a

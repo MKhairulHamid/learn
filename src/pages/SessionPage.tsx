@@ -456,7 +456,11 @@ export default function SessionPage() {
       </div>
 
       {/* Which part of the final project this session unlocked (X01–X12 only) */}
-      <FinalProjectCard sessionNumber={session.session_number} lang={lang} />
+      <FinalProjectCard
+        sessionNumber={session.session_number}
+        lang={lang}
+        tier={cohort.enrollmentTier}
+      />
 
       {/* ── Session completion CTA ────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-2 flex items-center justify-between gap-4 flex-wrap">

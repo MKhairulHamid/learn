@@ -1,21 +1,35 @@
 # Generates the Seduh Coffee final-project artifacts in public/project/.
 #
+# Two source workbooks are authored by hand and committed here — one per
+# enrollment tier, because their Project Brief tabs differ:
+#
+#   seduh-coffee-final-project-bnsp.xlsx        Extended / BNSP (Sesi 1-12)
+#   seduh-coffee-final-project-fasttrack.xlsx   Essential / Fast Track (Sesi 1-9)
+#
+# Their four data tabs are identical, so everything derived below is generated
+# once from the Fast Track file and, where a workbook carries the narrative
+# tabs, written out once per tier.
+#
 # The program runs 12 sessions and learners join mid-way, so every session page
 # offers a "ready to continue" file: the project as it should look at the START
 # of that session. The data pipeline only branches once (Session 2 cleaning), so
 # 12 sessions need 5 derived artifacts, not 12.
 #
-#   seduh-coffee-final-project.xlsx   raw + messy      (patched in place here)
-#   seduh-coffee-cleaned.xlsx         after Session 2
-#   seduh-coffee-data-pack.zip        CSVs + schema.sql + seduh.db
-#   seduh-coffee-analysis.xlsx        cleaned + the Q1-Q4 / Q7 answers
-#   seduh-coffee-rfm-segments.csv     after Session 10
-#   seduh-coffee-deck-outline.md      slide skeleton for Session 11
+#   seduh-coffee-cleaned-<tier>.xlsx    after Session 2
+#   seduh-coffee-data-pack.zip          cleaned CSVs + schema.sql + seduh.db
+#   seduh-coffee-analysis-<tier>.xlsx   cleaned + the Q1-Q4 / Q6 answers
+#   seduh-coffee-rfm-segments.csv       after Session 10
+#   seduh-coffee-deck-outline.md        slide skeleton for Session 11
 #
-# The three workbooks that carry narrative tabs also get an -id sibling
-# (…-id.xlsx) with only the Project Brief and Data Dictionary tabs translated to
-# Bahasa Indonesia; every data tab stays English. Served when the site is set to
-# Indonesian — see CONTINUATION_FILES in src/data/finalProject.ts.
+# Everything the learner reads is Bahasa Indonesia; column and table names stay
+# English because the SQL / pandas / Power BI exercises query those exact
+# identifiers.
+#
+# public/project/data/*.csv is the exception to the pipeline: those feed the SQL
+# and Python playgrounds and carry the RAW tables, not the cleaned ones, so a
+# learner can practise the Session 2 cleaning in the playground against the same
+# mess that is in their workbook. review_text is dropped from them — it is free
+# text with commas and the playground CSV loader splits on ','.
 #
 # Dev-only: run by hand, commit the output. Nothing in the build invokes it.
 #   pip install pandas openpyxl
@@ -23,6 +37,7 @@
 #
 # Re-running is safe — every write is an absolute value, never an append.
 
+import re
 import shutil
 import sqlite3
 import zipfile
@@ -33,15 +48,17 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'public' / 'project'
-RAW = OUT / 'seduh-coffee-final-project.xlsx'
+
+# Filename suffix per enrollment tier, matching FINAL_PROJECT_FILES and
+# CONTINUATION_FILES in src/data/finalProject.ts.
+TIERS = {'extended': 'bnsp', 'essential': 'fasttrack'}
+
+RAW = {tier: OUT / f'seduh-coffee-final-project-{slug}.xlsx' for tier, slug in TIERS.items()}
+
+# The data tabs are identical across tiers; read them once.
+DATA_SOURCE = RAW['essential']
 
 DATA_SHEETS = ['Orders', 'Customers', 'Products', 'Marketing_Spend']
-
-# Sessions 7 (Power BI), 8 (Python) and 10 (RFM) are optional: the portfolio
-# piece stands without them. Kept in sync with OPTIONAL_STEPS in
-# src/data/finalProject.ts.
-BULLET = '•'
-EM = '—'
 
 # RFM is anchored to the day after the data ends, per the brief.
 SNAPSHOT = pd.Timestamp('2026-01-01')
@@ -56,6 +73,7 @@ CHANNEL_MAP = {
     'tokopedia': 'Tokopedia',
     'tokopdia': 'Tokopedia',   # typo in the source
     'shopee': 'Shopee',
+    'shoppee': 'Shopee',       # typo in the source
     'tiktok shop': 'TikTok Shop',
 }
 
@@ -64,12 +82,33 @@ GENDER_MAP = {
     'male': 'Male', 'm': 'Male', 'laki-laki': 'Male',
 }
 
-CATEGORY_MAP = {'Ready-to-Drink': 'Ready to Drink'}
+CATEGORY_MAP = {'Ready-to-Drink': 'Ready to Drink', 'Gift set': 'Gift Set'}
 
 
 def _trim(series):
     """Strip and collapse internal runs of whitespace, preserving nulls."""
     return series.where(series.isna(), series.astype('string').str.strip().str.replace(r'\s+', ' ', regex=True))
+
+
+def _to_date(series):
+    """Excel dates and dd/mm/yyyy strings share the column in the raw data."""
+    text = series.map(lambda v: isinstance(v, str))
+    parsed = pd.to_datetime(series.where(~text), errors='coerce')
+    if text.any():
+        parsed[text] = pd.to_datetime(series[text], dayfirst=True, errors='coerce')
+    return parsed
+
+
+def _phone(value):
+    """0812-xxxx-xxxx, +628xxx and 0812xxx all become 08xxxxxxxxxx."""
+    if pd.isna(value):
+        return pd.NA
+    digits = re.sub(r'\D', '', str(value))
+    if digits.startswith('62'):
+        digits = '0' + digits[2:]
+    elif not digits.startswith('0'):
+        digits = '0' + digits
+    return digits
 
 
 def clean(raw):
@@ -82,42 +121,57 @@ def clean(raw):
 
     def note(table, column, issue, rule, rows):
         log.append({
-            'Step': len(log) + 1, 'Table': table, 'Column': column,
-            'Issue': issue, 'Rule applied': rule, 'Rows affected': rows,
+            'Langkah': len(log) + 1, 'Tabel': table, 'Kolom': column,
+            'Masalah': issue, 'Aturan yang diterapkan': rule, 'Baris terdampak': rows,
         })
 
     # --- Orders ---------------------------------------------------------
-    # Text normalisation comes BEFORE de-duplication on purpose: one duplicate
-    # pair differs only by the 'Tokopdia' typo, so normalising first turns it
-    # into an exact duplicate and a single rule removes all 14.
-    untrimmed = (orders['channel'] != orders['channel'].str.strip()).sum()
+    as_text = int(orders['order_date'].map(lambda v: isinstance(v, str)).sum())
+    orders['order_date'] = _to_date(orders['order_date'])
+    if orders['order_date'].isna().any():
+        raise SystemExit('Orders.order_date holds a value that is neither a date nor dd/mm/yyyy')
+    note('Orders', 'order_date', 'Sebagian tanggal tersimpan sebagai teks dd/mm/yyyy',
+         'Ubah seluruh kolom menjadi tipe tanggal (teks dibaca hari lebih dulu)', as_text)
+
+    orders['quantity'] = pd.to_numeric(orders['quantity'], errors='raise').astype(int)
+
+    # Text normalisation comes BEFORE de-duplication on purpose: a duplicate
+    # pair can differ only by the 'Tokopdia' typo, so normalising first turns it
+    # into an exact duplicate and a single rule removes them all.
+    untrimmed = int((orders['channel'] != orders['channel'].str.strip()).sum())
     variants = orders['channel'].nunique()
     orders['channel'] = _trim(orders['channel']).str.lower().map(CHANNEL_MAP)
     if orders['channel'].isna().any():
         raise SystemExit('Orders.channel has a spelling CHANNEL_MAP does not cover')
     note('Orders', 'channel',
-         f'{variants} spellings of 4 real channels ({untrimmed} with stray spaces)',
-         'TRIM, collapse spaces, lowercase, map to Webstore / Tokopedia / Shopee / TikTok Shop', untrimmed)
+         f'{variants} penulisan untuk 4 channel yang sebenarnya ({untrimmed} punya spasi berlebih)',
+         'TRIM, rapatkan spasi, lowercase, petakan ke Webstore / Tokopedia / Shopee / TikTok Shop',
+         untrimmed)
 
-    for col in ['payment_method', 'city', 'province', 'order_status']:
+    for col in ['payment_method', 'city', 'province', 'order_status', 'review_text']:
         orders[col] = _trim(orders[col])
 
     before = len(orders)
     orders = orders.drop_duplicates().reset_index(drop=True)
-    note('Orders', 'all columns', 'Order lines recorded twice',
-         'Drop exact duplicate rows (after channel normalisation)', before - len(orders))
+    note('Orders', 'semua kolom', 'Baris order tercatat dua kali',
+         'Hapus baris duplikat persis (setelah channel diseragamkan)', before - len(orders))
 
     if orders['order_id'].duplicated().any():
         raise SystemExit('Orders still has conflicting duplicate order_id values')
 
     before = len(orders)
     orders = orders[orders['quantity'] > 0].reset_index(drop=True)
-    note('Orders', 'quantity', 'Zero or negative quantity is not a real sale',
-         'Drop rows where quantity <= 0', before - len(orders))
+    note('Orders', 'quantity', 'Quantity nol atau negatif bukan penjualan nyata',
+         'Hapus baris dengan quantity <= 0', before - len(orders))
 
-    note('Orders', 'rating', f'{int(orders["rating"].isna().sum())} blank ratings',
-         'LEFT AS BLANK — an unrated order is not a defect. Never imputed; '
-         'exclude blanks when averaging rating.', 0)
+    note('Orders', 'rating', f'{int(orders["rating"].isna().sum())} rating kosong',
+         'DIBIARKAN KOSONG — order tanpa rating bukan cacat data. Jangan diisi; '
+         'kecualikan yang kosong saat menghitung rata-rata rating.', 0)
+
+    note('Orders', 'review_text', f'{int(orders["review_text"].isna().sum())} ulasan kosong',
+         'DIBIARKAN KOSONG — sebagian besar order memang tidak diulas. Dipakai di Sesi 9.', 0)
+
+    orders['rating'] = orders['rating'].astype('Int64')
 
     # --- Customers ------------------------------------------------------
     variants = customers['gender'].nunique()
@@ -125,37 +179,52 @@ def clean(raw):
     customers['gender'] = _trim(customers['gender']).str.lower().map(GENDER_MAP)
     if customers['gender'].isna().any():
         raise SystemExit('Customers.gender has a value GENDER_MAP does not cover')
-    note('Customers', 'gender', f'{variants} spellings across 2 values (EN and ID mixed)',
-         'Lowercase and map to Female / Male',
+    note('Customers', 'gender', f'{variants} penulisan untuk 2 nilai (campur Inggris dan Indonesia)',
+         'Lowercase lalu petakan ke Female / Male',
          int((before_gender != customers['gender']).fillna(False).sum()))
 
-    untrimmed = (customers['city'] != customers['city'].str.strip()).fillna(False).sum()
+    before_phone = customers['phone'].astype('string')
+    customers['phone'] = customers['phone'].map(_phone).astype('string')
+    note('Customers', 'phone', '3 format nomor bercampur (0812-xxxx-xxxx, +628xxx, 0812xxx)',
+         'Buang seluruh karakter non-angka dan ubah awalan +62 menjadi 0',
+         int((before_phone != customers['phone']).fillna(False).sum()))
+
+    untrimmed = int((customers['city'] != customers['city'].str.strip()).fillna(False).sum())
     customers['city'] = _trim(customers['city'])
-    note('Customers', 'city', 'Trailing spaces split one city into two values',
-         'TRIM and collapse spaces', int(untrimmed))
+    note('Customers', 'city', 'Spasi di belakang memecah satu kota menjadi dua nilai',
+         'TRIM dan rapatkan spasi', untrimmed)
 
     blank_cities = int(customers['city'].isna().sum())
     customers['city'] = customers['city'].fillna('Unknown')
-    note('Customers', 'city', 'Blank city',
-         "Fill with 'Unknown' rather than dropping the customer — their orders still count",
+    note('Customers', 'city', 'City kosong',
+         "Isi dengan 'Unknown', bukan dibuang — order pelanggan itu tetap dihitung",
          blank_cities)
+
+    blank_age = int(customers['age'].isna().sum())
+    customers['age'] = customers['age'].astype('Int64')
+    note('Customers', 'age', f'{blank_age} usia kosong',
+         'DIBIARKAN KOSONG — usia tidak bisa ditebak. Kecualikan yang kosong saat '
+         'menghitung rata-rata atau membuat kelompok usia.', 0)
 
     for col in ['customer_name', 'province', 'acquisition_channel']:
         customers[col] = _trim(customers[col])
 
     # --- Products -------------------------------------------------------
+    messy = int(products['category'].isin(CATEGORY_MAP).sum()
+                + (products['category'] != products['category'].str.strip()).sum())
     products['category'] = _trim(products['category']).replace(CATEGORY_MAP)
-    products['product_name'] = _trim(products['product_name'])
-    note('Products', 'category', "'Ready-to-Drink' and 'Ready to Drink' split one category",
-         "Map to 'Ready to Drink'",
-         int(raw['Products']['category'].isin(CATEGORY_MAP.keys()).sum()))
+    for col in ['sku_code', 'product_name']:
+        products[col] = _trim(products[col])
+    note('Products', 'category',
+         "Penamaan tidak konsisten ('Ready-to-Drink', 'Gift set', spasi di belakang)",
+         "TRIM lalu petakan ke 'Ready to Drink' dan 'Gift Set'", messy)
 
     # --- Marketing_Spend ------------------------------------------------
     spend['channel'] = _trim(spend['channel'])
 
-    note('Orders', 'order_status', "Only 'Completed' counts as revenue",
-         "NOT removed — 'Returned' and 'Cancelled' rows are kept so you can measure "
-         "the return rate. Filter them out when computing revenue or profit.", 0)
+    note('Orders', 'order_status', "Hanya 'Completed' yang dihitung sebagai revenue",
+         "TIDAK dihapus — baris 'Returned' dan 'Cancelled' tetap disimpan supaya return rate "
+         'bisa dihitung. Saring saat menghitung revenue atau profit.', 0)
 
     return {'Orders': orders, 'Customers': customers, 'Products': products,
             'Marketing_Spend': spend}, pd.DataFrame(log)
@@ -189,7 +258,7 @@ def _margin(df):
 
 
 def answers(enriched):
-    """Finished Q1-Q4 and Q7 tables, completed orders only."""
+    """Finished Q1-Q4 and Q6 tables, completed orders only."""
     done = enriched[enriched['is_completed']]
 
     q1_cat = done.groupby('category', as_index=False).agg(
@@ -227,16 +296,16 @@ def answers(enriched):
     q4['customer_share_pct'] = (q4['customers'] / q4['customers'].sum() * 100).round(1)
     q4['revenue_share_pct'] = (q4['revenue'] / q4['revenue'].sum() * 100).round(1)
 
-    q7 = done.groupby('discount_pct', as_index=False).agg(
+    q6 = done.groupby('discount_pct', as_index=False).agg(
         order_lines=('order_id', 'count'), avg_quantity=('quantity', 'mean'),
         units=('quantity', 'sum'), revenue=('revenue', 'sum'), profit=('profit', 'sum'))
-    q7['avg_quantity'] = q7['avg_quantity'].round(2)
-    q7['margin_pct'] = _margin(q7)
+    q6['avg_quantity'] = q6['avg_quantity'].round(2)
+    q6['margin_pct'] = _margin(q6)
 
     return {
         'Q1_Category_Profit': q1_cat, 'Q1_Product_Profit': q1_prod,
         'Q2_Channel_Value': q2, 'Q3_Monthly_Trend': q3,
-        'Q4_Repeat_Buyers': q4, 'Q7_Discount_vs_Volume': q7,
+        'Q4_Repeat_Buyers': q4, 'Q6_Discount_vs_Volume': q6,
     }
 
 
@@ -270,8 +339,6 @@ def rfm(enriched, customers):
     agg['r_score'] = pd.qcut(agg['recency_days'], 5, labels=[5, 4, 3, 2, 1]).astype(int)
     agg['f_score'] = pd.qcut(agg['frequency'].rank(method='first'), 5, labels=[1, 2, 3, 4, 5]).astype(int)
     agg['m_score'] = pd.qcut(agg['monetary'], 5, labels=[1, 2, 3, 4, 5]).astype(int)
-    agg['rfm_score'] = (agg['r_score'].astype(str) + agg['f_score'].astype(str)
-                        + agg['m_score'].astype(str))
     agg['segment'] = [_segment(r, f) for r, f in zip(agg['r_score'], agg['f_score'])]
 
     out = customers[['customer_id', 'customer_name', 'city', 'acquisition_channel']].merge(
@@ -297,272 +364,11 @@ def rfm(enriched, customers):
                 'r_score', 'f_score', 'm_score', 'rfm_score', 'segment']]
 
 
-# ── The workbook's Project Brief tab ─────────────────────────────────────────
-
-def patch_brief(path):
-    """Mark S7 / S8 / S10 optional so the workbook tells the same story as the app."""
-    wb = openpyxl.load_workbook(path)
-    ws = wb['Project Brief']
-
-    ws['C26'] = ('Q5.  Using RFM analysis, what customer segments exist (e.g. Champions, '
-                 'Loyal, At-Risk, Lost)? How big and how valuable is each?   '
-                 '[OPTIONAL — answered in Session 10]')
-
-    # Q6 used to live only in Sessions 7 and 10. Both are optional now, so the
-    # required path picks it up in Session 4, where the tables are already joined.
-    ws['D38'] = ('Load the four tables into a database and write SQL (SELECT, WHERE, ORDER BY, '
-                 'GROUP BY, HAVING, JOIN) to build the exact analysis datasets you need '
-                 '— e.g. join Orders to Products to compute profit, or Orders to Customers '
-                 'for segment analysis. Also join Customers.acquisition_channel to '
-                 'Marketing_Spend to compare CAC and ROI per channel (answers Q6). Note that '
-                 "the two channel vocabularies do not match 1:1 — 'Marketplace' vs "
-                 "'Marketplace Ads', and Organic Social and Referral have no spend rows — so "
-                 'state your mapping assumption.')
-
-    ws['C32'] = ('Your final submission should demonstrate the following. Treat each as a '
-                 'checklist for your portfolio. Sessions 7, 8 and 10 are OPTIONAL — the project '
-                 'is complete without them; completing them adds an interactive dashboard, a '
-                 'reproducible notebook and a customer segmentation to your portfolio.')
-
-    ws['C41'] = 'PowerBI Dashboard   [OPTIONAL]'
-    ws['D41'] = ('Assemble an interactive PowerBI dashboard: revenue trend, channel mix, '
-                 'category profit, RFM segments (if you completed Session 10), and marketing '
-                 'ROI. Publish it.')
-
-    ws['C42'] = 'Python / Pandas 101   [OPTIONAL]'
-    ws['D42'] = ('Reproduce the cleaning and key aggregations in pandas; visualize with '
-                 'Matplotlib/Seaborn; optionally automate an Excel report with openpyxl.')
-
-    ws['C44'] = f'Advanced Analysis {EM} Segmentation & RFM   [OPTIONAL]'
-    ws['D44'] = ('Compute Recency, Frequency, Monetary per customer (snapshot date = 1 Jan 2026), '
-                 'score and segment customers, and recommend a strategy per segment (answers Q5).')
-
-    ws['C50'] = (f'{BULLET}   The data is RAW and intentionally messy {EM} cleaning it (Session 2) '
-                 'is part of the assignment. Do NOT assume it is analysis-ready. If you joined the '
-                 'program part-way through, each session page also offers a ready-to-continue file '
-                 'so you can start from the correct state.')
-
-    ws['C55'] = (f'{BULLET}   Deliver: (1) cleaned dataset, (2) SQL scripts, (3) pivot analysis, '
-                 '(4) PowerBI dashboard link [optional], (5) Python notebook [optional], '
-                 '(6) stakeholder deck, (7) 1-page executive summary answering Q8. The RFM '
-                 'segmentation from Session 10 is optional too.')
-
-    wb.save(path)
-
-
-# ── Indonesian narrative variant ─────────────────────────────────────────────
-#
-# Learners who set the site to Bahasa Indonesia get an -id copy of each workbook
-# that HAS narrative tabs (raw, cleaned, analysis). Only the two prose tabs are
-# translated — 'Project Brief' and 'Data Dictionary'. Every data tab (Orders,
-# Customers, Products, Marketing_Spend, the Q*/Cleaning_Log answer tabs) keeps
-# its English column names untouched, because the SQL/pandas/Power BI exercises
-# and the playgrounds all query those exact English identifiers.
-#
-# Coordinate-based, like patch_brief: the three source workbooks share one Brief
-# and one Dictionary layout (cleaned/analysis are copied from RAW), so a single
-# map localizes all three. Kept in lockstep with the English cells above and in
-# the raw workbook — regenerate if either changes.
-
-BRIEF_ID = {
-    'C1': 'SEDUH COFFEE  —  PROYEK AKHIR DATA ANALYST',
-    'C2': 'Proyek Portofolio Analisis Data End-to-End  —  Program Data Analyst Talentiv',
-    'C5': f'1.  LATAR BELAKANG {EM} Tentang Seduh',
-    'C6': ('Seduh adalah brand kopi spesialti direct-to-consumer (D2C) asal Indonesia yang tumbuh '
-           'pesat, berdiri pada 2022. Perusahaan me-roasting dan menjual biji single-origin premium, '
-           'kopi ready-to-drink (RTD), alat seduh, aksesori, langganan bulanan, dan gift set. Seduh '
-           'berjualan online lewat webstore sendiri dan lewat marketplace (Tokopedia, Shopee, dan '
-           'TikTok Shop), mengirim ke pelanggan di seluruh Indonesia.'),
-    'C7': ('Pelanggan Seduh mayoritas profesional muda urban dan penggemar home-brewing berusia '
-           '19-45 tahun. Brand ini tumbuh lewat iklan Instagram dan TikTok, referral, dan konten '
-           'organik di media sosial.'),
-    'C9': '2.  SITUASI BISNIS',
-    'C10': ('Pada 2025, Seduh menghasilkan sekitar IDR 4,4 miliar revenue dari order yang selesai, '
-            'naik dari sekitar IDR 2,0 miliar pada 2024. Di atas kertas bisnis ini bertumbuh '
-            f'{EM} tetapi leadership khawatir:'),
-    'C11': (f'{BULLET}   Marketing spend naik lebih cepat daripada revenue, sehingga biaya '
-            'mengakuisisi tiap pelanggan terus meningkat.'),
-    'C12': (f'{BULLET}   Banyak pelanggan hanya membeli sekali dan tidak pernah kembali. Repeat '
-            f'purchase {EM} jantung dari bisnis kopi {EM} terasa lemah.'),
-    'C13': (f'{BULLET}   Tidak ada yang tahu produk, channel, bulan, atau segmen pelanggan mana '
-            'yang benar-benar mendorong profit (bukan sekadar revenue).'),
-    'C14': 'Investor telah menetapkan target yang jelas untuk tahun depan:',
-    'C15': ('    TARGET  ->   Tumbuh ke revenue IDR 5,5 miliar pada 2026 (sekitar +24% vs 2025), '
-            'sambil meningkatkan retensi pelanggan dan efisiensi marketing.'),
-    'C16': (f'Leadership merekrutmu {EM} sang data analyst {EM} untuk mengubah data operasional '
-            'mentah Seduh menjadi diagnosis yang jelas dan rencana pertumbuhan yang bisa dijalankan.'),
-    'C18': '3.  MISIMU',
-    'C19': ('Dengan dataset yang tersedia di workbook ini (Orders, Customers, Products, '
-            'Marketing_Spend), lakukan analisis end-to-end yang lengkap dan sampaikan rekomendasi '
-            'berbasis data tentang bagaimana Seduh bisa mencapai target 2026-nya. Kamu akan '
-            'menerapkan setiap skill dari 12 sesi program, mulai dari data cleaning hingga storytelling.'),
-    'C21': '4.  PERTANYAAN BISNIS UTAMA YANG HARUS DIJAWAB',
-    'C22': ('Q1.  Kategori produk dan produk individual mana yang paling PROFITABLE (revenue '
-            'dikurangi biaya), bukan sekadar paling laku?'),
-    'C23': ('Q2.  Channel penjualan mana (Webstore / Tokopedia / Shopee / TikTok Shop) yang '
-            'paling bernilai setelah diskon?'),
-    'C24': ('Q3.  Bagaimana tren revenue dari bulan ke bulan sepanjang 2024-2025? Apakah ada '
-            'pola musiman (mis. Ramadan, Harbolnas 11.11 / 12.12)?'),
-    'C25': ('Q4.  Berapa proporsi pelanggan yang membeli sekali vs repeat buyer? Berapa '
-            'repeat-purchase rate-nya?'),
-    'C26': ('Q5.  Dengan analisis RFM, segmen pelanggan apa saja yang ada (mis. Champions, Loyal, '
-            f'At-Risk, Lost)? Seberapa besar dan seberapa bernilai masing-masing?   [OPSIONAL {EM} '
-            'dijawab di Sesi 10]'),
-    'C27': ('Q6.  Channel akuisisi mana yang mendatangkan pelanggan bernilai tertinggi? Apakah '
-            'marketing spend sudah efisien (ROI / CAC)?'),
-    'C28': (f'Q7.  Adakah hubungan antara pemberian diskon dan jumlah unit terjual {EM} dan apakah '
-            'diskon benar-benar menaikkan profit?'),
-    'C29': ('Q8.  Berdasarkan semua di atas, aksi spesifik apa yang harus diambil Seduh untuk '
-            'mencapai target revenue IDR 5,5 M pada 2026?'),
-    'C31': f'5.  DELIVERABLE {EM} Dipetakan ke 12 Sesi Program',
-    'C32': ('Submission akhirmu harus menunjukkan hal-hal berikut. Perlakukan tiap poin sebagai '
-            f'checklist untuk portofoliomu. Sesi 7, 8, dan 10 bersifat OPSIONAL {EM} proyek tetap '
-            'lengkap tanpanya; menyelesaikannya menambah dashboard interaktif, notebook yang bisa '
-            'diulang, dan segmentasi pelanggan ke portofoliomu.'),
-    'B34': 'Sesi', 'C34': 'Deliverable', 'D34': 'Yang harus dihasilkan',
-    'C35': 'Business Acumen & Problem Statement',
-    'D35': ('Tulis problem statement yang jelas untuk Seduh dan petakan proses bisnisnya dari hulu '
-            'ke hilir. Definisikan metrik yang penting di tiap tahap (akuisisi, konversi, order '
-            'value, retensi). Tambahkan statistik deskriptif dasar dari data.'),
-    'C36': 'Membersihkan & Merapikan Data',
-    'D36': ('Perbaiki masalah kualitas pada data mentah: hapus order duplikat, tangani sel kosong, '
-            'seragamkan teks yang tidak konsisten (nama channel, gender, city) memakai TRIM / '
-            'CONCAT / LEFT / RIGHT, dan atasi nilai tidak valid (mis. quantity nol/negatif).'),
-    'C37': 'Pivot Table untuk Insight',
-    'D37': ('Gunakan Pivot Table untuk menjawab Q1-Q4: revenue & profit per kategori, per channel, '
-            'per bulan, dan rincian repeat buyer.'),
-    'C38': 'Pengumpulan Data dengan SQL',
-    'D38': ('Muat keempat tabel ke database dan tulis SQL (SELECT, WHERE, ORDER BY, GROUP BY, '
-            'HAVING, JOIN) untuk membangun dataset analisis persis seperti yang kamu butuhkan '
-            f'{EM} mis. join Orders ke Products untuk menghitung profit, atau Orders ke Customers '
-            'untuk analisis segmen. Join juga Customers.acquisition_channel ke Marketing_Spend '
-            'untuk membandingkan CAC dan ROI per channel (menjawab Q6). Perhatikan bahwa kedua '
-            f"kosakata channel tidak sama persis 1:1 {EM} 'Marketplace' vs 'Marketplace Ads', serta "
-            f'Organic Social dan Referral tidak punya baris spend {EM} jadi nyatakan asumsi pemetaanmu.'),
-    'C39': 'Exploratory Data Analysis (EDA)',
-    'D39': ('Lakukan analisis univariat dan bivariat: sebaran order value, quantity, rating; '
-            'hubungan antara diskon dan quantity (Q7), harga dan permintaan, rating dan repeat purchase.'),
-    'C40': 'Visualisasi Data',
-    'D40': ('Bangun grafik yang jelas dan didesain baik (jenis chart, warna, tata letak yang tepat) '
-            'yang menceritakan tren revenue dan cerita segmen.'),
-    'C41': 'Dashboard PowerBI   [OPSIONAL]',
-    'D41': ('Rakit dashboard PowerBI interaktif: tren revenue, bauran channel, profit kategori, '
-            'segmen RFM (jika kamu menyelesaikan Sesi 10), dan ROI marketing. Publikasikan.'),
-    'C42': 'Python / Pandas 101   [OPSIONAL]',
-    'D42': ('Reproduksi cleaning dan agregasi utama di pandas; visualkan dengan Matplotlib/Seaborn; '
-            'opsional, otomasi laporan Excel dengan openpyxl.'),
-    'C43': 'Analisis End-to-End dengan AI',
-    'D43': ('Gunakan alur kerja AI/agentik untuk mempercepat sebagian analisis (mis. menghasilkan '
-            'SQL, merangkum temuan, atau mengotomasi laporan yang berulang) dan dokumentasikan '
-            'cara pemakaiannya.'),
-    'C44': f'Advanced Analysis {EM} Segmentasi & RFM   [OPSIONAL]',
-    'D44': ('Hitung Recency, Frequency, Monetary per pelanggan (tanggal snapshot = 1 Jan 2026), '
-            'beri skor dan segmentasi pelanggan, dan rekomendasikan strategi per segmen (menjawab Q5).'),
-    'C45': 'Storytelling dengan Data',
-    'D45': ('Ubah analisis menjadi narasi yang siap untuk stakeholder: dari data -> insight -> '
-            'rekomendasi, disusun sebagai deck untuk leadership Seduh.'),
-    'C46': 'Proyek Akhir & Portofolio',
-    'D46': ('Kemas semuanya menjadi karya portofolio profesional: data yang sudah bersih, skrip '
-            'SQL, dashboard, deck, dan ringkasan eksekutif tertulis yang menjawab Q8.'),
-    'C48': '6.  CATATAN DATA & SUBMISSION',
-    'C49': (f'{BULLET}   Workbook ini berisi 4 tab data: Orders (level transaksi), Customers, '
-            "Products, dan Marketing_Spend. Lihat tab 'Data Dictionary' untuk definisi setiap kolom."),
-    'C50': (f'{BULLET}   Data ini MENTAH dan sengaja dibuat berantakan {EM} membersihkannya (Sesi 2) '
-            'adalah bagian dari tugas. JANGAN anggap data sudah siap dianalisis. Jika kamu bergabung '
-            'di tengah program, tiap halaman sesi juga menyediakan file siap-lanjut agar kamu bisa '
-            'mulai dari kondisi yang benar.'),
-    'C51': (f'{BULLET}   Revenue per baris order = quantity x unit_price x (1 - discount_pct). '
-            'Profit per baris = quantity x (unit_price x (1 - discount_pct) - unit_cost). unit_cost '
-            'ada di tab Products.'),
-    'C52': (f"{BULLET}   Hanya order dengan status = 'Completed' yang dihitung sebagai revenue. "
-            "Order 'Returned' dan 'Cancelled' harus dikecualikan dari revenue/profit (tetapi berguna "
-            'untuk metrik return-rate).'),
-    'C53': (f'{BULLET}   Tanggal snapshot / analisis RFM = 1 Januari 2026 (anggap semua data lengkap '
-            'sampai 31 Desember 2025).'),
-    'C54': (f'{BULLET}   Keys: Orders.customer_id -> Customers.customer_id ; Orders.product_id -> '
-            'Products.product_id ; Marketing_Spend di-join lewat month + channel.'),
-    'C55': (f'{BULLET}   Serahkan: (1) dataset bersih, (2) skrip SQL, (3) analisis pivot, (4) tautan '
-            'dashboard PowerBI [opsional], (5) notebook Python [opsional], (6) deck stakeholder, '
-            '(7) ringkasan eksekutif 1 halaman yang menjawab Q8. Segmentasi RFM dari Sesi 10 juga opsional.'),
-    'C57': f'Semoga berhasil {EM} buat leadership Seduh melihat ceritanya di dalam data.',
-}
-
-# Column names (order_id, quantity, …) and table names (Orders, …) are real
-# identifiers the exercises query, so they stay English; only the header labels,
-# the Type words and the Description prose are translated.
-DICT_ID = {
-    'B1': 'KAMUS DATA',
-    'B2': 'Tabel', 'C2': 'Kolom', 'D2': 'Tipe', 'E2': 'Deskripsi',
-    'E3': 'ID unik dari baris order (catatan: data mentah memuat beberapa baris duplikat yang harus dihapus).',
-    'E4': 'Tanggal order dibuat (2024-01-01 sampai 2025-12-31).',
-    'E5': 'Foreign key ke Customers.customer_id.',
-    'E6': 'Foreign key ke Products.product_id.',
-    'E7': 'Jumlah unit yang dipesan. Data mentah memuat beberapa nilai 0/negatif tidak valid yang harus dibersihkan.',
-    'E8': 'Harga jual per unit saat order, sebelum diskon.',
-    'E9': 'Diskon yang diterapkan pada baris sebagai pecahan (0,10 = 10%).',
-    'E10': 'Channel penjualan: Webstore, Tokopedia, Shopee, TikTok Shop. Nilai mentah punya kapitalisasi/ejaan tidak konsisten.',
-    'E11': 'Metode pembayaran yang dipakai (GoPay, OVO, DANA, Bank Transfer, Credit Card, COD, ShopeePay, Paylater).',
-    'E12': 'Kota pengiriman.',
-    'E13': 'Provinsi pengiriman.',
-    'E14': "Completed, Returned, atau Cancelled. Hanya 'Completed' yang dihitung sebagai revenue.",
-    'E15': 'Rating dari pelanggan; kosong jika tidak diberi rating atau order belum selesai.',
-    'E16': 'Primary key.',
-    'E17': 'Nama lengkap pelanggan.',
-    'E18': f'Nilai mentah tidak konsisten (Female/F/female/Perempuan, dll.) {EM} seragamkan.',
-    'E19': 'Usia dalam tahun.',
-    'E20': 'Kota domisili. Ada beberapa sel kosong / kapitalisasi tidak konsisten / spasi di belakang yang harus dibersihkan.',
-    'E21': 'Provinsi domisili.',
-    'E22': 'Tanggal pelanggan pertama kali mendaftar.',
-    'E23': 'Bagaimana pelanggan pertama kali diakuisisi (Instagram Ads, TikTok Ads, Google Search, Referral, Organic Social, Marketplace).',
-    'E24': 'Primary key.',
-    'E25': 'Nama produk / deskripsi SKU.',
-    'E26': 'Roasted Beans, Ready-to-Drink, Brewing Equipment, Accessories, Subscription, Gift Set (data mentah punya inkonsistensi penamaan yang harus diperbaiki).',
-    'E27': 'Harga list standar per unit.',
-    'E28': 'Harga pokok per unit (COGS). Dipakai untuk analisis profit/margin.',
-    'E29': 'Tanggal produk pertama kali didaftarkan.',
-    'E30': 'Hari pertama bulan untuk catatan spend.',
-    'E31': 'Channel marketing (Instagram Ads, TikTok Ads, Google Search, Marketplace Ads).',
-    'E32': 'Belanja iklan pada bulan itu di channel tersebut.',
-    'E33': 'Jumlah impresi iklan yang tayang.',
-    'E34': 'Jumlah klik iklan yang diterima.',
-}
-
-# The Type column repeats a small vocabulary; translate every cell that holds one.
-TYPE_ID = {
-    'Text': 'Teks', 'Date': 'Tanggal', 'Number': 'Angka',
-    'Number (IDR)': 'Angka (IDR)', 'Number (0-1)': 'Angka (0-1)',
-    'Number (1-5)': 'Angka (1-5)',
-}
-
-
-def write_id_variant(en_path):
-    """Copy an English workbook to its -id sibling and localize the two prose tabs."""
-    dest = en_path.with_name(en_path.stem + '-id' + en_path.suffix)
-    shutil.copy(en_path, dest)
-    wb = openpyxl.load_workbook(dest)
-
-    brief = wb['Project Brief']
-    for coord, text in BRIEF_ID.items():
-        brief[coord] = text
-
-    dictionary = wb['Data Dictionary']
-    for coord, text in DICT_ID.items():
-        dictionary[coord] = text
-    # Type column (D3:D34) — map each English type word to its Indonesian label.
-    for row in range(3, dictionary.max_row + 1):
-        cell = dictionary[f'D{row}']
-        if cell.value in TYPE_ID:
-            cell.value = TYPE_ID[cell.value]
-
-    wb.save(dest)
-    return dest
-
-
 # ── Writers ──────────────────────────────────────────────────────────────────
 
-def write_workbook(dest, sheets, order):
-    """Copy the raw workbook (for its Brief and Dictionary tabs) and replace the data."""
-    shutil.copy(RAW, dest)
+def write_workbook(dest, source, sheets, order):
+    """Copy a source workbook (for its Brief and Dictionary tabs), replace the data."""
+    shutil.copy(source, dest)
     with pd.ExcelWriter(dest, engine='openpyxl', mode='a',
                         if_sheet_exists='replace', datetime_format='yyyy-mm-dd') as xl:
         for name, df in sheets.items():
@@ -579,13 +385,13 @@ def write_workbook(dest, sheets, order):
 
 
 SCHEMA = """\
--- Seduh Coffee — schema for the cleaned dataset.
--- Load the CSVs in this order; the foreign keys depend on it.
+-- Seduh Coffee — skema untuk dataset yang SUDAH dibersihkan.
+-- Muat CSV-nya dengan urutan di bawah; foreign key-nya bergantung pada urutan itu.
 --
 --   sqlite3 seduh.db < schema.sql
 --   sqlite3 seduh.db ".mode csv" ".import --skip 1 products.csv products" ...
 --
--- Dates are stored as ISO text (YYYY-MM-DD) so SQLite date functions work.
+-- Tanggal disimpan sebagai teks ISO (YYYY-MM-DD) supaya fungsi tanggal SQLite bekerja.
 
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS marketing_spend;
@@ -593,19 +399,21 @@ DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS products;
 
 CREATE TABLE products (
-  product_id  TEXT PRIMARY KEY,
+  product_id   TEXT PRIMARY KEY,
+  sku_code     TEXT NOT NULL,
   product_name TEXT NOT NULL,
-  category    TEXT NOT NULL,
-  base_price  INTEGER NOT NULL,
-  unit_cost   INTEGER NOT NULL,
-  launch_date TEXT NOT NULL
+  category     TEXT NOT NULL,
+  base_price   INTEGER NOT NULL,
+  unit_cost    INTEGER NOT NULL,
+  launch_date  TEXT NOT NULL
 );
 
 CREATE TABLE customers (
   customer_id         TEXT PRIMARY KEY,
   customer_name       TEXT NOT NULL,
+  phone               TEXT,
   gender              TEXT NOT NULL,
-  age                 INTEGER NOT NULL,
+  age                 INTEGER,          -- NULL: usia tidak tercatat
   city                TEXT NOT NULL,
   province            TEXT,
   signup_date         TEXT NOT NULL,
@@ -625,7 +433,8 @@ CREATE TABLE orders (
   city           TEXT NOT NULL,
   province       TEXT NOT NULL,
   order_status   TEXT NOT NULL,
-  rating         INTEGER          -- NULL means the order was never rated
+  rating         INTEGER,          -- NULL: order tidak pernah diberi rating
+  review_text    TEXT              -- NULL: pelanggan tidak menulis ulasan
 );
 
 CREATE TABLE marketing_spend (
@@ -644,41 +453,42 @@ CREATE INDEX idx_orders_status   ON orders(order_status);
 """
 
 PACK_README = """\
-Seduh Coffee — cleaned data pack
+Seduh Coffee — paket data bersih
 ================================
 
-This is the dataset AFTER the Session 2 cleaning, in the formats the later
-sessions import from. Use it if you joined the program part-way through.
+Ini dataset SETELAH pembersihan Sesi 2, dalam format yang diimpor sesi-sesi
+berikutnya. Pakai ini kalau kamu bergabung di tengah program.
 
   products.csv, customers.csv, orders.csv, marketing_spend.csv
-      The four cleaned tables. UTF-8, comma-separated, ISO dates.
+      Empat tabel yang sudah bersih. UTF-8, dipisah koma, tanggal ISO.
 
   orders_enriched.csv
-      orders joined to products and customers, with the brief's formulas
-      already applied: net_unit_price, revenue, cogs, profit, discount_idr,
-      is_completed, month. Convenient for Power BI — but build it yourself
-      at least once so you know what is in it.
+      orders yang sudah di-join ke products dan customers, dengan rumus dari
+      brief sudah diterapkan: net_unit_price, revenue, cogs, profit,
+      discount_idr, is_completed, month. Praktis untuk Power BI — tapi bangun
+      sendiri minimal sekali supaya kamu tahu isinya.
 
   schema.sql
-      Table definitions with keys and indexes.
+      Definisi tabel lengkap dengan key dan index.
 
   seduh.db
-      SQLite database with all four tables already loaded. Open it with
-      DB Browser for SQLite, or:  sqlite3 seduh.db
+      Database SQLite dengan keempat tabel sudah dimuat. Buka dengan
+      DB Browser for SQLite, atau:  sqlite3 seduh.db
 
-WHAT WAS CLEANED
-  See the Cleaning_Log tab in seduh-coffee-cleaned.xlsx — every rule, why it
-  was applied, and how many rows it touched.
+APA YANG DIBERSIHKAN
+  Lihat tab Cleaning_Log di seduh-coffee-cleaned-*.xlsx — setiap aturan,
+  alasannya, dan berapa baris yang terdampak.
 
-WHAT WAS NOT
-  - Blank ratings are still blank. An unrated order is not an error.
-  - Returned and Cancelled orders are still here. Only 'Completed' counts as
-    revenue, but you need the others to measure the return rate.
+APA YANG TIDAK
+  - Rating kosong tetap kosong. Order tanpa rating bukan kesalahan data.
+  - review_text kosong tetap kosong; sebagian besar order memang tidak diulas.
+  - Order Returned dan Cancelled masih ada. Hanya 'Completed' yang dihitung
+    sebagai revenue, tapi yang lain dibutuhkan untuk mengukur return rate.
 
-REMEMBER
-  Revenue per line = quantity x unit_price x (1 - discount_pct)
-  Profit  per line = revenue - (quantity x unit_cost)
-  RFM snapshot date = 1 January 2026
+INGAT
+  Revenue per baris = quantity x unit_price x (1 - discount_pct)
+  Profit  per baris = revenue - (quantity x unit_cost)
+  Tanggal snapshot RFM = 1 Januari 2026
 """
 
 
@@ -686,6 +496,56 @@ def _csv_text(df):
     """LF-terminated CSV. Anything else leaves a stray \\r on the last column,
     which silently turned every blank orders.rating into 0 in the playground."""
     return df.to_csv(index=False, date_format='%Y-%m-%d', lineterminator='\n')
+
+
+# Dropped from the playground CSVs only: free text with commas, and the
+# playground loader splits on ','. It stays in the workbook and the data pack.
+PLAYGROUND_DROP = {'Orders': ['review_text']}
+
+
+def write_playground_csvs(raw):
+    """Serve the RAW tables to the SQL and Python playgrounds.
+
+    Raw rather than cleaned on purpose: the Session 2 cleaning is the exercise,
+    so a learner can practise it in the playground against the same mess that is
+    in the workbook they downloaded.
+    """
+    live = OUT / 'data'
+    live.mkdir(exist_ok=True)
+
+    written = []
+    for sheet, name in [('Products', 'products.csv'), ('Customers', 'customers.csv'),
+                        ('Orders', 'orders.csv'), ('Marketing_Spend', 'marketing_spend.csv')]:
+        out = raw[sheet].drop(columns=PLAYGROUND_DROP.get(sheet, [])).copy()
+        for col in out.columns:
+            if pd.api.types.is_datetime64_any_dtype(out[col]):
+                out[col] = out[col].dt.strftime('%Y-%m-%d')
+            elif pd.api.types.is_float_dtype(out[col]) and (out[col].dropna() % 1 == 0).all():
+                # A blank cell widens a whole-number column to float, and Excel
+                # shows 22 where a plain to_csv would write 22.0.
+                out[col] = out[col].astype('Int64')
+            elif out[col].dtype == object:
+                # order_date is deliberately mixed — real dates alongside
+                # dd/mm/yyyy text. Keep the text rows exactly as Excel shows them.
+                out[col] = out[col].map(
+                    lambda v: v.strftime('%Y-%m-%d') if hasattr(v, 'strftime') else v)
+
+        text = _csv_text(out)
+        # The playgrounds split on ',' rather than carrying a CSV parser, which
+        # is only safe while no value holds a comma or a quote. Fail loudly here
+        # instead of corrupting a table in the browser.
+        if '"' in text or '\r' in text:
+            raise SystemExit(f'{name} contains a quote or a carriage return; '
+                             'the playground CSV loader cannot parse it')
+        lines = text.splitlines()
+        width = len(lines[0].split(','))
+        if any(len(line.split(',')) != width for line in lines):
+            raise SystemExit(f'{name} contains a comma-bearing field; '
+                             'the playground CSV loader cannot parse it')
+        # newline='' keeps Python from translating the LFs back into CRLFs.
+        (live / name).write_text(text, encoding='utf-8', newline='')
+        written.append((name, len(out), list(out.columns)))
+    return written
 
 
 def write_data_pack(dest, tables, enriched):
@@ -696,14 +556,6 @@ def write_data_pack(dest, tables, enriched):
         'marketing_spend.csv': tables['Marketing_Spend'],
         'orders_enriched.csv': enriched,
     }
-
-    # The four cleaned tables are also served standalone under public/project/data/
-    # so both playgrounds can load the real dataset — a learner's playground totals
-    # then match their own workbook exactly. The SQL playground builds its SQLite
-    # database in the browser from these same CSVs, so there is one source of truth
-    # and nothing ships twice.
-    live = OUT / 'data'
-    live.mkdir(exist_ok=True)
 
     tmp = OUT / '_seduh_tmp.db'
     tmp.unlink(missing_ok=True)
@@ -728,132 +580,125 @@ def write_data_pack(dest, tables, enriched):
 
     tmp.unlink()
 
-    # The playgrounds split these on ',' rather than carrying a CSV parser, which
-    # is only safe while no value contains a comma or a quote. Fail loudly here
-    # instead of corrupting a table in the browser.
-    for name in ['products.csv', 'customers.csv', 'orders.csv', 'marketing_spend.csv']:
-        text = _csv_text(csvs[name])
-        if '"' in text or any(',' in str(v) for v in csvs[name].select_dtypes('object').to_numpy().ravel()):
-            raise SystemExit(f'{name} contains a quoted or comma-bearing field; '
-                             'the playground CSV loader cannot parse it')
-        if '\r' in text:
-            raise SystemExit(f'{name} contains a carriage return')
-        # newline='' keeps Python from translating the LFs back into CRLFs.
-        (live / name).write_text(text, encoding='utf-8', newline='')
-
     # orders_enriched stays zip-only so nobody skips building it themselves.
 
 
 DECK_OUTLINE = """\
-# Seduh Coffee — stakeholder deck outline
+# Seduh Coffee — kerangka deck untuk stakeholder
 
-A skeleton for Session 11. One message per slide, and the message goes in the
-title: a stakeholder who reads only the titles should still get the argument.
-Every slide follows **data → insight → recommendation**.
+Kerangka untuk Sesi 11. Satu pesan per slide, dan pesannya ditaruh di judul:
+stakeholder yang hanya membaca judul pun harus tetap menangkap argumenmu.
+Setiap slide mengikuti pola **data → insight → rekomendasi**.
 
-Numbers below are placeholders — fill them from your own analysis. If you
-disagree with a framing, change it. This is a starting point, not an answer key.
-
----
-
-## 1. Title
-Seduh Coffee — from IDR 4.4B to IDR 5.5B: where the growth comes from.
-Your name, the date, and the one-line verdict.
-
-## 2. The ask
-Leadership wants +24% revenue in 2026 while improving retention and marketing
-efficiency. State the three worries from the brief in one line each.
-
-## 3. Where Seduh stands today
-2024 → 2025 revenue, the growth rate, and the two things underneath it that are
-moving the wrong way: rising acquisition cost and weak repeat purchase.
-
-## 4. How I got here *(method, kept short)*
-Four tables, ~24k order lines, cleaned per a documented log. State your
-assumptions on one line: completed orders only, 1 Jan 2026 snapshot.
-
-## 5. Q1 — Profit is not where volume is
-Category and product profit vs revenue. Name the category that sells well and
-earns badly, and the one that quietly carries margin.
-
-## 6. Q2 — Not all channels are worth the same
-Channel comparison **after** discount. If a channel looks big on gross revenue
-and small on profit, that is the slide's message.
-
-## 7. Q3 — The shape of the year
-Monthly trend across 2024–2025 with Ramadan and Harbolnas 11.11 / 12.12
-annotated. Say what is seasonal and what is real growth.
-
-## 8. Q7 — Does discounting actually work?
-Discount depth vs average quantity vs margin. Answer plainly: at what depth
-does discounting stop paying for itself?
-
-## 9. Q4 — The retention problem, sized
-One-time vs repeat buyers: share of customers, share of revenue. This is the
-slide the rest of the recommendation hangs on.
-
-## 10. Q6 — Where the marketing money goes
-Spend, CAC and ROI by acquisition channel. State your channel-mapping
-assumption on the slide — the spend and customer vocabularies do not match 1:1.
-
-## 11. *(Optional — Session 10)* Q5 — Who the customers actually are
-RFM segments: Champions, Loyal, At-Risk, Lost. Size and value each. Skip this
-slide if you did not do Session 10; the argument still holds without it.
-
-## 12. Q8 — The plan
-Three to five actions, each traced to a slide above. For each: what to do, what
-it is worth in IDR, and how you would measure it.
-
-## 13. The arithmetic
-Bridge from IDR 4.4B to IDR 5.5B. Show each action's contribution adding up.
-If it does not add up, say so — an honest gap beats a fabricated one.
-
-## 14. What would have to be true
-The assumptions your plan rests on, and what would falsify them. Anticipating
-the pushback is what separates an analyst from a chart generator.
-
-## 15. Appendix
-Method notes, the cleaning log, and the charts you did not need in the main
-line but will be asked about.
+Angka di bawah hanya placeholder — isi dari analisismu sendiri. Kalau kamu tidak
+setuju dengan sebuah framing, ganti. Ini titik awal, bukan kunci jawaban.
 
 ---
 
-## One-page executive summary (Session 12)
+## 1. Judul
+Seduh Coffee — dari Rp 3,8 M ke Rp 5,0 M: dari mana pertumbuhannya datang.
+Namamu, tanggal, dan satu kalimat kesimpulan.
 
-Separate document, one page, no charts required:
+## 2. Yang diminta
+Leadership ingin revenue +32% di 2026 tanpa menaikkan budget iklan secara
+proporsional. Sebutkan tiga kekhawatiran dari brief, masing-masing satu baris.
 
-1. **The situation** — two sentences.
-2. **What the data says** — three findings, one line each, each with a number.
-3. **What to do** — the three-to-five actions with their IDR contribution.
-4. **What it adds up to** — the bridge to 5.5B.
-5. **Assumptions and caveats** — completed-orders-only, the snapshot date, the
-   channel mapping, and anything you had to decide during cleaning.
+## 3. Posisi Seduh hari ini
+Revenue 2024 → 2025, laju pertumbuhannya, dan dua hal di baliknya yang bergerak
+ke arah yang salah: biaya akuisisi naik dan repeat purchase lemah.
+
+## 4. Cara saya sampai ke sini *(metode, singkat saja)*
+Empat tabel, ~26 ribu baris order, dibersihkan dengan catatan yang
+terdokumentasi. Nyatakan asumsimu dalam satu baris: hanya order Completed,
+snapshot 1 Januari 2026.
+
+## 5. Q1 — Profit tidak ada di tempat volume berada
+Profit vs revenue per kategori dan per produk. Sebut kategori yang laris tapi
+tipis marginnya, dan yang diam-diam menanggung margin.
+
+## 6. Q2 — Tidak semua channel bernilai sama
+Perbandingan channel **setelah** diskon. Kalau sebuah channel terlihat besar di
+revenue kotor tapi kecil di profit, itulah pesan slide ini.
+
+## 7. Q3 — Bentuk satu tahun
+Tren bulanan sepanjang 2024–2025 dengan Ramadan dan Harbolnas 11.11 / 12.12
+diberi anotasi. Sebutkan mana yang musiman dan mana pertumbuhan sungguhan.
+
+## 8. Q6 — Apakah diskon benar-benar bekerja?
+Kedalaman diskon vs rata-rata quantity vs margin. Jawab terus terang: pada
+kedalaman berapa diskon berhenti membayar dirinya sendiri?
+
+## 9. Q4 — Masalah retensi, dengan ukurannya
+Pembeli sekali vs repeat: porsi pelanggan, porsi revenue. Slide inilah yang
+menopang sisa rekomendasimu.
+
+## 10. Q5 — Ke mana uang marketing pergi
+Spend, CAC, dan ROI per channel akuisisi. Tulis asumsi pemetaan channel-mu di
+slide — kosakata spend dan kosakata pelanggan tidak sama persis 1:1.
+
+## 11. *(Opsional — Sesi 10)* Q7 — Siapa sebenarnya pelanggan Seduh
+Segmen RFM: Champions, Loyal, At-Risk, Lost. Ukur besar dan nilai
+masing-masing. Lewati slide ini kalau kamu tidak mengerjakan Sesi 10;
+argumennya tetap berdiri.
+
+## 12. Q8 — Rencananya
+Tiga sampai lima aksi, masing-masing terhubung ke slide di atas. Untuk tiap
+aksi: apa yang dilakukan, berapa nilainya dalam rupiah, dan bagaimana kamu
+akan mengukurnya.
+
+## 13. Hitung-hitungannya
+Jembatan dari Rp 3,8 M ke Rp 5,0 M. Tunjukkan kontribusi tiap aksi sampai
+angkanya ketemu. Kalau tidak ketemu, katakan apa adanya — gap yang jujur lebih
+baik daripada angka karangan.
+
+## 14. Apa yang harus benar
+Asumsi yang menopang rencanamu, dan apa yang akan menggugurkannya.
+Mengantisipasi bantahan inilah yang membedakan analis dari pembuat grafik.
+
+## 15. Lampiran
+Catatan metode, cleaning log, dan chart yang tidak kamu pakai di alur utama
+tapi kemungkinan akan ditanyakan.
+
+---
+
+## Ringkasan eksekutif satu halaman (Sesi 12)
+
+Dokumen terpisah, satu halaman, tanpa keharusan ada chart:
+
+1. **Situasinya** — dua kalimat.
+2. **Apa kata datanya** — tiga temuan, satu baris masing-masing, tiap temuan
+   membawa angka.
+3. **Apa yang harus dilakukan** — tiga sampai lima aksi dengan kontribusi rupiahnya.
+4. **Totalnya jadi berapa** — jembatan menuju Rp 5,0 M.
+5. **Asumsi dan catatan** — hanya order Completed, tanggal snapshot, pemetaan
+   channel, dan apa pun yang harus kamu putuskan saat membersihkan data.
 """
 
 
 def main():
-    if not RAW.exists():
-        raise SystemExit(f'missing {RAW}')
+    for tier, path in RAW.items():
+        if not path.exists():
+            raise SystemExit(f'missing {path}  (source workbook for the {tier} tier)')
 
-    patch_brief(RAW)
-    print(f'patched  {RAW.name}  (Sessions 7/8/10 marked optional)')
-
-    raw = pd.read_excel(RAW, sheet_name=DATA_SHEETS)
+    raw = pd.read_excel(DATA_SOURCE, sheet_name=DATA_SHEETS)
     tables, log = clean(raw)
     enriched = enrich(tables)
     answered = answers(enriched)
     print(f'cleaned  {len(raw["Orders"])} -> {len(tables["Orders"])} order rows, '
           f'{len(log)} logged rules')
 
-    cleaned_path = OUT / 'seduh-coffee-cleaned.xlsx'
-    write_workbook(cleaned_path,
-                   {**tables, 'Cleaning_Log': log},
-                   ['Cleaning_Log'] + DATA_SHEETS)
+    produced = []
+    for tier, slug in TIERS.items():
+        cleaned_path = OUT / f'seduh-coffee-cleaned-{slug}.xlsx'
+        write_workbook(cleaned_path, RAW[tier],
+                       {**tables, 'Cleaning_Log': log},
+                       ['Cleaning_Log'] + DATA_SHEETS)
 
-    analysis_path = OUT / 'seduh-coffee-analysis.xlsx'
-    write_workbook(analysis_path,
-                   {**tables, 'Cleaning_Log': log, 'Orders_Enriched': enriched, **answered},
-                   ['Cleaning_Log'] + list(answered) + ['Orders_Enriched'] + DATA_SHEETS)
+        analysis_path = OUT / f'seduh-coffee-analysis-{slug}.xlsx'
+        write_workbook(analysis_path, RAW[tier],
+                       {**tables, 'Cleaning_Log': log, 'Orders_Enriched': enriched, **answered},
+                       ['Cleaning_Log'] + list(answered) + ['Orders_Enriched'] + DATA_SHEETS)
+        produced += [cleaned_path, analysis_path]
 
     pack_path = OUT / 'seduh-coffee-data-pack.zip'
     write_data_pack(pack_path, tables, enriched)
@@ -864,15 +709,13 @@ def main():
     deck_path = OUT / 'seduh-coffee-deck-outline.md'
     deck_path.write_text(DECK_OUTLINE, encoding='utf-8')
 
-    # Indonesian variants: only the workbooks with narrative tabs get one. The
-    # data pack, RFM CSV and deck outline have no Project Brief / Data Dictionary
-    # to translate, so they stay language-neutral.
-    id_paths = [write_id_variant(p) for p in [RAW, cleaned_path, analysis_path]]
-    print(f'localized {len(id_paths)} workbook(s) to Bahasa Indonesia (Brief + Dictionary only)')
+    print('playground CSVs (RAW data):')
+    for name, rows, cols in write_playground_csvs(raw):
+        print(f'  {name:22} {rows:>6} rows  {len(cols):>2} cols  {", ".join(cols)}')
 
     print()
-    for p in [RAW, cleaned_path, pack_path, analysis_path, rfm_path, deck_path,
-              *id_paths, *sorted((OUT / 'data').iterdir())]:
+    for p in [*RAW.values(), *produced, pack_path, rfm_path, deck_path,
+              *sorted((OUT / 'data').iterdir())]:
         print(f'  {p.stat().st_size / 1_048_576:6.2f} MB  {p.relative_to(OUT)}')
 
 
