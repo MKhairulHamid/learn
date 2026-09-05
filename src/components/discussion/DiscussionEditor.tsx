@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent, ReactRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -23,13 +24,16 @@ interface Props {
 }
 
 export function DiscussionEditor({
-  placeholder = 'Ask a question or share a thought…',
+  placeholder,
   onSubmit,
   onCancel,
-  submitLabel = 'Post',
+  submitLabel,
   autoFocus = false,
 }: Props) {
+  const { t } = useTranslation('common')
   const [isEmpty, setIsEmpty] = useState(true)
+  const placeholderText = placeholder ?? t('discussion.editor_placeholder_default')
+  const submitText      = submitLabel ?? t('discussion.submit_default')
 
   const editor = useEditor({
     extensions: [
@@ -38,7 +42,7 @@ export function DiscussionEditor({
         heading: false,
       }),
       Underline,
-      Placeholder.configure({ placeholder }),
+      Placeholder.configure({ placeholder: placeholderText }),
       Mention.configure({
         HTMLAttributes: { class: 'mention' },
         suggestion: {
@@ -124,30 +128,30 @@ export function DiscussionEditor({
     <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm focus-within:border-primary-400 focus-within:ring-2 focus-within:ring-primary-100 transition-all">
       {/* Toolbar */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-gray-100 bg-gray-50 flex-wrap">
-        <ToolBtn title="Bold" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
+        <ToolBtn title={t('discussion.tool_bold')} active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
           <Bold size={14} />
         </ToolBtn>
-        <ToolBtn title="Italic" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
+        <ToolBtn title={t('discussion.tool_italic')} active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
           <Italic size={14} />
         </ToolBtn>
-        <ToolBtn title="Underline" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}>
+        <ToolBtn title={t('discussion.tool_underline')} active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}>
           <UnderlineIcon size={14} />
         </ToolBtn>
         <span className="w-px h-4 bg-gray-200 mx-1" />
-        <ToolBtn title="Inline code" active={editor.isActive('code')} onClick={() => editor.chain().focus().toggleCode().run()}>
+        <ToolBtn title={t('discussion.tool_code')} active={editor.isActive('code')} onClick={() => editor.chain().focus().toggleCode().run()}>
           <Code size={14} />
         </ToolBtn>
-        <ToolBtn title="Code block" active={editor.isActive('codeBlock')} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>
+        <ToolBtn title={t('discussion.tool_code_block')} active={editor.isActive('codeBlock')} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>
           <SquareCode size={14} />
         </ToolBtn>
         <span className="w-px h-4 bg-gray-200 mx-1" />
-        <ToolBtn title="Bullet list" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+        <ToolBtn title={t('discussion.tool_bullet_list')} active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
           <List size={14} />
         </ToolBtn>
-        <ToolBtn title="Numbered list" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+        <ToolBtn title={t('discussion.tool_numbered_list')} active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
           <ListOrdered size={14} />
         </ToolBtn>
-        <span className="text-xs text-gray-400 ml-auto pr-1 hidden sm:block">Type @ to mention</span>
+        <span className="text-xs text-gray-400 ml-auto pr-1 hidden sm:block">{t('discussion.mention_hint')}</span>
       </div>
 
       {/* Editor area */}
@@ -162,7 +166,7 @@ export function DiscussionEditor({
             className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <X size={13} />
-            Cancel
+            {t('discussion.cancel')}
           </button>
         )}
         <button
@@ -172,7 +176,7 @@ export function DiscussionEditor({
           className="cursor-pointer flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <Send size={13} />
-          {submitLabel}
+          {submitText}
         </button>
       </div>
     </div>

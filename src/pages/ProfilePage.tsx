@@ -98,7 +98,7 @@ export default function ProfilePage() {
           }`}
         >
           <User size={14} />
-          Profile
+          {t('profile.tab_profile')}
         </button>
         <button
           onClick={() => setActiveTab('certificates')}
@@ -109,7 +109,7 @@ export default function ProfilePage() {
           }`}
         >
           <Award size={14} />
-          My Certificates
+          {t('profile.tab_certificates')}
           {certificates.length > 0 && (
             <span className="px-1.5 py-0.5 rounded-full text-xs font-semibold bg-primary-900 text-primary-300">
               {certificates.length}

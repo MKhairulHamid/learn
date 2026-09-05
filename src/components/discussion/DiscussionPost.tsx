@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { generateHTML } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -22,22 +23,24 @@ const TIPTAP_EXTENSIONS = [
   Mention.configure({ HTMLAttributes: { class: 'mention' } }),
 ]
 
-function renderBody(body: object): string {
+type TFunc = ReturnType<typeof useTranslation>['t']
+
+function renderBody(body: object, t: TFunc): string {
   try {
     return generateHTML(body as Parameters<typeof generateHTML>[0], TIPTAP_EXTENSIONS)
   } catch {
-    return '<p><em>Could not render message.</em></p>'
+    return `<p><em>${t('discussion.render_error')}</em></p>`
   }
 }
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: TFunc): string {
   const diff = Date.now() - new Date(dateStr).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return t('discussion.time_now')
+  if (mins < 60) return t('discussion.time_minutes', { count: mins })
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  return `${Math.floor(hrs / 24)}d ago`
+  if (hrs < 24) return t('discussion.time_hours', { count: hrs })
+  return t('discussion.time_days', { count: Math.floor(hrs / 24) })
 }
 
 function initials(author: Post['author']): string {
@@ -52,12 +55,13 @@ const DEPTH_COLORS = [
 ]
 
 export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props) {
+  const { t } = useTranslation('common')
   const { user, profile } = useAuth()
   const [replying, setReplying] = useState(false)
   const [repliesOpen, setRepliesOpen] = useState(true)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const html = renderBody(post.body)
+  const html = renderBody(post.body, t)
   const hasReplies = (post.replies?.length ?? 0) > 0
   const canReply = post.depth < 2   // max 3 levels: 0, 1, 2
   const isOwn = user?.id === post.user_id
@@ -87,11 +91,11 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
             </div>
             <div className="min-w-0">
               <span className="text-sm font-semibold text-gray-900">
-                {post.author.full_name ?? 'User'}
+                {post.author.full_name ?? t('discussion.user_fallback')}
               </span>
-              <span className="text-xs text-gray-400 ml-2">{timeAgo(post.created_at)}</span>
+              <span className="text-xs text-gray-400 ml-2">{timeAgo(post.created_at, t)}</span>
               {post.is_hidden && (
-                <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-medium">Hidden</span>
+                <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-medium">{t('discussion.hidden')}</span>
               )}
             </div>
           </div>
@@ -125,7 +129,7 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
           >
             <ArrowUp size={13} />
             {post.vote_count > 0 && <span>{post.vote_count}</span>}
-            <span>{post.has_voted ? 'Voted' : 'Upvote'}</span>
+            <span>{post.has_voted ? t('discussion.voted') : t('discussion.upvote')}</span>
           </button>
 
           {/* Reply */}
@@ -135,7 +139,7 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
               className="cursor-pointer flex items-center gap-1.5 text-xs text-gray-500 hover:text-primary-600 px-2 py-1 rounded-lg hover:bg-primary-50 transition-colors"
             >
               <CornerDownRight size={13} />
-              Reply
+              {t('discussion.reply')}
             </button>
           )}
 
@@ -145,10 +149,12 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
         {replying && (
           <div className="mt-3">
             <DiscussionEditor
-              placeholder={`Reply to ${post.author.full_name ?? 'this post'}…`}
+              placeholder={post.author.full_name
+                ? t('discussion.reply_to', { name: post.author.full_name })
+                : t('discussion.reply_to_generic')}
               onSubmit={handleReply}
               onCancel={() => { setReplying(false); setSubmitError(null) }}
-              submitLabel="Reply"
+              submitLabel={t('discussion.reply')}
               autoFocus
             />
             {submitError && <p className="text-xs text-red-500 mt-1.5">{submitError}</p>}
@@ -173,8 +179,8 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
             {/* Label */}
             <span>
               {repliesOpen
-                ? `Hide ${post.replies!.length} ${post.replies!.length === 1 ? 'reply' : 'replies'}`
-                : `Show ${post.replies!.length} ${post.replies!.length === 1 ? 'reply' : 'replies'}`
+                ? t('discussion.hide_replies', { count: post.replies!.length })
+                : t('discussion.show_replies', { count: post.replies!.length })
               }
             </span>
 
@@ -227,6 +233,7 @@ export function DiscussionPost({ post, onVote, onReply, onHide, isAdmin }: Props
 function PostMenu({
   isAdmin, isHidden, onHide,
 }: { isAdmin: boolean; isHidden: boolean; onHide: () => void }) {
+  const { t } = useTranslation('common')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -246,7 +253,7 @@ function PostMenu({
     <div className="relative shrink-0" ref={ref}>
       <button
         onClick={() => setOpen(o => !o)}
-        aria-label="Post options"
+        aria-label={t('discussion.post_options')}
         className={`cursor-pointer p-1.5 rounded-md transition-all
           text-gray-400 hover:text-gray-600 hover:bg-gray-100
           md:opacity-0 md:group-hover:opacity-100
@@ -263,8 +270,8 @@ function PostMenu({
               className="cursor-pointer flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
             >
               {isHidden
-                ? <><Eye size={14} className="text-green-500" /> Unhide post</>
-                : <><EyeOff size={14} className="text-red-400" /> Hide post</>
+                ? <><Eye size={14} className="text-green-500" /> {t('discussion.unhide_post')}</>
+                : <><EyeOff size={14} className="text-red-400" /> {t('discussion.hide_post')}</>
               }
             </button>
           )}

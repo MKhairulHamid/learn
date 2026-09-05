@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   MessageSquare, Loader2, AlertCircle, Lock,
   ArrowUpDown, ArrowUp, ArrowDown, Clock,
@@ -17,16 +18,14 @@ type SortKey = 'votes_desc' | 'votes_asc' | 'date_desc' | 'date_asc'
 
 interface SortOption {
   key: SortKey
-  label: string
-  shortLabel: string
   icon: React.ReactNode
 }
 
 const SORT_OPTIONS: SortOption[] = [
-  { key: 'votes_desc', label: 'Most voted',   shortLabel: 'Top', icon: <ArrowUp size={13} /> },
-  { key: 'votes_asc',  label: 'Least voted',  shortLabel: 'Low', icon: <ArrowDown size={13} /> },
-  { key: 'date_desc',  label: 'Latest first', shortLabel: 'New', icon: <Clock size={13} /> },
-  { key: 'date_asc',   label: 'Oldest first', shortLabel: 'Old', icon: <ArrowUpDown size={13} /> },
+  { key: 'votes_desc', icon: <ArrowUp size={13} /> },
+  { key: 'votes_asc',  icon: <ArrowDown size={13} /> },
+  { key: 'date_desc',  icon: <Clock size={13} /> },
+  { key: 'date_asc',   icon: <ArrowUpDown size={13} /> },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -55,6 +54,7 @@ function countTree(posts: { replies?: typeof posts }[]): number {
 interface Props { sessionId: string }
 
 export function DiscussionPanel({ sessionId }: Props) {
+  const { t } = useTranslation('common')
   const { user, profile } = useAuth()
   const { cohortId } = useCohort()
   const isAdmin = profile?.role === 'admin'
@@ -135,7 +135,7 @@ export function DiscussionPanel({ sessionId }: Props) {
         {/* Left: title + count + minimize */}
         <div className="flex items-center gap-2.5">
           <MessageSquare size={18} className="text-primary-600" />
-          <h2 className="text-lg font-bold text-gray-900">Discussion</h2>
+          <h2 className="text-lg font-bold text-gray-900">{t('discussion.title')}</h2>
           {totalCount > 0 && (
             <span className="text-xs font-semibold text-primary-700 bg-primary-100 px-2 py-0.5 rounded-full">
               {totalCount}
@@ -145,11 +145,11 @@ export function DiscussionPanel({ sessionId }: Props) {
           <button
             onClick={() => setCollapsed(c => !c)}
             className="cursor-pointer flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors ml-1"
-            aria-label={collapsed ? 'Expand discussion' : 'Minimize discussion'}
+            aria-label={collapsed ? t('discussion.expand_aria') : t('discussion.minimize_aria')}
           >
             {collapsed
-              ? <><ChevronDown size={14} /><span className="hidden sm:inline">Show</span></>
-              : <><ChevronUp size={14} /><span className="hidden sm:inline">Hide</span></>
+              ? <><ChevronDown size={14} /><span className="hidden sm:inline">{t('discussion.show')}</span></>
+              : <><ChevronUp size={14} /><span className="hidden sm:inline">{t('discussion.hide')}</span></>
             }
           </button>
         </div>
@@ -169,7 +169,7 @@ export function DiscussionPanel({ sessionId }: Props) {
                 }`}
               >
                 <UserCheck size={13} />
-                <span>My posts</span>
+                <span>{t('discussion.my_posts')}</span>
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                   myPostsOnly ? 'bg-white/25 text-white' : 'bg-gray-100 text-gray-500'
                 }`}>
@@ -185,7 +185,7 @@ export function DiscussionPanel({ sessionId }: Props) {
                   <button
                     key={opt.key}
                     onClick={() => setSort(opt.key)}
-                    title={opt.label}
+                    title={t(`discussion.sort_${opt.key}`)}
                     className={`cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       sort === opt.key
                         ? 'bg-white text-gray-900 shadow-sm'
@@ -193,8 +193,8 @@ export function DiscussionPanel({ sessionId }: Props) {
                     }`}
                   >
                     {opt.icon}
-                    <span className="hidden sm:inline">{opt.label}</span>
-                    <span className="sm:hidden">{opt.shortLabel}</span>
+                    <span className="hidden sm:inline">{t(`discussion.sort_${opt.key}`)}</span>
+                    <span className="sm:hidden">{t(`discussion.sort_${opt.key}_short`)}</span>
                   </button>
                 ))}
               </div>
@@ -211,8 +211,8 @@ export function DiscussionPanel({ sessionId }: Props) {
         >
           <ChevronDown size={15} />
           {totalCount > 0
-            ? `Show ${totalCount} discussion ${totalCount === 1 ? 'post' : 'posts'}`
-            : 'Show discussion'}
+            ? t('discussion.show_posts', { count: totalCount })
+            : t('discussion.show_empty')}
         </button>
       )}
 
@@ -223,8 +223,8 @@ export function DiscussionPanel({ sessionId }: Props) {
           {!user && (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-gray-200 rounded-2xl bg-gray-50">
               <Lock size={28} className="text-gray-300 mb-3" />
-              <p className="text-sm font-semibold text-gray-700 mb-1">Sign in to join the discussion</p>
-              <p className="text-xs text-gray-400">Ask questions and help other learners in this session.</p>
+              <p className="text-sm font-semibold text-gray-700 mb-1">{t('discussion.signin_title')}</p>
+              <p className="text-xs text-gray-400">{t('discussion.signin_desc')}</p>
             </div>
           )}
 
@@ -234,9 +234,9 @@ export function DiscussionPanel({ sessionId }: Props) {
               {/* Editor */}
               <div className="mb-6">
                 <DiscussionEditor
-                  placeholder="Ask a question, share an insight, or help a fellow learner…"
+                  placeholder={t('discussion.editor_placeholder')}
                   onSubmit={handlePost}
-                  submitLabel={submitting ? 'Posting…' : 'Post Question'}
+                  submitLabel={submitting ? t('discussion.posting') : t('discussion.post_question')}
                 />
                 {submitError && (
                   <p className="flex items-center gap-1.5 text-xs text-red-500 mt-2">
@@ -250,7 +250,7 @@ export function DiscussionPanel({ sessionId }: Props) {
               {loading && (
                 <div className="flex items-center justify-center py-10 text-gray-400">
                   <Loader2 size={20} className="animate-spin mr-2" />
-                  <span className="text-sm">Loading discussion…</span>
+                  <span className="text-sm">{t('discussion.loading')}</span>
                 </div>
               )}
 
@@ -266,7 +266,7 @@ export function DiscussionPanel({ sessionId }: Props) {
               {!loading && !error && posts.length === 0 && (
                 <div className="text-center py-10 text-gray-400">
                   <MessageSquare size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">No questions yet — be the first to ask!</p>
+                  <p className="text-sm">{t('discussion.empty')}</p>
                 </div>
               )}
 
@@ -274,12 +274,12 @@ export function DiscussionPanel({ sessionId }: Props) {
               {!loading && posts.length > 0 && visiblePosts.length === 0 && myPostsOnly && (
                 <div className="text-center py-10 text-gray-400">
                   <UserCheck size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">You haven't posted in this session yet.</p>
+                  <p className="text-sm">{t('discussion.empty_mine')}</p>
                   <button
                     onClick={() => setMyPostsOnly(false)}
                     className="cursor-pointer text-xs text-primary-600 hover:underline mt-1"
                   >
-                    Show all posts
+                    {t('discussion.show_all')}
                   </button>
                 </div>
               )}
@@ -307,14 +307,14 @@ export function DiscussionPanel({ sessionId }: Props) {
                         onClick={() => setVisibleCount(c => c + 3)}
                         className="cursor-pointer w-full py-2.5 rounded-xl border border-dashed border-gray-200 text-sm text-gray-400 hover:text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-colors"
                       >
-                        Show {Math.min(remaining, 3)} more post{Math.min(remaining, 3) !== 1 ? 's' : ''}
-                        {remaining > 3 && <span className="text-gray-300 ml-1">({remaining} remaining)</span>}
+                        {t('discussion.show_more', { count: Math.min(remaining, 3) })}
+                        {remaining > 3 && <span className="text-gray-300 ml-1">{t('discussion.remaining', { count: remaining })}</span>}
                       </button>
                     ) : (
                       myPostsOnly && myPostsCount < totalCount && (
                         <p className="text-center text-xs text-gray-400 pt-1">
-                          Showing {myPostsCount} of {totalCount} posts ·{' '}
-                          <button onClick={() => setMyPostsOnly(false)} className="cursor-pointer text-primary-600 hover:underline">show all</button>
+                          {t('discussion.showing_of', { shown: myPostsCount, total: totalCount })} ·{' '}
+                          <button onClick={() => setMyPostsOnly(false)} className="cursor-pointer text-primary-600 hover:underline">{t('discussion.show_all_inline')}</button>
                         </p>
                       )
                     )}
