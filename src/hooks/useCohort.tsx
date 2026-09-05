@@ -67,13 +67,23 @@ export function CohortProvider({ children }: { children: ReactNode }) {
       .select('*, cohort:cohorts(*)')
       .eq('user_id', user.id)
 
+    // An enrollment whose cohort join comes back null (cohort deleted, or not
+    // readable under the current session's RLS) would crash every consumer
+    // that reads e.cohort — drop those rows here.
+    const withCohort = (d: unknown) =>
+      ((d as EnrollmentWithCohort[] | null) ?? []).filter(e => !!e.cohort)
+
     let { data } = await loadEnrollments()
-    let rows = (data as EnrollmentWithCohort[] | null) ?? []
+    let rawCount = data?.length ?? 0
+    let rows = withCohort(data)
 
     // Auto-apply: a learner with no enrollment history is placed into the
     // cohort that currently has admission open (pending admin approval).
     // Skipped for editors and for anyone who already has any enrollment record.
-    if (rows.length === 0 && !isEditor) {
+    // Keyed off rawCount, not rows.length: a learner whose only enrollment had
+    // its cohort filtered out above still has enrollment history and must not
+    // be auto-applied into another cohort.
+    if (rawCount === 0 && !isEditor) {
       const { data: open } = await supabase
         .from('cohorts')
         .select('id, auto_approve_signups, course_start_at, access_duration_months')
@@ -99,7 +109,8 @@ export function CohortProvider({ children }: { children: ReactNode }) {
         }
         const reload = await loadEnrollments()
         data = reload.data
-        rows = (data as EnrollmentWithCohort[] | null) ?? []
+        rawCount = data?.length ?? 0
+        rows = withCohort(data)
       }
     }
 
