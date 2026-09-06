@@ -288,9 +288,7 @@ export function useCertificate(certId: string | undefined) {
     setLoading(true)
     setNotFound(false)
     supabase
-      .from('certificates')
-      .select('*')
-      .eq('id', certId)
+      .rpc('verify_certificate', { p_cert_id: certId })
       .maybeSingle()
       .then(({ data }) => {
         if (!data) setNotFound(true)

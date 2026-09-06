@@ -71,7 +71,7 @@ export function useProgramManagerAdmin() {
 
     const user = users.find(u => u.id === userId)
     const roleUpdate = user && user.role !== 'program_manager' && user.role !== 'admin'
-      ? supabase.from('profiles').update({ role: 'program_manager' }).eq('id', userId)
+      ? supabase.rpc('admin_set_user_role', { p_user_id: userId, p_role: 'program_manager' })
       : Promise.resolve({ error: null })
 
     const [{ error: roleErr }, { error: assignErr }] = await Promise.all([
@@ -111,9 +111,7 @@ export function useProgramManagerAdmin() {
     setError(null)
 
     const { error: roleErr } = await supabase
-      .from('profiles')
-      .update({ role })
-      .eq('id', userId)
+      .rpc('admin_set_user_role', { p_user_id: userId, p_role: role })
 
     if (roleErr) { setError(roleErr.message); setSaving(false); return false }
 
