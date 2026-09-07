@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Save, X } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../ui/Button'
@@ -35,13 +35,25 @@ export function ExerciseEditor({ exercise, onSaved, onCancel }: Props) {
     description_en: exercise.description_en,
     difficulty: exercise.difficulty,
     starter_code: exercise.starter_code,
-    solution_code: exercise.solution_code,
     hints_id: (exercise.hints_id ?? []).join('\n'),
     hints_en: (exercise.hints_en ?? []).join('\n'),
     test_cases: JSON.stringify(exercise.test_cases ?? [], null, 2),
   })
 
   const set = (k: keyof typeof form, v: string) => setForm(f => ({ ...f, [k]: v }))
+
+  // The answer key lives in exercise_solutions, which only editors can read.
+  // Keeping it off the exercises row is what stops enrolled learners from
+  // fetching the solution to the exercise they are working on.
+  const [solutionCode, setSolutionCode] = useState('')
+  useEffect(() => {
+    supabase
+      .from('exercise_solutions')
+      .select('solution_code')
+      .eq('exercise_id', exercise.id)
+      .maybeSingle()
+      .then(({ data }) => setSolutionCode(data?.solution_code ?? ''))
+  }, [exercise.id])
 
   async function save() {
     setError(null)
@@ -61,19 +73,17 @@ export function ExerciseEditor({ exercise, onSaved, onCancel }: Props) {
       description_en: form.description_en,
       difficulty: form.difficulty,
       starter_code: form.starter_code,
-      solution_code: form.solution_code,
       hints_id: form.hints_id.split('\n').map(s => s.trim()).filter(Boolean),
       hints_en: form.hints_en.split('\n').map(s => s.trim()).filter(Boolean),
       test_cases: testCases,
     }
-    const { data, error } = await supabase
-      .from('exercises')
-      .update(payload)
-      .eq('id', exercise.id)
-      .select()
-      .single()
+    const [{ data, error }, { error: solErr }] = await Promise.all([
+      supabase.from('exercises').update(payload).eq('id', exercise.id).select().single(),
+      supabase.from('exercise_solutions')
+        .upsert({ exercise_id: exercise.id, solution_code: solutionCode }, { onConflict: 'exercise_id' }),
+    ])
     setSaving(false)
-    if (error) { setError(error.message); return }
+    if (error || solErr) { setError((error ?? solErr)!.message); return }
     onSaved(data as Exercise)
   }
 
@@ -127,7 +137,7 @@ export function ExerciseEditor({ exercise, onSaved, onCancel }: Props) {
         <textarea value={form.starter_code} onChange={e => set('starter_code', e.target.value)} rows={4} spellCheck={false} className={monoCls} />
       </Field>
       <Field label="Solution code">
-        <textarea value={form.solution_code} onChange={e => set('solution_code', e.target.value)} rows={4} spellCheck={false} className={monoCls} />
+        <textarea value={solutionCode} onChange={e => setSolutionCode(e.target.value)} rows={4} spellCheck={false} className={monoCls} />
       </Field>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

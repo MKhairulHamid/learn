@@ -92,7 +92,7 @@ export interface Exercise {
   description_id: string
   description_en: string
   starter_code: string
-  solution_code: string
+  /** Answer keys live in the editor-only `exercise_solutions` table, never on this row. */
   test_cases: TestCase[]
   hints_id: string[]
   hints_en: string[]
